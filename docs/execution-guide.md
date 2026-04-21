@@ -21,42 +21,76 @@ These are things the business plan skips or gets wrong. Fix them in order.
 
 ---
 
-### 🔴 Do This Before Brandon Resigns
+### 🔴 Do This Before You Open the Doors
 
-**1. Have an attorney review Brandon's Spectrum employment agreement.**
+**1. Get E&O and General Liability insurance before applying to master agents.**
 
-Why it matters: Even without a non-compete, Spectrum may have a *customer non-solicitation*
-clause — meaning Brandon can't call his old Spectrum accounts for 6 to 12 months after leaving.
-That would cripple the warm book strategy on day one.
+Why it matters: Avant, Telarus, and Sandler Partners require a $1 million E&O (Errors &
+Omissions) certificate before approving your sub-agent application. Without it, your
+applications stall. Get this done first.
 
-- Cost: $300–500. One hour with an employment attorney.
-- Where to find one: Upwork, Kansas City Bar Association referral line, or ask your CPA.
-- What to ask: "Does this agreement restrict me from contacting former customers after I leave?"
+**E&O Insurance — cheapest legitimate options:**
+
+| Provider | Est. monthly | Est. annual | Notes |
+|---|---|---|---|
+| Hiscox | ~$22–35/mo | ~$270–420/yr | Lowest entry point. Start here. |
+| Thimble | ~$30–50/mo | Pay monthly, no annual lock-in | Good if you want flexibility |
+| Next Insurance | ~$40–60/mo | ~$480–720/yr | Fast online quote, instant certificate |
+| Simply Business | Compares multiple carriers | — | Use to shop rates in 5 minutes |
+
+**General Liability — often bundled, adds protection if a client claims damages:**
+
+| Provider | Est. monthly | Notes |
+|---|---|---|
+| Next Insurance (bundle) | ~$25–45/mo | Bundle E&O + GL, one certificate |
+| Hiscox (bundle) | ~$30–50/mo | Instant online quote |
+
+- **Fastest path:** Go to hiscox.com or next.com, get a quote online in under 10 minutes,
+  pay, download the certificate the same day.
+- **What to tell them:** "I am an independent technology broker and advisor. I need E&O and
+  General Liability coverage. $1 million per occurrence."
+- **Total realistic cost:** $50–80/month bundled, or $600–960/year.
 
 ---
 
-**2. Get E&O insurance before applying to master agents.**
+**2. Set up the business as an LLC.**
 
-Why it matters: Avant, Telarus, and Sandler Partners commonly require a $1 million E&O
-(Errors & Omissions) insurance certificate before they will approve your sub-agent application.
-The business plan says to defer this. That could delay your master agent approvals by weeks.
+### How to Set Up the Business — Sole Prop vs DBA vs LLC
 
-- Cost: $800–1,500 per year. Pay annually.
-- Where to get it: Next Insurance (next.com), Hiscox, or any small business insurance broker.
-- Timeline: Get the certificate in hand before you submit master agent applications.
+**The short answer: File an LLC. Not a sole prop. Not just a DBA.**
+
+Here is why, in plain English:
+
+| Structure | What it is | Personal liability? | Good for Signal Advisory? |
+|---|---|---|---|
+| **Sole Proprietorship** | You are the business. No paperwork. | Yes — if something goes wrong, your personal assets are at risk. | No. |
+| **DBA (Doing Business As)** | Just a name registration on top of a sole prop. Offers no real protection. | Yes — same risk as sole prop. | No. |
+| **LLC** | A separate legal entity. Protects your personal assets. Required for WBE certification. | No — your house, savings, and car are protected. | Yes. This is the right structure. |
+
+**Why LLC specifically:**
+- WBE certification (Alanna as majority owner) requires a formal legal entity. An LLC qualifies. A sole prop does not.
+- Two founders = you need an Operating Agreement that spells out ownership (51/49), decision rights, and what happens if one of you exits. An LLC provides that structure.
+- Clients and master agents take you more seriously as an LLC.
+- When revenue exceeds ~$80,000 in profit, you can elect S corp tax treatment inside the LLC to reduce self-employment taxes. You cannot do that with a sole prop.
+
+**How to file a Missouri LLC — step by step:**
+
+1. **Check name availability** — Go to sos.mo.gov → Business Services → Name Search. Confirm "Signal Advisory LLC" is available. Free.
+2. **Choose a registered agent** — This is the person or service that receives legal mail for the business. Option A: Use your home address (free, but it becomes public record). Option B: Northwest Registered Agent (~$125/yr) — keeps your home address private. Recommended.
+3. **File Articles of Organization online** — Go to sos.mo.gov → Business Services → Online Filing. Fill out the form. Takes 15 minutes. Fee: **$50 online** (not $105 — that's the paper rate).
+4. **Approval timeline** — Missouri processes online LLC filings in **3–5 business days**. You can pay an extra $25 for same-day expedited processing if you need it faster.
+5. **Get your EIN** — Go to irs.gov → Apply for EIN. Free. Takes 15 minutes. You need this to open a bank account and get paid by master agents.
+6. **Write an Operating Agreement** — This is an internal document, not filed with the state. It records that Alanna owns 51%, Brandon owns 49%, and Alanna is the managing member. Free template at LegalTemplates.net. Have a CPA or attorney review it once ($200–400).
+7. **Open a business bank account** — Bring your Articles of Organization, EIN letter, and a photo ID. Chase Business Complete has no monthly fee if you keep a $2,000 balance.
+8. **Open a business credit card** — Apply for Chase Ink Business Cash or Capital One Spark Cash. No annual fee. Earns rewards. Separates every business expense from personal.
+
+**Total cost to set up the LLC:** ~$175–300 (filing fee + registered agent + one-time CPA review).
 
 ---
 
 ### 🟡 Do This in Week 1
 
-**3. Open a business credit card.**
-
-- Cost: $0. No annual fee cards that work well: Chase Ink Business Cash or Capital One Spark Cash.
-- Why: Keeps every business expense separate from personal. Builds business credit history.
-  Earns rewards on every tool subscription you pay for.
-- Action: Apply online. Takes 10 minutes.
-
-**4. Build a SPIF tracker in Google Sheets.**
+**3. Build a SPIF tracker in Google Sheets.**
 
 - Cost: $0.
 - Why: SPIFs (the upfront bonuses carriers pay when you close a deal) have a 90-day claim
@@ -65,14 +99,14 @@ The business plan says to defer this. That could delay your master agent approva
 - Columns to use: Client name / Carrier / Master agent / Deal date / SPIF amount / Submitted
   date / Expected payment date / Received date / Variance.
 
-**5. Read every master agent agreement before signing.**
+**4. Read every master agent agreement before signing.**
 
 - Why: These contracts have clawback clauses (if a client cancels within 12 months, you repay
   the SPIF), non-solicitation terms between carriers, and sometimes minimum production
   requirements. Know what you're signing.
 - Cost: $500 for a telecom-savvy attorney to review. Worth it.
 
-**6. Contact 10 referral partners this week.**
+**5. Contact 10 referral partners this week.**
 
 - Who: Kansas City CPA firms, IT consultants, managed service providers (MSPs), commercial
   real estate brokers, business insurance brokers. They all work with the same mid-market
@@ -81,7 +115,7 @@ The business plan says to defer this. That could delay your master agent approva
   renewal coming up, we'd love to take a look. If we close a deal, we pay a referral fee."
 - Cost: $0. This is your third pipeline and it's free.
 
-**7. Request access to master agent portals immediately after approval.**
+**6. Request access to master agent portals immediately after approval.**
 
 - Why: After Avant, Telarus, or Sandler approves you, it takes another 1–2 weeks to get
   access to their quoting tools, carrier portals, and commission portals. It doesn't happen
@@ -91,14 +125,14 @@ The business plan says to defer this. That could delay your master agent approva
 
 ### 🟢 Do This in Month 1
 
-**8. File for WBENC certification immediately.**
+**7. File for WBENC certification immediately.**
 
 - Why: The plan says complete by month 3–4. Reality is 90 days from a *complete* application.
   File in May, expect approval in August at earliest. That's when Fortune 500 doors open.
   Don't wait.
 - Where: wbenc.org. Missouri partner is the Women's Business Development Center (wbdc.org).
 
-**9. Build one proposal template per product.**
+**8. Build one proposal template per product.**
 
 - Products to cover: SD-WAN / UCaaS / Dedicated Internet / SASE / Mobility.
 - Use Google Slides (free, already in your Google Workspace).
@@ -107,14 +141,14 @@ The business plan says to defer this. That could delay your master agent approva
 - Why: Clients sign what they can read. A clean proposal closes faster than an email with an
   attached quote.
 
-**10. Write a one-page client onboarding checklist.**
+**9. Write a one-page client onboarding checklist.**
 
 - Why: When a deal closes, you need a clear process. Who calls the client? Who submits the
   order to the master agent? Who confirms provisioning? Without this written down, you'll
   drop balls on your first three clients.
 - Keep it simple: 10 steps, one owner per step (Brandon or Alanna).
 
-**11. Write the LinkedIn content plan before you post anything.**
+**10. Write the LinkedIn content plan before you post anything.**
 
 - Theme: "What the carriers won't tell you." Advisor voice. Educational. Not promotional.
 - Write 30 post drafts before you publish the first one. Then it's 10 minutes a day.
@@ -150,9 +184,9 @@ This is what you run until your first $10,000 in revenue hits the account.
 
 > **One-time costs in Month 1:**
 > - Domain (signaladvisory.com): ~$15/yr
-> - E&O insurance: $800–1,500/yr (~$100/mo to budget)
-> - Missouri LLC filing: $105 one-time
-> - Attorney reviews (employment agreement + master agent contracts): $800–1,000 one-time
+> - E&O + General Liability insurance: $600–960/yr (~$50–80/mo bundled)
+> - Missouri LLC filing: $50 online (+ $125/yr registered agent if desired)
+> - Attorney reviews (Operating Agreement + master agent contracts): $700–1,200 one-time
 
 ---
 
@@ -192,7 +226,7 @@ Add these tools when the BDR is hired and dialing. Not before.
 | Category | Monthly | Annual |
 |---|---|---|
 | Tech stack (launch tier, 2 founders) | $53 | $636 |
-| E&O insurance | $100 | $1,200 |
+| E&O + General Liability (bundled) | $50–80 | $600–960 |
 | Accounting / CPA | $125 | $1,500 |
 | Legal (one-time reviews, templates) | — | $1,500 |
 | Marketing / travel / business dev | $300 | $3,600 |
