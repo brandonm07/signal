@@ -1,0 +1,130 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+const services = [
+  {
+    tag: '01',
+    title: 'Sub-agent residuals',
+    body: 'One advisor, every carrier shopped. We sell through Avant, Telarus, and Sandler Partners and place each deal with the right provider for your footprint and contract term.',
+  },
+  {
+    tag: '02',
+    title: 'Advisory services',
+    body: 'Vendor evaluation, contract negotiation, telecom expense audits, carrier strategy reviews. Hourly engagements or fixed-scope retainers for teams that need a seat at the table when renewals come due.',
+  },
+  {
+    tag: '03',
+    title: 'Managed services',
+    body: 'Implementation project management, escalation handling, ongoing account management, invoice auditing. We run the carrier relationship so your team can run the business.',
+  },
+];
+---
+
+<Base>
+  <Nav />
+
+  <!-- Hero -->
+  <section class="container mx-auto max-w-5xl px-6 pb-24 pt-16 md:px-10 md:pt-24">
+    <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">
+      Independent technology broker
+    </p>
+    <h1 class="display text-5xl font-light leading-[0.95] md:text-7xl">
+      The advisor on <em class="text-signal not-italic font-medium">your</em> side of the table.
+    </h1>
+    <p class="mt-8 max-w-2xl text-lg leading-relaxed text-ink/80">
+      Signal Advisory is a carrier-agnostic connectivity and technology brokerage for mid-market
+      enterprises. Twenty-five years of combined experience inside Spectrum and T-Mobile, now
+      working for you — not a carrier quota.
+    </p>
+    <div class="mt-10 flex flex-wrap gap-4">
+      <a
+        href="#contact"
+        class="inline-block rounded-sm bg-signal px-6 py-3 text-sm font-medium text-paper hover:bg-ink"
+      >
+        Book a fifteen-minute intro
+      </a>
+      <a
+        href="#services"
+        class="inline-block rounded-sm border border-ink/20 px-6 py-3 text-sm font-medium hover:border-ink"
+      >
+        How we help
+      </a>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section id="services" class="border-t border-ink/10 py-24">
+    <div class="container mx-auto max-w-5xl px-6 md:px-10">
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">What we do</p>
+      <h2 class="display mb-16 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
+        Three reinforcing layers that compound off the same relationship.
+      </h2>
+      <div class="grid gap-10 md:grid-cols-3">
+        {
+          services.map((s) => (
+            <div>
+              <p class="mb-3 font-mono text-xs text-stone">{s.tag}</p>
+              <h3 class="display mb-4 text-2xl font-medium">{s.title}</h3>
+              <p class="text-ink/75 leading-relaxed">{s.body}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about" class="border-t border-ink/10 bg-ink py-24 text-paper">
+    <div class="container mx-auto max-w-5xl px-6 md:px-10">
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-paper/50">Who we are</p>
+      <h2 class="display mb-10 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
+        Two veteran enterprise reps. Complementary warm books. One brokerage.
+      </h2>
+      <div class="grid gap-12 md:grid-cols-2">
+        <div>
+          <p class="mb-2 text-xs uppercase tracking-[0.2em] text-paper/50">Principal advisor</p>
+          <h3 class="display text-2xl font-medium">Brandon Murphy</h3>
+          <p class="mt-4 text-paper/80 leading-relaxed">
+            Fifteen years of enterprise telecom, most recently at Spectrum. Deep patterns on
+            SD-WAN, SASE consolidation, MPLS migration, and carrier negotiation. Independent since
+            April 2026.
+          </p>
+        </div>
+        <div>
+          <p class="mb-2 text-xs uppercase tracking-[0.2em] text-paper/50">
+            Managing member, operations
+          </p>
+          <h3 class="display text-2xl font-medium">Alanna Murphy</h3>
+          <p class="mt-4 text-paper/80 leading-relaxed">
+            A decade inside T-Mobile enterprise accounts. Runs the business side — finance,
+            operations, WBE certification, client success. Majority owner.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="border-t border-ink/10 py-24">
+    <div class="container mx-auto max-w-3xl px-6 text-center md:px-10">
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Start a conversation</p>
+      <h2 class="display mb-6 text-4xl font-normal leading-tight md:text-5xl">
+        Fifteen minutes. No deck. No pitch.
+      </h2>
+      <p class="mb-10 text-lg text-ink/80">
+        Bring a recent carrier bill or the renewal that is bothering you. We'll tell you what the
+        market looks like and what we'd do if it were our account.
+      </p>
+      <a
+        href="mailto:hello@signaladvisory.com"
+        class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-medium text-paper hover:bg-ink"
+      >
+        hello@signaladvisory.com
+      </a>
+    </div>
+  </section>
+
+  <Footer />
+</Base>

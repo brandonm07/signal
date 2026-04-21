@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Brand tokens — see /docs/brand.md. Placeholder values until founders lock the palette. */
+:root {
+  --ink: #1a1f24;
+  --paper: #faf7f1;
+  --signal: #c9462c;
+  --moss: #2f4a3c;
+  --stone: #7a7067;
+}
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Manrope', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.display {
+  font-family: 'Fraunces', Georgia, serif;
+  font-optical-sizing: auto;
+  letter-spacing: -0.02em;
+}
