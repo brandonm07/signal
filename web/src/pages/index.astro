@@ -6,18 +6,33 @@ import Footer from '../components/Footer.astro';
 const services = [
   {
     tag: '01',
-    title: 'Sub-agent residuals',
-    body: 'One advisor, every carrier shopped. We sell through Avant, Telarus, and Sandler Partners and place each deal with the right provider for your footprint and contract term.',
+    title: 'Carrier sourcing',
+    body: 'One advisor, every carrier evaluated. SD-WAN, UCaaS, dedicated internet, SASE, mobility — we assess the market on your behalf, negotiate the terms, and stay on the account for the life of the relationship. No carrier quota. No agenda except yours.',
   },
   {
     tag: '02',
-    title: 'Advisory services',
-    body: 'Vendor evaluation, contract negotiation, telecom expense audits, carrier strategy reviews. Hourly engagements or fixed-scope retainers for teams that need a seat at the table when renewals come due.',
+    title: 'Technology advisory',
+    body: 'Independent counsel on vendor selection, contract negotiation, architecture planning, and technology spend. Hourly or retained — we provide the expertise your team needs without the bias of a vendor relationship.',
   },
   {
     tag: '03',
     title: 'Managed services',
-    body: 'Implementation project management, escalation handling, ongoing account management, invoice auditing. We run the carrier relationship so your team can run the business.',
+    body: 'We handle the operational side: implementation oversight, vendor escalations, account management, invoice auditing, and carrier portal administration. Your team stays focused on the business. We manage the relationship.',
+  },
+];
+
+const differentiators = [
+  {
+    title: 'Independent',
+    body: 'We carry no carrier quota and represent no single vendor. Our recommendations are driven by your needs, not our commission structure.',
+  },
+  {
+    title: 'Accountable',
+    body: 'We stay on the account after the contract is signed. Implementation, provisioning, billing disputes, renewals — we are still at the table.',
+  },
+  {
+    title: 'Experienced',
+    body: 'Our principals come from inside the industry. We know how carriers price, where margin lives, and how to negotiate terms most advisors never ask for.',
   },
 ];
 ---
@@ -26,30 +41,31 @@ const services = [
   <Nav />
 
   <!-- Hero -->
-  <section class="container mx-auto max-w-5xl px-6 pb-24 pt-16 md:px-10 md:pt-24">
-    <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">
-      Independent technology broker
+  <section class="container mx-auto max-w-5xl px-6 pb-28 pt-20 md:px-10 md:pt-28">
+    <p class="mb-5 text-xs uppercase tracking-[0.2em] text-stone">
+      Independent technology advisory
     </p>
-    <h1 class="display text-5xl font-light leading-[0.95] md:text-7xl">
-      The advisor on <em class="text-signal not-italic font-medium">your</em> side of the table.
+    <h1 class="display text-5xl font-light leading-[0.95] md:text-[5.5rem]">
+      Better technology decisions.<br />
+      <em class="text-signal not-italic font-medium">Measurable</em> results.
     </h1>
-    <p class="mt-8 max-w-2xl text-lg leading-relaxed text-ink/80">
-      Signal Advisory is a carrier-agnostic connectivity and technology brokerage for mid-market
-      enterprises. Twenty-five years of combined experience inside Spectrum and T-Mobile, now
-      working for you — not a carrier quota.
+    <p class="mt-8 max-w-2xl text-lg leading-relaxed text-ink/75">
+      Signal Advisory provides independent counsel on technology infrastructure — connectivity,
+      cloud, security, and mobility. We evaluate every option on the market, negotiate on your
+      behalf, and stay accountable to the outcome.
     </p>
     <div class="mt-10 flex flex-wrap gap-4">
       <a
         href="#contact"
-        class="inline-block rounded-sm bg-signal px-6 py-3 text-sm font-medium text-paper hover:bg-ink"
+        class="inline-block rounded-sm bg-signal px-6 py-3 text-sm font-semibold text-paper hover:bg-ink transition-colors"
       >
-        Book a fifteen-minute intro
+        Schedule a consultation
       </a>
       <a
         href="#services"
-        class="inline-block rounded-sm border border-ink/20 px-6 py-3 text-sm font-medium hover:border-ink"
+        class="inline-block rounded-sm border border-ink/20 px-6 py-3 text-sm font-medium hover:border-ink transition-colors"
       >
-        How we help
+        What we do
       </a>
     </div>
   </section>
@@ -57,17 +73,17 @@ const services = [
   <!-- Services -->
   <section id="services" class="border-t border-ink/10 py-24">
     <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">What we do</p>
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Our services</p>
       <h2 class="display mb-16 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
-        Three reinforcing layers that compound off the same relationship.
+        Three disciplines. One trusted advisor.
       </h2>
       <div class="grid gap-10 md:grid-cols-3">
         {
           services.map((s) => (
-            <div>
+            <div class="border-t border-ink/10 pt-8">
               <p class="mb-3 font-mono text-xs text-stone">{s.tag}</p>
               <h3 class="display mb-4 text-2xl font-medium">{s.title}</h3>
-              <p class="text-ink/75 leading-relaxed">{s.body}</p>
+              <p class="text-ink/70 leading-relaxed text-[15px]">{s.body}</p>
             </div>
           ))
         }
@@ -75,51 +91,82 @@ const services = [
     </div>
   </section>
 
-  <!-- About -->
-  <section id="about" class="border-t border-ink/10 bg-ink py-24 text-paper">
+  <!-- Why Signal -->
+  <section class="border-t border-ink/10 bg-ink py-24 text-paper">
     <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-paper/50">Who we are</p>
-      <h2 class="display mb-10 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
-        Two veteran enterprise reps. Complementary warm books. One brokerage.
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-paper/40">Why Signal Advisory</p>
+      <h2 class="display mb-4 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
+        The counsel you would expect from a trusted partner.
       </h2>
-      <div class="grid gap-12 md:grid-cols-2">
+      <p class="mb-16 max-w-2xl text-paper/60 text-lg leading-relaxed">
+        Most technology vendors tell you what they sell. We tell you what you need — and we are
+        structured so those two things are always the same answer.
+      </p>
+      <div class="grid gap-10 md:grid-cols-3">
+        {
+          differentiators.map((d) => (
+            <div class="border-t border-paper/10 pt-8">
+              <h3 class="display mb-4 text-xl font-medium">{d.title}</h3>
+              <p class="text-paper/60 leading-relaxed text-[15px]">{d.body}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Approach -->
+  <section id="about" class="border-t border-ink/10 py-24">
+    <div class="container mx-auto max-w-5xl px-6 md:px-10">
+      <div class="grid gap-16 md:grid-cols-2 md:items-center">
         <div>
-          <p class="mb-2 text-xs uppercase tracking-[0.2em] text-paper/50">Principal advisor</p>
-          <h3 class="display text-2xl font-medium">Brandon Murphy</h3>
-          <p class="mt-4 text-paper/80 leading-relaxed">
-            Fifteen years of enterprise telecom, most recently at Spectrum. Deep patterns on
-            SD-WAN, SASE consolidation, MPLS migration, and carrier negotiation. Independent since
-            April 2026.
+          <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Our approach</p>
+          <h2 class="display mb-6 text-4xl font-normal leading-tight md:text-5xl">
+            We work for you.<br />Not the carrier.
+          </h2>
+          <p class="text-ink/70 leading-relaxed mb-6">
+            Signal Advisory was built on a simple premise: organizations deserve honest technology
+            counsel from advisors who have no stake in the outcome other than your satisfaction.
+          </p>
+          <p class="text-ink/70 leading-relaxed">
+            Our principals spent over two decades inside the largest carriers and technology
+            providers in the country. We know how the market works. We know where the leverage is.
+            And we know how to use it for our clients — whether that is a ten-person company
+            evaluating its first cloud phone system or a multi-site enterprise renegotiating a
+            seven-figure infrastructure contract.
           </p>
         </div>
-        <div>
-          <p class="mb-2 text-xs uppercase tracking-[0.2em] text-paper/50">
-            Managing member, operations
-          </p>
-          <h3 class="display text-2xl font-medium">Alanna Murphy</h3>
-          <p class="mt-4 text-paper/80 leading-relaxed">
-            A decade inside T-Mobile enterprise accounts. Runs the business side — finance,
-            operations, WBE certification, client success. Majority owner.
-          </p>
+        <div class="grid gap-6">
+          {[
+            { num: '25+', label: 'Years of combined enterprise technology experience' },
+            { num: '150+', label: 'Carriers and technology providers evaluated on your behalf' },
+            { num: '3', label: 'Master agent partnerships for maximum carrier pricing leverage' },
+          ].map((stat) => (
+            <div class="border border-ink/10 p-8">
+              <p class="display text-5xl font-medium text-signal mb-2">{stat.num}</p>
+              <p class="text-ink/60 text-sm leading-relaxed">{stat.label}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>
   </section>
 
   <!-- Contact -->
-  <section id="contact" class="border-t border-ink/10 py-24">
+  <section id="contact" class="border-t border-ink/10 bg-ink py-24 text-paper">
     <div class="container mx-auto max-w-3xl px-6 text-center md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Start a conversation</p>
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-paper/40">Get started</p>
       <h2 class="display mb-6 text-4xl font-normal leading-tight md:text-5xl">
-        Fifteen minutes. No deck. No pitch.
+        A better technology decision starts with one conversation.
       </h2>
-      <p class="mb-10 text-lg text-ink/80">
-        Bring a recent carrier bill or the renewal that is bothering you. We'll tell you what the
-        market looks like and what we'd do if it were our account.
+      <p class="mb-10 text-lg text-paper/60 leading-relaxed">
+        Bring us your current contracts, your upcoming renewals, or simply a technology challenge
+        you have not been able to solve. We will tell you exactly what we see and what we would do.
+        No obligation.
       </p>
       <a
         href="mailto:hello@signaladvisory.com"
-        class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-medium text-paper hover:bg-ink"
+        class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-paper hover:text-ink transition-colors"
       >
         hello@signaladvisory.com
       </a>
