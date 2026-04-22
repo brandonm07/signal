@@ -111,8 +111,8 @@ class Researcher:
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
             # Optional analytics headers; OpenRouter shows these in the dashboard.
-            "HTTP-Referer": "https://signaladvisory.com",
-            "X-Title": "Signal Advisory Prospecting",
+            "HTTP-Referer": "https://github.com/brandonm07/signal",
+            "X-Title": "Signal Advisory",
         }
         payload = {
             "model": self.model,

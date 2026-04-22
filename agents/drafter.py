@@ -56,8 +56,8 @@ class Drafter:
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://signaladvisory.com",
-            "X-Title": "Signal Advisory Prospecting",
+            "HTTP-Referer": "https://github.com/brandonm07/signal",
+            "X-Title": "Signal Advisory",
         }
         payload = {
             "model": self.model,
