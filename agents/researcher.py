@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 import requests
-from duckduckgo_search import DDGS
+from ddgs import DDGS
 
 from config.prompts import (
     RESEARCHER_MAX_TOKENS,
