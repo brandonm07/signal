@@ -71,17 +71,27 @@ pip install -r requirements.txt
 cp .env.example .env     # then fill in OPENROUTER_API_KEY
 ```
 
+Optionally add a `TAVILY_API_KEY` to `.env` for cleaner enterprise search
+results (free tier, 1000 searches/month, https://tavily.com). Without it the
+Researcher falls back to DuckDuckGo.
+
 ### Run
 
 ```bash
 python run.py --accounts accounts/sample.csv
 ```
 
-For each row: the Researcher runs three DuckDuckGo searches (overview, recent
-news, leadership), synthesizes a structured brief, then the Drafter produces
-three outreach variants in Brandon's voice. Everything lands in
+For each row: the Researcher runs four targeted searches (company overview,
+last-12-months news, LinkedIn leaders, businesswire executive announcements),
+synthesizes a structured brief, then the Drafter produces three outreach
+variants in Brandon's voice. Everything lands in
 `output/{YYYY-MM-DD}/{company-slug}.md` and a row is appended to
 `output/run_log.csv`.
+
+If the model names a person without a supporting source URL on the same line,
+the brief is prepended with a **VERIFICATION REQUIRED** block listing the
+unsourced contacts. Always confirm those before outreach — the small open
+weight models occasionally invent plausible-looking executives.
 
 ### Adding accounts
 
