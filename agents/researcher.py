@@ -78,12 +78,14 @@ class Researcher:
 
     @staticmethod
     def _build_queries(company: str) -> list[str]:
-        # These three queries were chosen to cover the three buckets in the
-        # RESEARCHER_PROMPT: basic profile, recent events, likely decision makers.
+        # Four targeted queries. site:-scoped ones keep the model from having
+        # to invent contacts — LinkedIn for named leaders, businesswire for
+        # executive announcements, sec.gov for public-company filings.
         return [
             f"{company} company overview",
             f"{company} news last 12 months",
-            f"{company} leadership OR CTO OR CIO OR VP IT",
+            f'site:linkedin.com/in "{company}" CIO OR CTO OR "VP of IT" OR "head of infrastructure"',
+            f"site:businesswire.com {company} executive appointment OR CIO OR CTO",
         ]
 
     @staticmethod
