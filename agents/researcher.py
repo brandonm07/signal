@@ -72,11 +72,25 @@ class Researcher:
             notes=notes,
             search_blocks=search_blocks,
         )
-        return self._chat(
+        brief = self._chat(
             system=RESEARCHER_PROMPT,
             user=user_message,
             max_tokens=RESEARCHER_MAX_TOKENS,
         )
+        # Post-processing guardrail: flag contact lines that name a person
+        # but don't cite a source URL on the same line. Does not alter the
+        # brief body; just prepends a warning header if anything looks off.
+        warnings = _find_unsourced_contacts(brief)
+        if warnings:
+            header = "\n".join(
+                ["> **VERIFICATION REQUIRED**: the following contact lines were",
+                 "> not backed by a source URL on the same line. Confirm before",
+                 "> outreach — the model may have invented them."]
+                + [f"> - {w}" for w in warnings]
+                + [""]
+            )
+            brief = f"{header}\n{brief}"
+        return brief
 
     # ---- internals ----------------------------------------------------------
 
@@ -169,6 +183,40 @@ def _search_tavily(query: str, max_results: int, api_key: str) -> list[SearchRes
         )
         for r in raw
     ]
+
+
+_TITLE_WORDS = (
+    "CEO", "CIO", "CTO", "CFO", "COO", "CISO", "CRO",
+    "VP", "SVP", "EVP", "Vice President",
+    "Director", "Head of", "Chief",
+    "President", "Founder", "Manager",
+)
+
+
+def _find_unsourced_contacts(brief: str) -> list[str]:
+    """Return bullets in 'Who to Talk To' that look like a named contact
+    but lack a URL and don't say 'unconfirmed'. Empty list = all good."""
+    lines = brief.splitlines()
+    in_section = False
+    flagged: list[str] = []
+    for raw in lines:
+        stripped = raw.strip()
+        if stripped.lower().startswith("## "):
+            in_section = stripped.lower().startswith("## who to talk to")
+            continue
+        if not in_section:
+            continue
+        if not stripped.startswith(("-", "*")):
+            continue
+        if "unconfirmed" in stripped.lower():
+            continue
+        if "http://" in stripped or "https://" in stripped:
+            continue
+        # Only flag lines that actually look like they reference a person
+        # (title word present). A pure role placeholder won't trip this.
+        if any(word.lower() in stripped.lower() for word in _TITLE_WORDS):
+            flagged.append(stripped.lstrip("-* ").strip())
+    return flagged
 
 
 def _format_search_block(query: str, results: list[SearchResult]) -> str:
