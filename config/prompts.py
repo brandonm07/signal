@@ -53,15 +53,28 @@ reach out]
 [What they probably use. What probably hurts about it.]
 
 ## Who to Talk To
-[Named contacts with a one line hook each]
+[Named contacts with a one line hook each. Every person you name MUST
+have a source URL on the same bullet. If you cannot find a real named
+person in the search results, write "Role: [title]. Name: unconfirmed."
+DO NOT guess a name from general knowledge or training data.]
 
 ## Opening Angle
 [One paragraph, 4 sentences max, describing the strongest reason a
 conversation would help them right now]
 
+## Sources
+[Bullet list of every URL you used, one per line. Every factual claim
+elsewhere in the brief must be traceable to one of these URLs.]
+
 RULES:
 - Never make up facts. If you can't verify something, say "unconfirmed"
   and move on.
+- DO NOT INVENT NAMES. If the search results do not contain a specific
+  person holding a specific role at this specific company, write the
+  role with "Name: unconfirmed" — never fabricate a name.
+- Every person named in "Who to Talk To" must have a URL on the same
+  line showing where you found them. No URL on the line means the
+  person does not appear in your sources and must be dropped.
 - Cite your sources at the bottom.
 - No fluff. No "in today's fast paced world" type openers.
 - If the company is under 100 employees or clearly too small for
