@@ -24,6 +24,7 @@ from config.prompts import (
 )
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+TAVILY_URL = "https://api.tavily.com/search"
 
 
 @dataclass
@@ -46,6 +47,9 @@ class Researcher:
                 "OPENROUTER_API_KEY is not set. Copy .env.example to .env and add your key."
             )
         self.model = model
+        # Tavily is preferred when a key is present — cleaner results on
+        # enterprise searches than DDG. Falls back to DDG silently otherwise.
+        self.tavily_key = os.environ.get("TAVILY_API_KEY") or None
 
     # ---- public API ---------------------------------------------------------
 
@@ -88,24 +92,11 @@ class Researcher:
             f"site:businesswire.com {company} executive appointment OR CIO OR CTO",
         ]
 
-    @staticmethod
-    def _search(query: str, max_results: int = 5) -> list[SearchResult]:
-        """Top-N DuckDuckGo results, normalized. Returns [] on failure."""
-        try:
-            with DDGS() as ddgs:
-                raw = list(ddgs.text(query, max_results=max_results))
-        except Exception as exc:
-            # DDG rate-limits aggressively; don't crash the whole run.
-            print(f"  [warn] search failed for {query!r}: {exc}")
-            return []
-        return [
-            SearchResult(
-                title=r.get("title", "").strip(),
-                url=r.get("href", "").strip(),
-                snippet=r.get("body", "").strip(),
-            )
-            for r in raw
-        ]
+    def _search(self, query: str, max_results: int = 5) -> list[SearchResult]:
+        """Top-N search results, normalized. Returns [] on failure."""
+        if self.tavily_key:
+            return _search_tavily(query, max_results, self.tavily_key)
+        return _search_ddg(query, max_results)
 
     def _chat(self, system: str, user: str, max_tokens: int) -> str:
         """Single OpenRouter chat completion. Returns the assistant message."""
@@ -128,6 +119,56 @@ class Researcher:
         resp.raise_for_status()
         data = resp.json()
         return data["choices"][0]["message"]["content"].strip()
+
+
+def _search_ddg(query: str, max_results: int) -> list[SearchResult]:
+    """DuckDuckGo via the ddgs package (formerly duckduckgo-search)."""
+    try:
+        with DDGS() as ddgs:
+            raw = list(ddgs.text(query, max_results=max_results))
+    except Exception as exc:
+        # Rate limits, network hiccups: never crash the whole run.
+        print(f"  [warn] DDG search failed for {query!r}: {exc}")
+        return []
+    return [
+        SearchResult(
+            title=r.get("title", "").strip(),
+            url=r.get("href", "").strip(),
+            snippet=r.get("body", "").strip(),
+        )
+        for r in raw
+    ]
+
+
+def _search_tavily(query: str, max_results: int, api_key: str) -> list[SearchResult]:
+    """Tavily Search API — cleaner results on enterprise queries than DDG.
+
+    Free tier gives 1000 searches/month. Docs: https://docs.tavily.com
+    """
+    try:
+        resp = requests.post(
+            TAVILY_URL,
+            json={
+                "api_key": api_key,
+                "query": query,
+                "max_results": max_results,
+                "search_depth": "basic",
+            },
+            timeout=30,
+        )
+        resp.raise_for_status()
+        raw = resp.json().get("results", [])
+    except Exception as exc:
+        print(f"  [warn] Tavily search failed for {query!r}: {exc}")
+        return []
+    return [
+        SearchResult(
+            title=r.get("title", "").strip(),
+            url=r.get("url", "").strip(),
+            snippet=r.get("content", "").strip(),
+        )
+        for r in raw
+    ]
 
 
 def _format_search_block(query: str, results: list[SearchResult]) -> str:
