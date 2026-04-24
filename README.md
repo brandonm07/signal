@@ -47,15 +47,16 @@ not yet decided.
 
 ## Prospecting pipeline (Python CLI)
 
-A two-agent CLI that turns a CSV of target accounts into a research brief plus
-three outreach drafts (email, LinkedIn message, voicemail script) per company.
-Both models run through OpenRouter: Qwen 3 30B-A3B researches, Gemma 3 27B-IT
-drafts.
+A three-agent CLI that turns a CSV of target accounts into a research brief, a
+ranked list of decision makers, and three outreach drafts (email, LinkedIn
+message, voicemail script) per company. All three agents run through
+OpenRouter: Qwen 3 30B-A3B for research + targeting, Gemma 3 27B-IT for
+drafting.
 
 ### Layout
 
 ```
-agents/        Researcher and Drafter (plain Python, no framework)
+agents/        Researcher, Targeter, Drafter (plain Python, no framework)
 config/        System prompts and model slugs
 accounts/      Input CSVs (sample.csv included)
 output/        {date}/{company_slug}.md per account + run_log.csv
@@ -75,6 +76,12 @@ Optionally add a `TAVILY_API_KEY` to `.env` for cleaner enterprise search
 results (free tier, 1000 searches/month, https://tavily.com). Without it the
 Researcher falls back to DuckDuckGo.
 
+For the Targeter's contact enrichment, optionally add `APOLLO_API_KEY`
+(free tier, 50 calls/month, https://apollo.io) or `ZOOMINFO_API_KEY`
+(enterprise, paid). ZoomInfo takes priority if both are set. Without
+either, the Targeter falls back to search — it can find LinkedIn URLs
+but NOT emails. The tool will never pattern-guess an email.
+
 ### Run
 
 ```bash
@@ -82,10 +89,11 @@ python run.py --accounts accounts/sample.csv
 ```
 
 For each row: the Researcher runs four targeted searches (company overview,
-last-12-months news, LinkedIn leaders, businesswire executive announcements),
-synthesizes a structured brief, then the Drafter produces three outreach
-variants in Brandon's voice. Everything lands in
-`output/{YYYY-MM-DD}/{company-slug}.md` and a row is appended to
+last-12-months news, LinkedIn leaders, businesswire executive announcements)
+and writes a structured brief; the Targeter enriches 2–3 decision-maker
+contacts matching Signal's persona priorities (VP IT → Director → C-suite);
+the Drafter produces three outreach variants in Brandon's voice. Everything
+lands in `output/{YYYY-MM-DD}/{company-slug}.md` and a row is appended to
 `output/run_log.csv`.
 
 If the model names a person without a supporting source URL on the same line,
