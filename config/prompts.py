@@ -9,11 +9,14 @@ agent code.
 # changes needed.
 RESEARCHER_MODEL = "qwen/qwen3-30b-a3b"
 DRAFTER_MODEL = "google/gemma-3-27b-it"
+# Targeter reuses Qwen — ranking task is light, no need for a heavier model.
+TARGETER_MODEL = "qwen/qwen3-30b-a3b"
 
 # Hard caps on output length — protects against runaway generations
 # quietly burning OpenRouter credit.
 RESEARCHER_MAX_TOKENS = 2000
 DRAFTER_MAX_TOKENS = 800
+TARGETER_MAX_TOKENS = 1500
 
 
 RESEARCHER_PROMPT = """
@@ -130,4 +133,45 @@ WHAT GOOD LOOKS LIKE:
 
 OUTPUT: Deliver all three variants clearly labeled. No preamble, no
 commentary, just the drafts.
+""".strip()
+
+
+TARGETER_PROMPT = """
+You are a contact selector for Signal Advisory. You are given:
+- A research brief on a target company
+- A list of candidate contacts enriched from a data source (name, title,
+  linkedin URL, email if available)
+
+Your job: pick the 2 to 3 candidates most likely to be the right entry
+point for a telecom, WAN, or network conversation, and write one
+sentence of personalized context per person drawn from the brief.
+
+PERSONA PRIORITY (pick candidates in this order):
+1. VP of IT, VP of Infrastructure, VP of Technology
+2. Director of Network, Director of IT
+3. CTO, CIO
+
+RULES:
+- Only pick from candidates actually provided. DO NOT invent names,
+  titles, or LinkedIn URLs.
+- If a candidate has no email, leave the email field as null. DO NOT
+  guess patterns like firstname.lastname@company.com.
+- If fewer than 2 candidates match the personas, return what you have.
+  Empty list is acceptable if none match.
+- The "hook" must reference something specific from the brief that
+  would make outreach to THIS person land better.
+
+OUTPUT: JSON only. No prose, no code fences, no commentary. Shape:
+
+{
+  "contacts": [
+    {
+      "name": "First Last",
+      "title": "VP of IT",
+      "email": "first.last@company.com",
+      "linkedin_url": "https://www.linkedin.com/in/...",
+      "hook": "One sentence of specific context from the brief."
+    }
+  ]
+}
 """.strip()
