@@ -23,7 +23,7 @@ from agents.researcher import SearchResult, _search_ddg, _search_tavily
 from config.prompts import TARGETER_MAX_TOKENS, TARGETER_MODEL, TARGETER_PROMPT
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
-APOLLO_URL = "https://api.apollo.io/v1/mixed_people/search"
+APOLLO_URL = "https://api.apollo.io/api/v1/mixed_people/search"
 ZOOMINFO_URL = "https://api.zoominfo.com/search/contact"
 
 
@@ -120,6 +120,7 @@ class Targeter:
                 headers={
                     "X-Api-Key": self.apollo_key,
                     "Content-Type": "application/json",
+                    "Cache-Control": "no-cache",
                 },
                 json={
                     "q_organization_name": company,
@@ -136,11 +137,22 @@ class Targeter:
                 },
                 timeout=30,
             )
-            resp.raise_for_status()
+        except Exception as exc:
+            print(f"  [warn] Apollo request crashed: {exc}")
+            return []
+        if resp.status_code >= 400:
+            # Surface Apollo's actual error body — raise_for_status hides it.
+            body = resp.text[:400].replace("\n", " ")
+            print(f"  [warn] Apollo {resp.status_code}: {body}")
+            return []
+        try:
             data = resp.json()
         except Exception as exc:
-            print(f"  [warn] Apollo lookup failed: {exc}")
+            print(f"  [warn] Apollo returned non-JSON: {exc}")
             return []
+        # Apollo has used both 'people' and 'contacts' over API versions;
+        # check both so we don't silently drop results on a rename.
+        raw = data.get("people") or data.get("contacts") or []
         return [
             Contact(
                 name=(p.get("name") or "").strip(),
@@ -148,7 +160,7 @@ class Targeter:
                 email=p.get("email") or None,
                 linkedin_url=p.get("linkedin_url") or None,
             )
-            for p in data.get("people", [])
+            for p in raw
             if p.get("name")
         ]
 
