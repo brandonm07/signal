@@ -24,6 +24,7 @@ from dotenv import load_dotenv
 
 from agents.drafter import Drafter
 from agents.researcher import Researcher
+from agents.targeter import Contact, Targeter
 
 app = typer.Typer(add_completion=False, help="Signal Advisory prospecting pipeline.")
 
@@ -53,6 +54,7 @@ def main(
     load_dotenv()
 
     researcher = Researcher()
+    targeter = Targeter()
     drafter = Drafter()
 
     rows = _read_accounts(accounts)
@@ -73,6 +75,7 @@ def main(
             contact_name=row.get("contact_name") or None,
             notes=row.get("notes") or None,
             researcher=researcher,
+            targeter=targeter,
             drafter=drafter,
             date_folder=date_folder,
         )
@@ -97,6 +100,7 @@ def _process_account(
     contact_name: Optional[str],
     notes: Optional[str],
     researcher: Researcher,
+    targeter: Targeter,
     drafter: Drafter,
     date_folder: Path,
 ) -> tuple[str, Optional[Path], str]:
@@ -105,8 +109,17 @@ def _process_account(
         typer.echo("  researching…")
         brief = researcher.research(company, contact_name=contact_name, notes=notes)
 
+        typer.echo("  targeting…")
+        contacts = targeter.find_contacts(company, brief)
+
+        # The Drafter gets the highest-ranked contact's name so it can write
+        # personalized openers. If the CSV already specified a contact, that
+        # takes precedence — the operator knows the account better than the
+        # model does.
+        primary_name = contact_name or (contacts[0].name if contacts else None)
+
         typer.echo("  drafting…")
-        drafts = drafter.draft(brief, company_name=company, contact_name=contact_name)
+        drafts = drafter.draft(brief, company_name=company, contact_name=primary_name)
 
         out_path = date_folder / f"{_slugify(company)}.md"
         out_path.write_text(
@@ -115,6 +128,7 @@ def _process_account(
                 contact_name=contact_name,
                 notes=notes,
                 brief=brief,
+                contacts=contacts,
                 drafts=drafts,
             ),
             encoding="utf-8",
@@ -131,6 +145,7 @@ def _render_account_markdown(
     contact_name: Optional[str],
     notes: Optional[str],
     brief: str,
+    contacts: list[Contact],
     drafts: str,
 ) -> str:
     generated_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
@@ -143,11 +158,19 @@ def _render_account_markdown(
         header_lines.append("")
     header = "\n".join(header_lines)
 
+    if contacts:
+        contacts_md = "\n\n".join(c.as_markdown_bullet() for c in contacts)
+    else:
+        contacts_md = "_No decision makers identified._"
+
     return (
         f"{header}\n"
         f"---\n\n"
         f"# Research Brief\n\n"
         f"{brief}\n\n"
+        f"---\n\n"
+        f"# Decision Makers\n\n"
+        f"{contacts_md}\n\n"
         f"---\n\n"
         f"# Outreach Drafts\n\n"
         f"{drafts}\n"
