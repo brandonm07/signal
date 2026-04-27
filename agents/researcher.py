@@ -18,6 +18,7 @@ import requests
 from ddgs import DDGS
 
 from agents.openrouter import chat_completion
+from agents.sources import fetch_supplementary_sources
 from config.prompts import (
     RESEARCHER_MAX_TOKENS,
     RESEARCHER_MODEL,
@@ -66,11 +67,16 @@ class Researcher:
             results = self._search(q, max_results=5)
             search_blocks.append(_format_search_block(q, results))
 
+        # Supplementary structured sources (Wikipedia, SEC EDGAR). These
+        # give the model cleaner factual grounding than free-form snippets.
+        supplementary = fetch_supplementary_sources(company_name)
+
         user_message = _build_user_message(
             company_name=company_name,
             contact_name=contact_name,
             notes=notes,
             search_blocks=search_blocks,
+            supplementary_blocks=supplementary,
         )
         brief = self._chat(
             system=RESEARCHER_PROMPT,
@@ -212,6 +218,7 @@ def _build_user_message(
     contact_name: Optional[str],
     notes: Optional[str],
     search_blocks: list[str],
+    supplementary_blocks: list[str],
 ) -> str:
     header = [f"Company: {company_name}"]
     if contact_name:
@@ -220,12 +227,20 @@ def _build_user_message(
         header.append(f"Sales notes: {notes}")
     header_text = "\n".join(header)
 
-    searches = "\n\n".join(search_blocks)
+    sections = []
+    if supplementary_blocks:
+        sections.append(
+            "## Structured sources\n\n" + "\n\n".join(supplementary_blocks)
+        )
+    sections.append("## Web search results\n\n" + "\n\n".join(search_blocks))
+    body = "\n\n".join(sections)
+
     return (
         f"{header_text}\n\n"
-        f"Below are raw DuckDuckGo results from three targeted searches. Use them "
-        f"as primary source material. Cite URLs in your Sources section. If a fact "
-        f"is not supported by these results, mark it \"unconfirmed\".\n\n"
-        f"{searches}\n\n"
+        f"Below is everything we pulled on this company. Treat the structured "
+        f"sources (Wikipedia, SEC filings) as the most reliable; the web search "
+        f"results are supplementary. Cite URLs in your Sources section. If a "
+        f"fact is not supported by anything below, mark it \"unconfirmed\".\n\n"
+        f"{body}\n\n"
         f"Now write the brief exactly in the OUTPUT FORMAT from the system prompt."
     )
