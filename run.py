@@ -23,6 +23,7 @@ import typer
 from dotenv import load_dotenv
 
 from agents.drafter import Drafter
+from agents.memory import Memory
 from agents.researcher import Researcher
 from agents.targeter import Contact, Targeter
 
@@ -49,6 +50,16 @@ def main(
         "-o",
         help="Root folder for generated briefs. Defaults to ./output.",
     ),
+    refresh: bool = typer.Option(
+        False,
+        "--refresh",
+        help="Ignore cached briefs in memory and re-run from scratch.",
+    ),
+    cache_days: int = typer.Option(
+        30,
+        "--cache-days",
+        help="How recent a cached brief must be to be reused. Default 30 days.",
+    ),
 ):
     """Run the Researcher + Drafter pipeline over an accounts CSV."""
     load_dotenv()
@@ -56,6 +67,7 @@ def main(
     researcher = Researcher()
     targeter = Targeter()
     drafter = Drafter()
+    memory = Memory(db_path=output_dir / "memory.db")
 
     rows = _read_accounts(accounts)
     if not rows:
@@ -77,7 +89,10 @@ def main(
             researcher=researcher,
             targeter=targeter,
             drafter=drafter,
+            memory=memory,
             date_folder=date_folder,
+            refresh=refresh,
+            cache_days=cache_days,
         )
         _append_run_log(
             run_log_path,
@@ -102,9 +117,20 @@ def _process_account(
     researcher: Researcher,
     targeter: Targeter,
     drafter: Drafter,
+    memory: Memory,
     date_folder: Path,
+    refresh: bool,
+    cache_days: int,
 ) -> tuple[str, Optional[Path], str]:
     """Run one account end-to-end. Returns (status, output_path, error_message)."""
+    # Cache check — skip the API spend if we already have a recent brief.
+    if not refresh:
+        cached = memory.find_recent(company, max_age_days=cache_days)
+        if cached:
+            age = (datetime.now(timezone.utc) - cached.generated_at).days
+            typer.echo(f"  [cache] using brief from {age} day(s) ago: {cached.brief_path}")
+            return "cached", cached.brief_path, ""
+
     try:
         typer.echo("  researching…")
         brief = researcher.research(company, contact_name=contact_name, notes=notes)
@@ -133,10 +159,18 @@ def _process_account(
             ),
             encoding="utf-8",
         )
+        memory.record(
+            company=company,
+            status="ok",
+            brief_path=out_path,
+            notes=notes,
+            contact_name=primary_name,
+        )
         return "ok", out_path, ""
     except Exception as exc:
         # Keep the run going even if one account blows up. Record the error.
         traceback.print_exc(file=sys.stderr)
+        memory.record(company=company, status="error", notes=notes, contact_name=contact_name)
         return "error", None, f"{type(exc).__name__}: {exc}"
 
 
