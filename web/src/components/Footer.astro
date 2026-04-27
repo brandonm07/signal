@@ -2,11 +2,23 @@
 const year = new Date().getFullYear();
 ---
 
-<footer class="border-t border-ink/10 py-10">
-  <div
-    class="container mx-auto flex max-w-5xl flex-col items-start justify-between gap-4 px-6 text-sm text-stone md:flex-row md:px-10"
-  >
-    <span>&copy; {year} Signal Advisory LLC. Kansas City, Missouri.</span>
-    <span>Independent. Carrier agnostic. On your side of the table.</span>
+<footer class="border-t border-ink/10 py-12">
+  <div class="container mx-auto max-w-5xl px-6 md:px-10">
+    <div class="flex flex-col items-start justify-between gap-4 text-sm text-stone md:flex-row">
+      <span>&copy; {year} Signal Advisory LLC. Kansas City, Missouri.</span>
+      <span>Independent. Carrier agnostic. On your side of the table.</span>
+    </div>
+
+    <!-- FCC commission disclosure. Required-style language for channel advisors
+         that earn carrier commissions. Have counsel review before launch. -->
+    <p class="mt-8 max-w-3xl text-xs leading-relaxed text-stone/80">
+      <strong class="font-semibold text-stone">Compensation disclosure:</strong>
+      Signal Advisory LLC is an authorized agent for various telecommunications and
+      technology service providers and may receive commissions or referral fees on
+      services purchased through our recommendations. Our advisory and sourcing
+      engagements remain client-aligned: we represent the interests of our clients
+      in carrier evaluation, contract negotiation, and account management. Specific
+      compensation arrangements are disclosed on request.
+    </p>
   </div>
 </footer>
