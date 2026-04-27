@@ -1,20 +1,15 @@
 """Signal Advisory prospecting pipeline — CLI entrypoint.
 
     python run.py --accounts accounts/sample.csv
+    python run.py --company "Acme Corp"
 
-For each row in the input CSV, runs the Researcher, then the Drafter, and
-writes the combined brief + drafts to output/{date}/{slug}.md. Every run
-appends a row to output/run_log.csv.
-
-Each account is processed independently; one failure does not stop the rest.
+For each row in the input CSV (or each --company invocation), runs the
+Researcher → Targeter → Drafter chain via agents/pipeline.run_brief.
 """
 
 from __future__ import annotations
 
 import csv
-import re
-import sys
-import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -24,8 +19,9 @@ from dotenv import load_dotenv
 
 from agents.drafter import Drafter
 from agents.memory import Memory
+from agents.pipeline import run_brief
 from agents.researcher import Researcher
-from agents.targeter import Contact, Targeter
+from agents.targeter import Targeter
 
 app = typer.Typer(add_completion=False, help="Signal Advisory prospecting pipeline.")
 
@@ -124,7 +120,7 @@ def main(
     for row in rows:
         company = row["company_name"]
         typer.echo(f"\n→ {company}")
-        status, out_path, err = _process_account(
+        result = run_brief(
             company=company,
             contact_name=row.get("contact_name") or None,
             notes=row.get("notes") or None,
@@ -132,125 +128,38 @@ def main(
             targeter=targeter,
             drafter=drafter,
             memory=memory,
-            date_folder=date_folder,
+            output_dir=output_dir,
             refresh=refresh,
             cache_days=cache_days,
+            on_status=_print_status,
         )
         _append_run_log(
             run_log_path,
             company=company,
-            status=status,
-            output_path=str(out_path) if out_path else "",
-            error=err,
+            status=result.status,
+            output_path=str(result.brief_path) if result.brief_path else "",
+            error=result.error,
         )
-        marker = "ok" if status == "ok" else "FAILED"
-        typer.echo(f"  [{marker}] {out_path if out_path else err}")
+        if result.status == "error":
+            typer.echo(f"  [FAILED] {result.error}", err=True)
+        else:
+            typer.echo(f"  [{result.status}] {result.brief_path}")
 
     typer.echo(f"\nRun log: {run_log_path}")
 
 
-# ---- per-account work -------------------------------------------------------
-
-
-def _process_account(
-    company: str,
-    contact_name: Optional[str],
-    notes: Optional[str],
-    researcher: Researcher,
-    targeter: Targeter,
-    drafter: Drafter,
-    memory: Memory,
-    date_folder: Path,
-    refresh: bool,
-    cache_days: int,
-) -> tuple[str, Optional[Path], str]:
-    """Run one account end-to-end. Returns (status, output_path, error_message)."""
-    # Cache check — skip the API spend if we already have a recent brief.
-    if not refresh:
-        cached = memory.find_recent(company, max_age_days=cache_days)
-        if cached:
-            age = (datetime.now(timezone.utc) - cached.generated_at).days
-            typer.echo(f"  [cache] using brief from {age} day(s) ago: {cached.brief_path}")
-            return "cached", cached.brief_path, ""
-
-    try:
-        typer.echo("  researching…")
-        brief = researcher.research(company, contact_name=contact_name, notes=notes)
-
-        typer.echo("  targeting…")
-        contacts = targeter.find_contacts(company, brief)
-
-        # The Drafter gets the highest-ranked contact's name so it can write
-        # personalized openers. If the CSV already specified a contact, that
-        # takes precedence — the operator knows the account better than the
-        # model does.
-        primary_name = contact_name or (contacts[0].name if contacts else None)
-
-        typer.echo("  drafting…")
-        drafts = drafter.draft(brief, company_name=company, contact_name=primary_name)
-
-        out_path = date_folder / f"{_slugify(company)}.md"
-        out_path.write_text(
-            _render_account_markdown(
-                company=company,
-                contact_name=contact_name,
-                notes=notes,
-                brief=brief,
-                contacts=contacts,
-                drafts=drafts,
-            ),
-            encoding="utf-8",
-        )
-        memory.record(
-            company=company,
-            status="ok",
-            brief_path=out_path,
-            notes=notes,
-            contact_name=primary_name,
-        )
-        return "ok", out_path, ""
-    except Exception as exc:
-        # Keep the run going even if one account blows up. Record the error.
-        traceback.print_exc(file=sys.stderr)
-        memory.record(company=company, status="error", notes=notes, contact_name=contact_name)
-        return "error", None, f"{type(exc).__name__}: {exc}"
-
-
-def _render_account_markdown(
-    company: str,
-    contact_name: Optional[str],
-    notes: Optional[str],
-    brief: str,
-    contacts: list[Contact],
-    drafts: str,
-) -> str:
-    generated_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    header_lines = [f"# {company}", "", f"_Generated {generated_at}_", ""]
-    if contact_name:
-        header_lines.append(f"**Contact:** {contact_name}")
-    if notes:
-        header_lines.append(f"**Sales notes:** {notes}")
-    if contact_name or notes:
-        header_lines.append("")
-    header = "\n".join(header_lines)
-
-    if contacts:
-        contacts_md = "\n\n".join(c.as_markdown_bullet() for c in contacts)
-    else:
-        contacts_md = "_No decision makers identified._"
-
-    return (
-        f"{header}\n"
-        f"---\n\n"
-        f"# Research Brief\n\n"
-        f"{brief}\n\n"
-        f"---\n\n"
-        f"# Decision Makers\n\n"
-        f"{contacts_md}\n\n"
-        f"---\n\n"
-        f"# Outreach Drafts\n\n"
-        f"{drafts}\n"
-    )
+def _print_status(msg: str) -> None:
+    """Map the pipeline's terse status codes to the existing CLI vocabulary."""
+    labels = {
+        "cached": "  [cache] using cached brief",
+        "researching": "  researching…",
+        "targeting": "  targeting…",
+        "drafting": "  drafting…",
+        "done": "",
+    }
+    text = labels.get(msg, msg)
+    if text:
+        typer.echo(text)
 
 
 # ---- helpers ----------------------------------------------------------------
@@ -295,13 +204,6 @@ def _append_run_log(
                 error,
             ]
         )
-
-
-_SLUG_RE = re.compile(r"[^a-z0-9]+")
-
-
-def _slugify(value: str) -> str:
-    return _SLUG_RE.sub("-", value.lower()).strip("-") or "company"
 
 
 if __name__ == "__main__":
