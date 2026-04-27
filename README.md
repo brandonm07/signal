@@ -56,11 +56,13 @@ drafting.
 ### Layout
 
 ```
-agents/        Researcher, Targeter, Drafter (plain Python, no framework)
+agents/        Researcher, Targeter, Drafter, Memory, Pipeline orchestration
 config/        System prompts and model slugs
 accounts/      Input CSVs (sample.csv included)
-output/        {date}/{company_slug}.md per account + run_log.csv
+output/        {date}/{company_slug}.md per account + memory.db + run_log.csv
+app.py         Streamlit dashboard (interactive UI)
 run.py         CLI entrypoint (typer)
+evals/         Brief grader (checklist-based pass/fail)
 tests/         Smoke test (no network)
 ```
 
@@ -82,7 +84,19 @@ For the Targeter's contact enrichment, optionally add `APOLLO_API_KEY`
 either, the Targeter falls back to search — it can find LinkedIn URLs
 but NOT emails. The tool will never pattern-guess an email.
 
-### Run
+### Run — Streamlit dashboard (recommended)
+
+```bash
+streamlit run app.py
+```
+
+Codespaces forwards the port automatically; locally it opens a browser tab.
+Type a company name, watch the live progress (researching → targeting →
+drafting), see the brief in three tabs (Research / Decision Makers / Drafts),
+and click any past brief from the sidebar to revisit it. Same pipeline as the
+CLI under the hood.
+
+### Run — CLI
 
 Two modes — batch (a CSV of targets) or ad-hoc (one company on demand):
 
