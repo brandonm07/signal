@@ -84,6 +84,19 @@ For the Targeter's contact enrichment, optionally add `APOLLO_API_KEY`
 either, the Targeter falls back to search — it can find LinkedIn URLs
 but NOT emails. The tool will never pattern-guess an email.
 
+For the Researcher's firmographics, two more optional keys:
+
+- `CRUNCHBASE_API_KEY` — pulls founders, funding rounds, HQ, employee
+  tier on funded private companies. Paid API (https://data.crunchbase.com).
+- `BUILTWITH_API_KEY` — pulls the detected technology stack from the
+  company's website. Paid API (https://builtwith.com). Useful for the
+  "Likely Stack and Suspected Pain" section.
+
+All four enrichment sources (ZoomInfo, Apollo, Crunchbase, BuiltWith)
+silently no-op when their key isn't set, so leaving `.env` blank is the
+expected default and the pipeline still produces full briefs from
+Wikipedia, SEC EDGAR, and Tavily search.
+
 ### Run — Streamlit dashboard (recommended)
 
 ```bash
