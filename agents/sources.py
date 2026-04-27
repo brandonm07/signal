@@ -28,7 +28,7 @@ USER_AGENT = (
     "contact@signaladvisory.com)"
 )
 WIKIPEDIA_HEADERS = {"User-Agent": USER_AGENT, "Accept": "application/json"}
-SEC_HEADERS = {"User-Agent": USER_AGENT}
+SEC_HEADERS = {"User-Agent": USER_AGENT, "Accept": "application/json"}
 
 
 def fetch_wikipedia_summary(company: str, timeout: int = 15) -> str:
@@ -94,7 +94,15 @@ def fetch_sec_edgar_filings(
         print(f"  [warn] SEC EDGAR fetch failed: {exc}")
         return ""
     if resp.status_code >= 400:
-        print(f"  [warn] SEC EDGAR {resp.status_code}: {resp.text[:200]}")
+        # SEC sometimes serves an HTML block page even with a valid User-Agent
+        # (shared egress IPs from Codespaces / corporate networks get flagged).
+        # The brief works fine without SEC — log a one-line note, not 200
+        # chars of HTML.
+        ct = resp.headers.get("Content-Type", "")
+        if "json" in ct:
+            print(f"  [warn] SEC EDGAR {resp.status_code}: {resp.text[:200]}")
+        else:
+            print(f"  [info] SEC EDGAR not reachable from this network; skipping")
         return ""
     try:
         hits = resp.json().get("hits", {}).get("hits", [])
