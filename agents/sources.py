@@ -21,9 +21,14 @@ import requests
 WIKIPEDIA_SUMMARY_URL = "https://en.wikipedia.org/api/rest_v1/page/summary/{title}"
 SEC_EDGAR_SEARCH_URL = "https://efts.sec.gov/LATEST/search-index"
 
-# SEC requires a real User-Agent identifying the requester. Anything
-# descriptive with contact info satisfies their fair-use policy.
-SEC_HEADERS = {"User-Agent": "Signal Advisory research-bot contact@signaladvisory.com"}
+# Wikimedia and SEC both require a descriptive User-Agent identifying the
+# requester. The contact info satisfies their fair-use policies.
+USER_AGENT = (
+    "Signal-Advisory/0.1 (+https://github.com/brandonm07/signal; "
+    "contact@signaladvisory.com)"
+)
+WIKIPEDIA_HEADERS = {"User-Agent": USER_AGENT, "Accept": "application/json"}
+SEC_HEADERS = {"User-Agent": USER_AGENT}
 
 
 def fetch_wikipedia_summary(company: str, timeout: int = 15) -> str:
@@ -31,7 +36,9 @@ def fetch_wikipedia_summary(company: str, timeout: int = 15) -> str:
     title = company.replace(" ", "_")
     try:
         resp = requests.get(
-            WIKIPEDIA_SUMMARY_URL.format(title=title), timeout=timeout
+            WIKIPEDIA_SUMMARY_URL.format(title=title),
+            headers=WIKIPEDIA_HEADERS,
+            timeout=timeout,
         )
     except Exception as exc:
         print(f"  [warn] Wikipedia fetch failed: {exc}")
