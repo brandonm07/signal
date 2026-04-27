@@ -74,16 +74,22 @@ def get_agents() -> tuple[Researcher, Targeter, Drafter, Memory]:
 
 
 def load_recent_briefs(limit: int = 25) -> list[tuple[str, str, str]]:
-    """Return [(company, generated_at, brief_path)] for the sidebar."""
+    """Return [(company, generated_at, brief_path)] for the sidebar.
+
+    Deduped by brief_path — re-running on the same company creates a new
+    memory row but points at the same markdown file, so we only show the
+    most recent successful row per file.
+    """
     if not MEMORY_DB.exists():
         return []
     with sqlite3.connect(MEMORY_DB) as conn:
         rows = conn.execute(
             """
-            SELECT company, generated_at, brief_path
+            SELECT company, MAX(generated_at) AS latest, brief_path
             FROM briefs
             WHERE status = 'ok' AND brief_path IS NOT NULL
-            ORDER BY generated_at DESC
+            GROUP BY brief_path
+            ORDER BY latest DESC
             LIMIT ?
             """,
             (limit,),
@@ -105,9 +111,13 @@ with st.sidebar:
     recent = load_recent_briefs()
     if not recent:
         st.caption("None yet — generate one to start.")
-    for company, generated_at, path in recent:
+    for i, (company, generated_at, path) in enumerate(recent):
         date_str = generated_at[:10]
-        if st.button(f"{company}\n{date_str}", key=f"hist-{path}", use_container_width=True):
+        if st.button(
+            f"{company}\n{date_str}",
+            key=f"hist-{i}",
+            use_container_width=True,
+        ):
             st.session_state.current = {
                 "company": company,
                 "path": Path(path),
