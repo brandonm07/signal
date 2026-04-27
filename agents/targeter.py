@@ -19,10 +19,10 @@ from typing import Optional
 
 import requests
 
+from agents.openrouter import chat_completion
 from agents.researcher import SearchResult, _search_ddg, _search_tavily
 from config.prompts import TARGETER_MAX_TOKENS, TARGETER_MODEL, TARGETER_PROMPT
 
-OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 APOLLO_URL = "https://api.apollo.io/api/v1/mixed_people/search"
 ZOOMINFO_URL = "https://api.zoominfo.com/search/contact"
 
@@ -226,26 +226,8 @@ class Targeter:
             if c.get("name")
         ]
 
-    # ---- OpenRouter call ----------------------------------------------------
-
     def _chat(self, system: str, user: str, max_tokens: int) -> str:
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://github.com/brandonm07/signal",
-            "X-Title": "Signal Advisory",
-        }
-        payload = {
-            "model": self.model,
-            "messages": [
-                {"role": "system", "content": system},
-                {"role": "user", "content": user},
-            ],
-            "max_tokens": max_tokens,
-        }
-        resp = requests.post(OPENROUTER_URL, headers=headers, json=payload, timeout=120)
-        resp.raise_for_status()
-        return resp.json()["choices"][0]["message"]["content"].strip()
+        return chat_completion(self.api_key, self.model, system, user, max_tokens)
 
 
 def _parse_linkedin_title(title: str) -> tuple[str, str]:

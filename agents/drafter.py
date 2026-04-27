@@ -2,9 +2,6 @@
 
 Takes a research brief and returns three outreach variants in Brandon's voice:
 email, LinkedIn message, voicemail script. One OpenRouter call per account.
-
-Each agent file keeps its own small _chat helper so the file is readable on
-its own without cross-referencing.
 """
 
 from __future__ import annotations
@@ -12,11 +9,8 @@ from __future__ import annotations
 import os
 from typing import Optional
 
-import requests
-
+from agents.openrouter import chat_completion
 from config.prompts import DRAFTER_MAX_TOKENS, DRAFTER_MODEL, DRAFTER_PROMPT
-
-OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 
 class Drafter:
@@ -30,8 +24,6 @@ class Drafter:
             )
         self.model = model
 
-    # ---- public API ---------------------------------------------------------
-
     def draft(
         self,
         brief: str,
@@ -44,33 +36,9 @@ class Drafter:
             company_name=company_name,
             contact_name=contact_name,
         )
-        return self._chat(
-            system=DRAFTER_PROMPT,
-            user=user_message,
-            max_tokens=DRAFTER_MAX_TOKENS,
+        return chat_completion(
+            self.api_key, self.model, DRAFTER_PROMPT, user_message, DRAFTER_MAX_TOKENS
         )
-
-    # ---- internals ----------------------------------------------------------
-
-    def _chat(self, system: str, user: str, max_tokens: int) -> str:
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://github.com/brandonm07/signal",
-            "X-Title": "Signal Advisory",
-        }
-        payload = {
-            "model": self.model,
-            "messages": [
-                {"role": "system", "content": system},
-                {"role": "user", "content": user},
-            ],
-            "max_tokens": max_tokens,
-        }
-        resp = requests.post(OPENROUTER_URL, headers=headers, json=payload, timeout=120)
-        resp.raise_for_status()
-        data = resp.json()
-        return data["choices"][0]["message"]["content"].strip()
 
 
 def _build_user_message(

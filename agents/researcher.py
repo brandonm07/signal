@@ -17,13 +17,13 @@ from typing import Optional
 import requests
 from ddgs import DDGS
 
+from agents.openrouter import chat_completion
 from config.prompts import (
     RESEARCHER_MAX_TOKENS,
     RESEARCHER_MODEL,
     RESEARCHER_PROMPT,
 )
 
-OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 TAVILY_URL = "https://api.tavily.com/search"
 
 
@@ -113,26 +113,7 @@ class Researcher:
         return _search_ddg(query, max_results)
 
     def _chat(self, system: str, user: str, max_tokens: int) -> str:
-        """Single OpenRouter chat completion. Returns the assistant message."""
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-            # Optional analytics headers; OpenRouter shows these in the dashboard.
-            "HTTP-Referer": "https://github.com/brandonm07/signal",
-            "X-Title": "Signal Advisory",
-        }
-        payload = {
-            "model": self.model,
-            "messages": [
-                {"role": "system", "content": system},
-                {"role": "user", "content": user},
-            ],
-            "max_tokens": max_tokens,
-        }
-        resp = requests.post(OPENROUTER_URL, headers=headers, json=payload, timeout=120)
-        resp.raise_for_status()
-        data = resp.json()
-        return data["choices"][0]["message"]["content"].strip()
+        return chat_completion(self.api_key, self.model, system, user, max_tokens)
 
 
 def _search_ddg(query: str, max_results: int) -> list[SearchResult]:
