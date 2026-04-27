@@ -34,8 +34,8 @@ RUN_LOG_HEADERS = ["timestamp", "company", "status", "output_path", "error"]
 
 @app.command()
 def main(
-    accounts: Path = typer.Option(
-        ...,
+    accounts: Optional[Path] = typer.Option(
+        None,
         "--accounts",
         "-a",
         exists=True,
@@ -43,6 +43,23 @@ def main(
         dir_okay=False,
         readable=True,
         help="CSV with columns: company_name, contact_name (optional), notes (optional).",
+    ),
+    company: Optional[str] = typer.Option(
+        None,
+        "--company",
+        "-c",
+        help="Single-company ad-hoc mode. Use instead of --accounts when you "
+        "only need one brief on demand.",
+    ),
+    contact: Optional[str] = typer.Option(
+        None,
+        "--contact",
+        help="Optional named contact for single-company mode.",
+    ),
+    notes: Optional[str] = typer.Option(
+        None,
+        "--notes",
+        help="Optional sales notes for single-company mode.",
     ),
     output_dir: Path = typer.Option(
         Path("output"),
@@ -61,7 +78,23 @@ def main(
         help="How recent a cached brief must be to be reused. Default 30 days.",
     ),
 ):
-    """Run the Researcher + Drafter pipeline over an accounts CSV."""
+    """Run the Researcher + Targeter + Drafter pipeline.
+
+    Two modes:
+
+      Batch:   python run.py --accounts accounts/sample.csv
+      Ad-hoc:  python run.py --company "Acme Corp" --notes "Met at SXSW"
+    """
+    if accounts and company:
+        typer.echo("Pass --accounts OR --company, not both.", err=True)
+        raise typer.Exit(code=1)
+    if not accounts and not company:
+        typer.echo(
+            "Pass --accounts <csv> for batch mode, or --company <name> for one-off.",
+            err=True,
+        )
+        raise typer.Exit(code=1)
+
     load_dotenv()
 
     researcher = Researcher()
@@ -69,10 +102,19 @@ def main(
     drafter = Drafter()
     memory = Memory(db_path=output_dir / "memory.db")
 
-    rows = _read_accounts(accounts)
-    if not rows:
-        typer.echo(f"No account rows found in {accounts}.", err=True)
-        raise typer.Exit(code=1)
+    if accounts:
+        rows = _read_accounts(accounts)
+        if not rows:
+            typer.echo(f"No account rows found in {accounts}.", err=True)
+            raise typer.Exit(code=1)
+    else:
+        rows = [
+            {
+                "company_name": company.strip(),
+                "contact_name": (contact or "").strip(),
+                "notes": (notes or "").strip(),
+            }
+        ]
 
     date_folder = output_dir / datetime.now().strftime("%Y-%m-%d")
     date_folder.mkdir(parents=True, exist_ok=True)
