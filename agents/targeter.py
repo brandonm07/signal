@@ -57,6 +57,11 @@ class Targeter:
         self.zoominfo_key = os.environ.get("ZOOMINFO_API_KEY") or None
         self.apollo_key = os.environ.get("APOLLO_API_KEY") or None
         self.tavily_key = os.environ.get("TAVILY_API_KEY") or None
+        # Sticky disable flags — once a paid source tells us it's plan-gated,
+        # we stop trying it for the rest of the run instead of burning a
+        # request per company.
+        self._apollo_disabled = False
+        self._zoominfo_disabled = False
 
     # ---- public API ---------------------------------------------------------
 
@@ -74,12 +79,21 @@ class Targeter:
     # ---- enrichment dispatch ------------------------------------------------
 
     def _enrich(self, company: str) -> list[Contact]:
-        if self.zoominfo_key:
+        """Try sources in priority order. If one returns empty, fall through
+        to the next instead of giving up — better to have LinkedIn URLs from
+        search than no contacts at all."""
+        if self.zoominfo_key and not self._zoominfo_disabled:
             print("  enriching contacts via ZoomInfo")
-            return self._enrich_via_zoominfo(company)
-        if self.apollo_key:
+            contacts = self._enrich_via_zoominfo(company)
+            if contacts:
+                return contacts
+            print("  ZoomInfo returned no candidates, trying next source")
+        if self.apollo_key and not self._apollo_disabled:
             print("  enriching contacts via Apollo")
-            return self._enrich_via_apollo(company)
+            contacts = self._enrich_via_apollo(company)
+            if contacts:
+                return contacts
+            print("  Apollo returned no candidates, falling back to search")
         print("  enriching contacts via search (LinkedIn URLs only, no emails)")
         return self._enrich_via_search(company)
 
@@ -144,6 +158,11 @@ class Targeter:
             # Surface Apollo's actual error body — raise_for_status hides it.
             body = resp.text[:400].replace("\n", " ")
             print(f"  [warn] Apollo {resp.status_code}: {body}")
+            # Plan-gated keys never start working mid-run. Stop retrying so
+            # we don't hit Apollo on every account in a batch.
+            if "API_INACCESSIBLE" in body or "free plan" in body.lower():
+                print("  Apollo is plan-gated for this key — disabling for the rest of this run")
+                self._apollo_disabled = True
             return []
         try:
             data = resp.json()
