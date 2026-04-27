@@ -84,22 +84,50 @@ but NOT emails. The tool will never pattern-guess an email.
 
 ### Run
 
+Two modes — batch (a CSV of targets) or ad-hoc (one company on demand):
+
 ```bash
+# Batch
 python run.py --accounts accounts/sample.csv
+
+# Ad-hoc
+python run.py --company "Acme Corp" --notes "Met at SXSW"
+
+# Force re-run even if a recent brief exists in the cache
+python run.py --company "Acme Corp" --refresh
 ```
 
-For each row: the Researcher runs four targeted searches (company overview,
-last-12-months news, LinkedIn leaders, businesswire executive announcements)
-and writes a structured brief; the Targeter enriches 2–3 decision-maker
-contacts matching Signal's persona priorities (VP IT → Director → C-suite);
-the Drafter produces three outreach variants in Brandon's voice. Everything
-lands in `output/{YYYY-MM-DD}/{company-slug}.md` and a row is appended to
-`output/run_log.csv`.
+For each row: the Researcher pulls four targeted searches plus Wikipedia and
+SEC EDGAR filings, then writes a structured brief; the Targeter enriches 2–3
+decision-maker contacts matching Signal's persona priorities (VP IT →
+Director → C-suite); the Drafter produces three outreach variants in
+Brandon's voice. Everything lands in `output/{YYYY-MM-DD}/{company-slug}.md`
+and a row is appended to `output/run_log.csv`.
+
+The pipeline keeps a SQLite memory at `output/memory.db`. Re-running on a
+company within 30 days pulls the cached brief instead of re-spending API
+credit. Pass `--refresh` to ignore the cache; `--cache-days N` to change the
+window.
 
 If the model names a person without a supporting source URL on the same line,
 the brief is prepended with a **VERIFICATION REQUIRED** block listing the
 unsourced contacts. Always confirm those before outreach — the small open
 weight models occasionally invent plausible-looking executives.
+
+### Eval the briefs
+
+`evals/` grades existing briefs against a checklist (sections present, sources
+cited, contacts sourced, no banned phrases, word count, drafts present).
+
+```bash
+# Grade existing briefs (zero API cost)
+python -m evals.run --dir output/2026-04-23/
+
+# Generate fresh briefs and grade them (spends API credit)
+python -m evals.run --companies "Barry-Wehmiller,Hunter Engineering"
+```
+
+Exit code 0 if every check passes, 1 otherwise — drop into CI if you want.
 
 ### Adding accounts
 
