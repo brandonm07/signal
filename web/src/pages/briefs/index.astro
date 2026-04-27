@@ -49,30 +49,164 @@ const briefs = loadBriefs();
       ranked decision makers, and outreach drafts for a single target account.
     </p>
 
+    <!-- Generate-on-demand panel: produces a CLI command you paste in your terminal. -->
+    <div class="mb-12 border border-ink/10 p-6 md:p-8">
+      <p class="mb-2 text-xs uppercase tracking-[0.2em] text-stone">Generate a brief</p>
+      <h2 class="display mb-4 text-2xl font-medium">Research any company</h2>
+      <p class="mb-5 text-sm text-ink/65 leading-relaxed">
+        Type a company name. We&rsquo;ll build the exact CLI command — copy it,
+        paste it in your terminal at the repo root, and the brief will appear in this
+        list when the pipeline finishes.
+      </p>
+      <form id="generate-form" class="flex flex-col gap-3 md:flex-row md:items-end">
+        <label class="flex flex-1 flex-col gap-1.5">
+          <span class="text-xs uppercase tracking-wider text-stone">Company name</span>
+          <input
+            type="text"
+            id="company-input"
+            placeholder="Acme Corporation"
+            required
+            class="border border-ink/20 bg-paper px-3 py-2 text-sm focus:border-signal focus:outline-none"
+          />
+        </label>
+        <label class="flex flex-1 flex-col gap-1.5">
+          <span class="text-xs uppercase tracking-wider text-stone">Notes (optional)</span>
+          <input
+            type="text"
+            id="notes-input"
+            placeholder="Met at SXSW, looking at SD-WAN"
+            class="border border-ink/20 bg-paper px-3 py-2 text-sm focus:border-signal focus:outline-none"
+          />
+        </label>
+        <button
+          type="submit"
+          class="bg-ink px-5 py-2 text-sm font-medium text-paper transition-colors hover:bg-signal"
+        >
+          Build command
+        </button>
+      </form>
+      <div id="cli-output" class="mt-5 hidden">
+        <p class="mb-2 text-xs uppercase tracking-wider text-stone">Run this from the repo root</p>
+        <div class="flex items-start gap-2">
+          <pre id="cli-cmd" class="flex-1 overflow-x-auto bg-ink p-4 font-mono text-xs text-paper"></pre>
+          <button
+            type="button"
+            id="copy-btn"
+            class="border border-ink/20 px-3 py-2 text-xs font-medium hover:border-ink"
+          >
+            Copy
+          </button>
+        </div>
+      </div>
+    </div>
+
     {
       briefs.length === 0 ? (
         <div class="border border-ink/10 p-8">
           <p class="text-ink/60 mb-4">No briefs yet.</p>
           <p class="text-ink/60 text-sm leading-relaxed">
-            Run <code class="bg-ink/5 px-1.5 py-0.5 text-sm">python run.py --accounts accounts/sample.csv</code> from the repo root to generate some.
+            Use the form above, or run <code class="bg-ink/5 px-1.5 py-0.5 text-sm">python run.py --accounts accounts/sample.csv</code>.
           </p>
         </div>
       ) : (
-        <ul class="divide-y divide-ink/10 border-y border-ink/10">
-          {briefs.map((b) => (
-            <li>
-              <a
-                href={`/briefs/${b.date}/${b.slug}/`}
-                class="flex items-baseline justify-between gap-6 py-5 transition-colors hover:text-signal"
-              >
-                <span class="display text-xl font-medium capitalize">{b.title}</span>
-                <span class="font-mono text-xs text-stone">{b.date}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
+        <>
+          <div class="mb-4 flex items-center gap-3">
+            <input
+              type="search"
+              id="filter-input"
+              placeholder="Filter by company name…"
+              class="flex-1 border-b border-ink/20 bg-transparent py-2 text-sm focus:border-signal focus:outline-none"
+            />
+            <span id="filter-count" class="text-xs text-stone">{briefs.length} briefs</span>
+          </div>
+          <ul id="briefs-list" class="divide-y divide-ink/10 border-y border-ink/10">
+            {briefs.map((b) => (
+              <li data-title={b.title.toLowerCase()}>
+                <a
+                  href={`/briefs/${b.date}/${b.slug}/`}
+                  class="flex items-baseline justify-between gap-6 py-5 transition-colors hover:text-signal"
+                >
+                  <span class="display text-xl font-medium capitalize">{b.title}</span>
+                  <span class="font-mono text-xs text-stone">{b.date}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </>
       )
     }
   </main>
   <Footer />
 </Base>
+
+<script>
+  // Generate-command form: shell-quote inputs, render the CLI command, copy.
+  const form = document.getElementById('generate-form') as HTMLFormElement | null;
+  const companyInput = document.getElementById('company-input') as HTMLInputElement | null;
+  const notesInput = document.getElementById('notes-input') as HTMLInputElement | null;
+  const cliOutput = document.getElementById('cli-output');
+  const cliCmd = document.getElementById('cli-cmd');
+  const copyBtn = document.getElementById('copy-btn');
+
+  // Single-quote escape: wrap in single quotes, escape any embedded single quotes.
+  function shellQuote(s: string): string {
+    return `'${s.replace(/'/g, `'\\''`)}'`;
+  }
+
+  if (form && companyInput && notesInput && cliOutput && cliCmd) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const company = companyInput.value.trim();
+      if (!company) return;
+      const parts = ['python run.py --company', shellQuote(company)];
+      const notes = notesInput.value.trim();
+      if (notes) parts.push('--notes', shellQuote(notes));
+      cliCmd.textContent = parts.join(' ');
+      cliOutput.classList.remove('hidden');
+    });
+  }
+
+  if (copyBtn && cliCmd) {
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(cliCmd.textContent ?? '');
+        const original = copyBtn.textContent;
+        copyBtn.textContent = 'Copied';
+        setTimeout(() => { copyBtn.textContent = original; }, 1200);
+      } catch {
+        // Older browsers / non-secure contexts: fall back to selection.
+        const range = document.createRange();
+        range.selectNodeContents(cliCmd);
+        const sel = window.getSelection();
+        sel?.removeAllRanges();
+        sel?.addRange(range);
+      }
+    });
+  }
+
+  // Live filter on the brief list. Pure DOM, no framework needed.
+  const filterInput = document.getElementById('filter-input') as HTMLInputElement | null;
+  const briefsList = document.getElementById('briefs-list');
+  const filterCount = document.getElementById('filter-count');
+
+  if (filterInput && briefsList) {
+    const items = Array.from(briefsList.querySelectorAll('li'));
+    const total = items.length;
+    filterInput.addEventListener('input', () => {
+      const q = filterInput.value.trim().toLowerCase();
+      let visible = 0;
+      items.forEach((li) => {
+        const title = li.getAttribute('data-title') ?? '';
+        const match = !q || title.includes(q);
+        (li as HTMLElement).style.display = match ? '' : 'none';
+        if (match) visible += 1;
+      });
+      if (filterCount) {
+        filterCount.textContent =
+          q && visible !== total
+            ? `${visible} of ${total} briefs`
+            : `${total} briefs`;
+      }
+    });
+  }
+</script>
