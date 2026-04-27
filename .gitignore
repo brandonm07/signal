@@ -21,3 +21,15 @@ dist/
 *.log
 npm-debug.log*
 pnpm-debug.log*
+
+# Python (prospecting pipeline)
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+
+# Pipeline output — keep the folder, ignore everything in it
+output/*
+!output/.gitkeep
