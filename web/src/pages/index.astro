@@ -3,21 +3,34 @@ import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 
-const services = [
+// Swap this for your real booking URL once Cal.com / Calendly is live.
+const BOOKING_URL = 'https://cal.com/signaladvisory';
+
+const ladder = [
   {
-    tag: '01',
-    title: 'Carrier sourcing',
-    body: 'One advisor, every carrier evaluated. SD-WAN, UCaaS, dedicated internet, SASE, mobility — we assess the market on your behalf, negotiate the terms, and stay on the account for the life of the relationship. No carrier quota. No agenda except yours.',
+    step: '01',
+    title: 'Free assessment',
+    tier: 'No cost · 30 minutes',
+    body: 'Bring us a current invoice, an upcoming renewal, or a technology problem you have not been able to solve. We tell you exactly what we see and what we would do. No obligation, no hard pitch.',
+    cta: 'Start here',
   },
   {
-    tag: '02',
-    title: 'Technology advisory',
-    body: 'Independent counsel on vendor selection, contract negotiation, architecture planning, and technology spend. Hourly or retained — we provide the expertise your team needs without the bias of a vendor relationship.',
+    step: '02',
+    title: 'Advisory',
+    tier: 'Hourly or retained',
+    body: 'Independent counsel on vendor selection, contract negotiation, architecture planning, and technology spend. We bring the expertise your team needs without the bias of a vendor relationship.',
   },
   {
-    tag: '03',
-    title: 'Managed services',
-    body: 'We handle the operational side: implementation oversight, vendor escalations, account management, invoice auditing, and carrier portal administration. Your team stays focused on the business. We manage the relationship.',
+    step: '03',
+    title: 'Sourcing',
+    tier: 'Engagement based',
+    body: 'One advisor, every carrier evaluated. SD-WAN, UCaaS, dedicated internet, SASE, mobility — we assess the market, negotiate the terms, and recommend what actually fits your business.',
+  },
+  {
+    step: '04',
+    title: 'Lifecycle management',
+    tier: 'Ongoing partnership',
+    body: 'After the contract is signed: implementation oversight, vendor escalations, account management, invoice auditing, renewal strategy. Your team stays focused on the business. We manage the relationship.',
   },
 ];
 
@@ -56,10 +69,12 @@ const differentiators = [
     </p>
     <div class="mt-10 flex flex-wrap gap-4">
       <a
-        href="#contact"
+        href={BOOKING_URL}
+        target="_blank"
+        rel="noopener noreferrer"
         class="inline-block rounded-sm bg-signal px-6 py-3 text-sm font-semibold text-paper hover:bg-ink transition-colors"
       >
-        Schedule a consultation
+        Book a free assessment
       </a>
       <a
         href="#services"
@@ -70,24 +85,42 @@ const differentiators = [
     </div>
   </section>
 
-  <!-- Services -->
+  <!-- Service ladder -->
   <section id="services" class="border-t border-ink/10 py-24">
     <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Our services</p>
-      <h2 class="display mb-16 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
-        Three disciplines. One trusted advisor.
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">How we work</p>
+      <h2 class="display mb-6 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
+        Start with a conversation. <em class="text-signal not-italic">Climb only as far as it serves you.</em>
       </h2>
-      <div class="grid gap-10 md:grid-cols-3">
+      <p class="mb-14 max-w-2xl text-ink/70 leading-relaxed">
+        Most clients begin with a free assessment and never need anything more. The
+        ladder is here for the ones who do.
+      </p>
+
+      <ol class="grid gap-px bg-ink/10 md:grid-cols-2 lg:grid-cols-4">
         {
-          services.map((s) => (
-            <div class="border-t border-ink/10 pt-8">
-              <p class="mb-3 font-mono text-xs text-stone">{s.tag}</p>
-              <h3 class="display mb-4 text-2xl font-medium">{s.title}</h3>
-              <p class="text-ink/70 leading-relaxed text-[15px]">{s.body}</p>
-            </div>
+          ladder.map((s) => (
+            <li class="flex flex-col bg-paper p-8">
+              <div class="mb-6 flex items-baseline justify-between gap-4">
+                <span class="display text-3xl font-medium text-signal">{s.step}</span>
+                <span class="font-mono text-[10px] uppercase tracking-wider text-stone">
+                  {s.tier}
+                </span>
+              </div>
+              <h3 class="display mb-3 text-xl font-medium">{s.title}</h3>
+              <p class="mb-6 text-[15px] leading-relaxed text-ink/70">{s.body}</p>
+              {s.cta && (
+                <a
+                  href="#contact"
+                  class="mt-auto inline-block self-start text-sm font-semibold text-signal hover:text-ink"
+                >
+                  {s.cta} →
+                </a>
+              )}
+            </li>
           ))
         }
-      </div>
+      </ol>
     </div>
   </section>
 
@@ -164,12 +197,22 @@ const differentiators = [
         you have not been able to solve. We will tell you exactly what we see and what we would do.
         No obligation.
       </p>
-      <a
-        href="mailto:hello@signaladvisory.com"
-        class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-paper hover:text-ink transition-colors"
-      >
-        hello@signaladvisory.com
-      </a>
+      <div class="flex flex-wrap items-center justify-center gap-4">
+        <a
+          href={BOOKING_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-paper hover:text-ink transition-colors"
+        >
+          Book a free assessment
+        </a>
+        <a
+          href="mailto:hello@signaladvisory.com"
+          class="inline-block rounded-sm border border-paper/20 px-8 py-4 text-sm font-medium text-paper hover:border-paper transition-colors"
+        >
+          hello@signaladvisory.com
+        </a>
+      </div>
     </div>
   </section>
 
