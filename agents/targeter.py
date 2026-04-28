@@ -118,8 +118,8 @@ class Targeter:
             return []
         return [
             Contact(
-                name=f"{p.get('firstName', '')} {p.get('lastName', '')}".strip(),
-                title=p.get("jobTitle", ""),
+                name=f"{p.get('firstName') or ''} {p.get('lastName') or ''}".strip(),
+                title=p.get("jobTitle") or "",
                 email=p.get("email") or None,
                 linkedin_url=p.get("linkedInUrl") or None,
             )
@@ -175,7 +175,7 @@ class Targeter:
         return [
             Contact(
                 name=(p.get("name") or "").strip(),
-                title=p.get("title", ""),
+                title=p.get("title") or "",
                 email=p.get("email") or None,
                 linkedin_url=p.get("linkedin_url") or None,
             )

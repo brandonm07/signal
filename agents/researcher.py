@@ -131,11 +131,13 @@ def _search_ddg(query: str, max_results: int) -> list[SearchResult]:
         # Rate limits, network hiccups: never crash the whole run.
         print(f"  [warn] DDG search failed for {query!r}: {exc}")
         return []
+    # Use `or ""` rather than `.get(k, "")` because some backends return
+    # explicit null values for missing fields, and "".strip() must not crash.
     return [
         SearchResult(
-            title=r.get("title", "").strip(),
-            url=r.get("href", "").strip(),
-            snippet=r.get("body", "").strip(),
+            title=(r.get("title") or "").strip(),
+            url=(r.get("href") or "").strip(),
+            snippet=(r.get("body") or "").strip(),
         )
         for r in raw
     ]
@@ -164,9 +166,9 @@ def _search_tavily(query: str, max_results: int, api_key: str) -> list[SearchRes
         return []
     return [
         SearchResult(
-            title=r.get("title", "").strip(),
-            url=r.get("url", "").strip(),
-            snippet=r.get("content", "").strip(),
+            title=(r.get("title") or "").strip(),
+            url=(r.get("url") or "").strip(),
+            snippet=(r.get("content") or "").strip(),
         )
         for r in raw
     ]
