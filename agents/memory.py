@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import re
 import sqlite3
+import threading
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -32,11 +33,17 @@ class CachedBrief:
 
 
 class Memory:
-    """Tiny SQLite wrapper. One brief per row. Lookup by normalized name."""
+    """Tiny SQLite wrapper. One brief per row. Lookup by normalized name.
+
+    Thread-safe: a single lock serializes all reads/writes so the parallel
+    runner in run.py can share one Memory instance across worker threads
+    without hitting "database is locked" errors.
+    """
 
     def __init__(self, db_path: Path = DEFAULT_DB_PATH):
         self.db_path = db_path
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        self._lock = threading.Lock()
         with self._conn() as conn:
             conn.executescript(
                 """
@@ -75,7 +82,7 @@ class Memory:
         notes: Optional[str] = None,
         contact_name: Optional[str] = None,
     ) -> None:
-        with self._conn() as conn:
+        with self._lock, self._conn() as conn:
             conn.execute(
                 """
                 INSERT INTO briefs (company, normalized, generated_at, brief_path,
@@ -105,7 +112,7 @@ class Memory:
         cutoff = (
             datetime.now(timezone.utc) - timedelta(days=max_age_days)
         ).isoformat(timespec="seconds")
-        with self._conn() as conn:
+        with self._lock, self._conn() as conn:
             row = conn.execute(
                 """
                 SELECT company, generated_at, brief_path, notes, contact_name

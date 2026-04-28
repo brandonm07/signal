@@ -10,6 +10,9 @@ Researcher → Targeter → Drafter chain via agents/pipeline.run_brief.
 from __future__ import annotations
 
 import csv
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -19,7 +22,7 @@ from dotenv import load_dotenv
 
 from agents.drafter import Drafter
 from agents.memory import Memory
-from agents.pipeline import run_brief
+from agents.pipeline import PipelineResult, run_brief
 from agents.researcher import Researcher
 from agents.targeter import Targeter
 
@@ -73,12 +76,21 @@ def main(
         "--cache-days",
         help="How recent a cached brief must be to be reused. Default 30 days.",
     ),
+    workers: int = typer.Option(
+        1,
+        "--workers",
+        "-w",
+        min=1,
+        max=10,
+        help="Parallel batch workers. 1 = serial (default). Higher = faster on "
+        "large CSVs; capped at 10 to avoid OpenRouter rate limits.",
+    ),
 ):
     """Run the Researcher + Targeter + Drafter pipeline.
 
     Two modes:
 
-      Batch:   python run.py --accounts accounts/sample.csv
+      Batch:   python run.py --accounts accounts/sample.csv --workers 5
       Ad-hoc:  python run.py --company "Acme Corp" --notes "Met at SXSW"
     """
     if accounts and company:
@@ -116,7 +128,30 @@ def main(
     date_folder.mkdir(parents=True, exist_ok=True)
     run_log_path = output_dir / "run_log.csv"
 
-    typer.echo(f"Processing {len(rows)} account(s) into {date_folder}/")
+    actual_workers = min(workers, len(rows))
+    mode = "serial" if actual_workers == 1 else f"parallel (workers={actual_workers})"
+    typer.echo(f"Processing {len(rows)} account(s) — {mode} — into {date_folder}/")
+
+    started_at = time.monotonic()
+    if actual_workers == 1:
+        _run_serial(
+            rows, researcher, targeter, drafter, memory, output_dir,
+            refresh, cache_days, run_log_path,
+        )
+    else:
+        _run_parallel(
+            rows, researcher, targeter, drafter, memory, output_dir,
+            refresh, cache_days, run_log_path, actual_workers,
+        )
+    elapsed = time.monotonic() - started_at
+    typer.echo(f"\nRun log: {run_log_path}")
+    typer.echo(f"Elapsed: {elapsed:.1f}s ({elapsed / max(len(rows), 1):.1f}s per account)")
+
+
+def _run_serial(
+    rows, researcher, targeter, drafter, memory, output_dir,
+    refresh, cache_days, run_log_path,
+):
     for row in rows:
         company = row["company_name"]
         typer.echo(f"\n→ {company}")
@@ -145,7 +180,54 @@ def main(
         else:
             typer.echo(f"  [{result.status}] {result.brief_path}")
 
-    typer.echo(f"\nRun log: {run_log_path}")
+
+def _run_parallel(
+    rows, researcher, targeter, drafter, memory, output_dir,
+    refresh, cache_days, run_log_path, workers,
+):
+    """Fan out across `workers` threads. Per-step status updates are silenced
+    (they'd interleave); each company prints one line when it finishes."""
+    log_lock = threading.Lock()
+    total = len(rows)
+    done = 0
+
+    def worker(row: dict) -> tuple[str, PipelineResult, float]:
+        company = row["company_name"]
+        t0 = time.monotonic()
+        result = run_brief(
+            company=company,
+            contact_name=row.get("contact_name") or None,
+            notes=row.get("notes") or None,
+            researcher=researcher,
+            targeter=targeter,
+            drafter=drafter,
+            memory=memory,
+            output_dir=output_dir,
+            refresh=refresh,
+            cache_days=cache_days,
+            on_status=lambda _msg: None,  # silenced — see docstring
+        )
+        return company, result, time.monotonic() - t0
+
+    with ThreadPoolExecutor(max_workers=workers) as ex:
+        futures = [ex.submit(worker, row) for row in rows]
+        for fut in as_completed(futures):
+            company, result, took = fut.result()
+            with log_lock:
+                _append_run_log(
+                    run_log_path,
+                    company=company,
+                    status=result.status,
+                    output_path=str(result.brief_path) if result.brief_path else "",
+                    error=result.error,
+                )
+                done += 1
+                progress = f"[{done}/{total}]"
+                if result.status == "error":
+                    typer.echo(f"{progress} ✗ {company} ({took:.1f}s) — {result.error}", err=True)
+                else:
+                    marker = "cached" if result.status == "cached" else "ok"
+                    typer.echo(f"{progress} ✓ {company} ({took:.1f}s) [{marker}]")
 
 
 def _print_status(msg: str) -> None:

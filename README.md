@@ -114,8 +114,11 @@ CLI under the hood.
 Two modes — batch (a CSV of targets) or ad-hoc (one company on demand):
 
 ```bash
-# Batch
+# Batch (serial — default)
 python run.py --accounts accounts/sample.csv
+
+# Batch (parallel — ~5x faster on large lists)
+python run.py --accounts accounts/sample.csv --workers 5
 
 # Ad-hoc
 python run.py --company "Acme Corp" --notes "Met at SXSW"
@@ -123,6 +126,12 @@ python run.py --company "Acme Corp" --notes "Met at SXSW"
 # Force re-run even if a recent brief exists in the cache
 python run.py --company "Acme Corp" --refresh
 ```
+
+`--workers` fans the pipeline across N threads. Capped at 10 to avoid
+OpenRouter rate limits. Roughly: 100 accounts × ~90s each = ~2.5 hours
+serial, ~30 minutes at `--workers 5`. Per-step progress is suppressed in
+parallel mode (it would interleave); each account prints one line when it
+finishes with the elapsed time.
 
 For each row: the Researcher pulls four targeted searches plus Wikipedia and
 SEC EDGAR filings, then writes a structured brief; the Targeter enriches 2–3
