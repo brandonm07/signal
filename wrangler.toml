@@ -1,0 +1,20 @@
+# Cloudflare Workers config for the Signal Advisory marketing site.
+#
+# Cloudflare's git integration runs `npx wrangler deploy` from the repo
+# root. With this file, wrangler knows to:
+#   1. Build the Astro site in /web/ first
+#   2. Serve the resulting /web/dist/ as static assets via Workers
+#
+# This file replaces the need for any custom build settings in the
+# Cloudflare dashboard. Anyone wanting to change build behavior should
+# edit this file instead of clicking around the dashboard.
+
+name = "signal"
+compatibility_date = "2024-11-01"
+
+[build]
+command = "cd web && pnpm install --no-frozen-lockfile && pnpm build"
+
+[assets]
+directory = "./web/dist"
+not_found_handling = "404-page"

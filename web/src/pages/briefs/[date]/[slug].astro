@@ -1,0 +1,142 @@
+---
+import { readdirSync, readFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import { marked } from 'marked';
+import Base from '../../../layouts/Base.astro';
+import Nav from '../../../components/Nav.astro';
+import Footer from '../../../components/Footer.astro';
+
+// Static paths built at build time — one HTML per generated brief.
+export async function getStaticPaths() {
+  const outputDir = resolve('../output');
+  let dates: string[] = [];
+  try {
+    dates = readdirSync(outputDir).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d));
+  } catch {
+    return [];
+  }
+  const paths: {
+    params: { date: string; slug: string };
+    props: { content: string };
+  }[] = [];
+  for (const date of dates) {
+    let files: string[] = [];
+    try {
+      files = readdirSync(join(outputDir, date)).filter((f) => f.endsWith('.md'));
+    } catch {
+      continue;
+    }
+    for (const file of files) {
+      const slug = file.replace(/\.md$/, '');
+      const content = readFileSync(join(outputDir, date, file), 'utf-8');
+      paths.push({ params: { date, slug }, props: { content } });
+    }
+  }
+  return paths;
+}
+
+const { date, slug } = Astro.params;
+const { content } = Astro.props as { content: string };
+const html = marked.parse(content) as string;
+const title = (slug ?? '').replace(/-/g, ' ');
+---
+
+<Base title={`${title} — Signal briefs`}>
+  <Nav />
+  <main class="container mx-auto max-w-3xl px-6 py-16 md:px-10">
+    <a
+      href="/briefs/"
+      class="mb-10 inline-block text-sm text-stone transition-colors hover:text-signal"
+    >
+      ← All briefs
+    </a>
+    <p class="mb-4 font-mono text-xs text-stone">{date}</p>
+    <article class="brief" set:html={html} />
+  </main>
+  <Footer />
+</Base>
+
+<style>
+  /* Scoped styles that still reach into set:html content via :global */
+  .brief :global(h1) {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 2.5rem;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin-bottom: 1.25rem;
+  }
+  .brief :global(h1:first-child) {
+    margin-top: 0;
+  }
+  .brief :global(h2) {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 1.6rem;
+    font-weight: 500;
+    margin-top: 2.75rem;
+    margin-bottom: 0.75rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgb(26 31 36 / 0.1);
+  }
+  .brief :global(h2:first-child) {
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
+  }
+  .brief :global(h3) {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-top: 1.75rem;
+    margin-bottom: 0.5rem;
+  }
+  .brief :global(p) {
+    line-height: 1.7;
+    margin-bottom: 1rem;
+    color: rgb(26 31 36 / 0.78);
+  }
+  .brief :global(ul),
+  .brief :global(ol) {
+    margin-bottom: 1rem;
+    padding-left: 1.25rem;
+    color: rgb(26 31 36 / 0.78);
+  }
+  .brief :global(li) {
+    margin-bottom: 0.4rem;
+    line-height: 1.6;
+  }
+  .brief :global(a) {
+    color: var(--signal);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .brief :global(a:hover) {
+    color: var(--ink);
+  }
+  .brief :global(hr) {
+    border: none;
+    border-top: 1px solid rgb(26 31 36 / 0.1);
+    margin: 2.5rem 0;
+  }
+  .brief :global(code) {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: rgb(26 31 36 / 0.06);
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+  .brief :global(blockquote) {
+    border-left: 3px solid var(--signal);
+    padding: 0.25rem 0 0.25rem 1rem;
+    margin: 1.25rem 0;
+    color: rgb(26 31 36 / 0.72);
+    font-style: italic;
+  }
+  .brief :global(strong) {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .brief :global(em) {
+    color: rgb(26 31 36 / 0.65);
+  }
+</style>
