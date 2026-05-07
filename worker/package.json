@@ -1,0 +1,17 @@
+{
+  "name": "signal-pitcher",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "typecheck": "tsc --noEmit",
+    "db:migrate:local": "wrangler d1 migrations apply signal-leads --local",
+    "db:migrate:remote": "wrangler d1 migrations apply signal-leads --remote"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250101.0",
+    "typescript": "^5.7.2",
+    "wrangler": "^4.0.0"
+  }
+}

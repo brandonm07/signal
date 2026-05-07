@@ -1,0 +1,40 @@
+name = "signal-pitcher"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Cron: every minute, 9am-5pm Central, weekdays. Worker checks the window
+# and the daily cap before doing anything, so cron firing outside is a no-op.
+[triggers]
+crons = ["* 14-22 * * 1-5"]  # UTC; 14-22 UTC = 9a-5p Central (CST/CDT shifts; we re-check inside the worker)
+
+[[d1_databases]]
+binding = "DB"
+database_name = "signal-leads"
+database_id = "REPLACE_AFTER_CREATING_D1"  # set via `wrangler d1 create signal-leads`
+
+[[queues.producers]]
+binding = "PITCHER_QUEUE"
+queue = "signal-pitcher"
+
+[[queues.consumers]]
+queue = "signal-pitcher"
+max_batch_size = 1
+max_batch_timeout = 5
+max_retries = 3
+dead_letter_queue = "signal-pitcher-dlq"
+
+[vars]
+SENDER_EMAIL = "info@signaladvise.com"
+REPLY_TO = "info@signaladvise.com"
+SENDER_NAME = "Signal Advisory"
+PHYSICAL_ADDRESS = "Signal Advisory LLC, Kansas City, MO"
+UNSUBSCRIBE_BASE_URL = "https://api.signaladvise.com/u"
+DAILY_CAP = "20"          # ramp: wk1=20, wk2=50, wk3=100, wk4+=200
+SEND_WINDOW_TZ = "America/Chicago"
+SEND_WINDOW_START_HOUR = "9"
+SEND_WINDOW_END_HOUR = "17"
+JITTER_MAX_SECONDS = "30"
+
+# Secrets (set via `wrangler secret put <NAME>`):
+#   RESEND_API_KEY
