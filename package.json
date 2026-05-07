@@ -1,0 +1,7 @@
+{
+  "name": "signal",
+  "private": true,
+  "scripts": {
+    "build": "cd web && pnpm install --frozen-lockfile && pnpm run build"
+  }
+}
