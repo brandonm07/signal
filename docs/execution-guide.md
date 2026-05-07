@@ -169,7 +169,7 @@ This is what you run until your first $10,000 in revenue hits the account.
 | What it does | Tool | Monthly cost |
 |---|---|---|
 | CRM — manage contacts, pipeline, deals | HubSpot Free | **$0** |
-| Business email (yourname@signaladvisory.com) | Google Workspace Starter | **$6/person** |
+| Business email (yourname@signaladvise.com) | Google Workspace Starter | **$6/person** |
 | Business phone line | Quo (formerly OpenPhone) Starter | **$15/mo** |
 | Accounting + invoicing | Wave | **$0** |
 | Meeting scheduling (send a booking link) | Cal.com | **$0** |
@@ -183,7 +183,7 @@ This is what you run until your first $10,000 in revenue hits the account.
 | **Total — 2 founders** | | **~$53/mo** |
 
 > **One-time costs in Month 1:**
-> - Domain (signaladvisory.com): ~$15/yr
+> - Domain (signaladvise.com): ~$15/yr
 > - E&O + General Liability insurance: $600–960/yr (~$50–80/mo bundled)
 > - Missouri LLC filing: $50 online (+ $125/yr registered agent if desired)
 > - Attorney reviews (Operating Agreement + master agent contracts): $700–1,200 one-time

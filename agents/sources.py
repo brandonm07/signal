@@ -38,7 +38,7 @@ BUILTWITH_URL = "https://api.builtwith.com/v22/api.json"
 # requester. The contact info satisfies their fair-use policies.
 USER_AGENT = (
     "Signal-Advisory/0.1 (+https://github.com/brandonm07/signal; "
-    "contact@signaladvisory.com)"
+    "contact@signaladvise.com)"
 )
 WIKIPEDIA_HEADERS = {"User-Agent": USER_AGENT, "Accept": "application/json"}
 SEC_HEADERS = {"User-Agent": USER_AGENT, "Accept": "application/json"}

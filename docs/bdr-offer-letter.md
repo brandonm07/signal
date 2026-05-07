@@ -92,7 +92,7 @@ Sincerely,
 
 **Brandon Murphy**
 Principal Advisor, Signal Advisory LLC
-hello@signaladvisory.com
+hello@signaladvise.com
 
 ---
 
