@@ -3,6 +3,10 @@ main = "src/index.ts"
 compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat"]
 
+routes = [
+  { pattern = "api.signaladvise.com", custom_domain = true }
+]
+
 # Cron: every minute, 9am-5pm Central, weekdays. Worker checks the window
 # and the daily cap before doing anything, so cron firing outside is a no-op.
 [triggers]
@@ -10,8 +14,8 @@ crons = ["* 14-22 * * 1-5"]  # UTC; 14-22 UTC = 9a-5p Central (CST/CDT shifts; w
 
 [[d1_databases]]
 binding = "DB"
-database_name = "signal-leads"
-database_id = "REPLACE_AFTER_CREATING_D1"  # set via `wrangler d1 create signal-leads`
+database_name = "signaladvise"
+database_id = "3524064f-ff87-4de8-a62e-1961124aaf7b"
 
 [[queues.producers]]
 binding = "PITCHER_QUEUE"

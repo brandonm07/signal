@@ -6,8 +6,8 @@
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
     "typecheck": "tsc --noEmit",
-    "db:migrate:local": "wrangler d1 migrations apply signal-leads --local",
-    "db:migrate:remote": "wrangler d1 migrations apply signal-leads --remote"
+    "db:migrate:local": "wrangler d1 migrations apply signaladvise --local",
+    "db:migrate:remote": "wrangler d1 migrations apply signaladvise --remote"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250101.0",
