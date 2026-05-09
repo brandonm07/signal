@@ -41,6 +41,7 @@ async function tick(env: Env): Promise<void> {
   const lead = await env.DB.prepare(
     `SELECT * FROM leads
        WHERE status = 'queued'
+         AND (scheduled_for IS NULL OR scheduled_for <= unixepoch())
        ORDER BY scheduled_for IS NULL, scheduled_for ASC, id ASC
        LIMIT 1`,
   ).first<Lead>();
