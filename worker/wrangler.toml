@@ -29,12 +29,12 @@ max_retries = 3
 dead_letter_queue = "signal-pitcher-dlq"
 
 [vars]
-SENDER_EMAIL = "info@signaladvise.com"
-REPLY_TO = "info@signaladvise.com"
+SENDER_EMAIL = "brandon@signaladvise.com"
+REPLY_TO = "brandon@signaladvise.com"
 SENDER_NAME = "Signal Advisory"
 PHYSICAL_ADDRESS = "Signal Advisory LLC, Kansas City, MO"
 UNSUBSCRIBE_BASE_URL = "https://api.signaladvise.com/u"
-DAILY_CAP = "20"          # ramp: wk1=20, wk2=50, wk3=100, wk4+=200
+DAILY_CAP = "10"          # ramp: wk1=10, wk2=25, wk3=50, wk4=100, wk5+=200
 SEND_WINDOW_TZ = "America/Chicago"
 SEND_WINDOW_START_HOUR = "9"
 SEND_WINDOW_END_HOUR = "17"
