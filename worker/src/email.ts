@@ -28,10 +28,7 @@ export function buildEmail(lead: Lead, env: Env): {
 
   const html =
     `<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;color:#222">` +
-    bodyText
-      .split(/\n\n+/)
-      .map((p) => `<p>${escapeHtml(p).replace(/\n/g, "<br>")}</p>`)
-      .join("") +
+    bodyText.split(/\n\n+/).map(blockToHtml).join("") +
     `<hr style="border:none;border-top:1px solid #ddd;margin:24px 0">` +
     `<p style="font-size:12px;color:#888">` +
     `${escapeHtml(env.PHYSICAL_ADDRESS)}<br>` +
@@ -70,6 +67,17 @@ export async function sendViaResend(
   }
   const json = (await res.json()) as { id: string };
   return json;
+}
+
+function blockToHtml(block: string): string {
+  const lines = block.split("\n").filter((l) => l.length > 0);
+  if (lines.length > 0 && lines.every((l) => /^[•\-]\s+/.test(l))) {
+    const items = lines
+      .map((l) => `<li>${escapeHtml(l.replace(/^[•\-]\s+/, ""))}</li>`)
+      .join("");
+    return `<ul style="margin:0 0 1em 0;padding-left:1.25em">${items}</ul>`;
+  }
+  return `<p>${escapeHtml(block).replace(/\n/g, "<br>")}</p>`;
 }
 
 function escapeHtml(s: string): string {
