@@ -1,9 +1,16 @@
 import type { Env, Lead, QueueJob } from "./types";
 import { buildEmail, sendViaResend } from "./email";
+import { pollInbound } from "./inbound";
 
 export default {
   async scheduled(_event: ScheduledController, env: Env, ctx: ExecutionContext) {
-    ctx.waitUntil(tick(env));
+    // Run outbound + inbound concurrently. Either failing should not block the other.
+    ctx.waitUntil(
+      Promise.allSettled([
+        tick(env).catch((e) => console.error("tick failed", e)),
+        pollInbound(env).catch((e) => console.error("pollInbound failed", e)),
+      ]),
+    );
   },
 
   async queue(batch: MessageBatch<QueueJob>, env: Env) {
@@ -18,7 +25,7 @@ export default {
     }
   },
 
-  async fetch(req: Request, env: Env): Promise<Response> {
+  async fetch(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(req.url);
     if (url.pathname === "/u" || url.pathname === "/u/") {
       return handleUnsubscribe(url, env);
@@ -26,12 +33,26 @@ export default {
     if (url.pathname === "/health") {
       return new Response("ok", { status: 200 });
     }
+    if (url.pathname.startsWith("/admin/")) {
+      const secret = req.headers.get("x-admin-secret");
+      if (!env.ADMIN_SECRET || secret !== env.ADMIN_SECRET) {
+        return new Response("forbidden", { status: 403 });
+      }
+      if (url.pathname === "/admin/tick") {
+        ctx.waitUntil(tick(env, { ignoreWindow: true }));
+        return new Response("tick triggered", { status: 202 });
+      }
+      if (url.pathname === "/admin/poll") {
+        ctx.waitUntil(pollInbound(env));
+        return new Response("poll triggered", { status: 202 });
+      }
+    }
     return new Response("Not found", { status: 404 });
   },
 };
 
-async function tick(env: Env): Promise<void> {
-  if (!isInSendWindow(env)) return;
+async function tick(env: Env, opts: { ignoreWindow?: boolean } = {}): Promise<void> {
+  if (!opts.ignoreWindow && !isInSendWindow(env)) return;
 
   const today = todayInTz(env.SEND_WINDOW_TZ);
   const cap = parseInt(env.DAILY_CAP, 10);

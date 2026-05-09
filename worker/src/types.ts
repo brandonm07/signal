@@ -12,6 +12,14 @@ export interface Env {
   SEND_WINDOW_START_HOUR: string;
   SEND_WINDOW_END_HOUR: string;
   JITTER_MAX_SECONDS: string;
+  CALENDLY_URL: string;
+  GMAIL_USER: string;
+  GMAIL_CLIENT_ID: string;
+  GMAIL_CLIENT_SECRET: string;
+  GMAIL_REFRESH_TOKEN: string;
+  ANTHROPIC_API_KEY: string;
+  DRAFT_MODE: string; // "1" = create drafts, "0" = auto-send
+  ADMIN_SECRET: string;
 }
 
 export interface Lead {
@@ -35,4 +43,12 @@ export interface Lead {
 
 export interface QueueJob {
   leadId: number;
+}
+
+export type Intent = "meeting" | "unsubscribe" | "bounce" | "ooo" | "other";
+
+export interface ClassifiedReply {
+  intent: Intent;
+  confidence: number;
+  reasoning: string;
 }
