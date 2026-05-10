@@ -20,6 +20,7 @@ export interface Env {
   ANTHROPIC_API_KEY: string;
   DRAFT_MODE: string; // "1" = create drafts, "0" = auto-send
   ADMIN_SECRET: string;
+  RESEND_WEBHOOK_SECRET?: string;
 }
 
 export interface Lead {

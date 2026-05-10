@@ -1,0 +1,75 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+const updated = 'May 2026';
+---
+
+<Base title="Terms of Service — Signal Advisory" description="Terms governing use of signaladvise.com and Signal Advisory services.">
+  <Nav />
+
+  <section class="container mx-auto max-w-3xl px-6 py-20 md:px-10 md:py-28">
+    <p class="mb-5 text-xs uppercase tracking-[0.2em] text-stone">Last updated · {updated}</p>
+    <h1 class="display text-4xl font-light leading-tight md:text-5xl">Terms of Service</h1>
+
+    <div class="prose prose-lg mt-10 max-w-none text-ink/85">
+      <p>
+        These terms govern your use of signaladvise.com (the "Site") operated by Signal Advisory LLC
+        ("we," "us"). By using the Site you agree to these terms.
+      </p>
+
+      <h2 class="display mt-10 text-2xl">Information on this site</h2>
+      <p>
+        Content on this site is provided for general information about Signal Advisory and our services.
+        It does not constitute professional, legal, or financial advice. Any specific advisory engagement
+        is governed by a separate written agreement between Signal Advisory and the client.
+      </p>
+
+      <h2 class="display mt-10 text-2xl">No warranty</h2>
+      <p>
+        The Site and its content are provided on an "as is" and "as available" basis without warranties
+        of any kind, express or implied, including warranties of merchantability, fitness for a
+        particular purpose, or non-infringement.
+      </p>
+
+      <h2 class="display mt-10 text-2xl">Limitation of liability</h2>
+      <p>
+        To the fullest extent permitted by law, Signal Advisory will not be liable for any indirect,
+        incidental, special, or consequential damages arising out of or related to your use of the Site.
+        Our total liability arising from your use of the Site is limited to one hundred U.S. dollars (US$100).
+      </p>
+
+      <h2 class="display mt-10 text-2xl">Intellectual property</h2>
+      <p>
+        The Site, including its design, text, graphics, and trademarks, is the property of Signal
+        Advisory LLC. You may not reproduce or use any portion of the Site for commercial purposes
+        without prior written permission.
+      </p>
+
+      <h2 class="display mt-10 text-2xl">Outreach and communications</h2>
+      <p>
+        We send business outreach to professionals whose role and company suggest a fit with our services.
+        Every outreach email includes an unsubscribe link. We honor unsubscribe and do-not-contact
+        requests promptly.
+      </p>
+
+      <h2 class="display mt-10 text-2xl">Governing law</h2>
+      <p>
+        These terms are governed by the laws of the State of Missouri, without regard to its conflict
+        of laws principles. Any dispute will be resolved in the state or federal courts located in
+        Jackson County, Missouri.
+      </p>
+
+      <h2 class="display mt-10 text-2xl">Contact</h2>
+      <p>
+        Questions about these terms:
+        <a href="mailto:info@signaladvise.com" class="text-signal underline">info@signaladvise.com</a>
+        <br />
+        Signal Advisory LLC · Kansas City, Missouri
+      </p>
+    </div>
+  </section>
+
+  <Footer />
+</Base>

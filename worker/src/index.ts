@@ -33,6 +33,9 @@ export default {
     if (url.pathname === "/health") {
       return new Response("ok", { status: 200 });
     }
+    if (url.pathname === "/webhook/resend" && req.method === "POST") {
+      return handleResendWebhook(req, env);
+    }
     if (url.pathname.startsWith("/admin/")) {
       const secret = req.headers.get("x-admin-secret");
       if (!env.ADMIN_SECRET || secret !== env.ADMIN_SECRET) {
@@ -124,6 +127,57 @@ async function processSend(leadId: number, env: Env): Promise<void> {
     ]);
     throw err;
   }
+}
+
+async function handleResendWebhook(req: Request, env: Env): Promise<Response> {
+  // Resend sends svix-style signed webhooks. Verify if a secret is configured;
+  // otherwise accept (best-effort) and rely on the obscure URL.
+  const body = await req.text();
+  if (env.RESEND_WEBHOOK_SECRET) {
+    const ok = await verifySvix(req, body, env.RESEND_WEBHOOK_SECRET);
+    if (!ok) return new Response("invalid signature", { status: 401 });
+  }
+  let evt: { type?: string; data?: { email_id?: string; to?: string[]; bounce?: { type?: string } } };
+  try {
+    evt = JSON.parse(body);
+  } catch {
+    return new Response("bad json", { status: 400 });
+  }
+  const type = evt.type ?? "";
+  const recipient = evt.data?.to?.[0]?.toLowerCase();
+  if (!recipient) return new Response("ok", { status: 200 });
+
+  if (type === "email.bounced") {
+    const isHard = (evt.data?.bounce?.type ?? "").toLowerCase() !== "transient";
+    if (isHard) {
+      await env.DB.prepare(
+        `UPDATE leads SET status='bounced', error='hard bounce (resend webhook)', updated_at=unixepoch()
+           WHERE email = ?1 AND status NOT IN ('unsubscribed','bounced')`,
+      ).bind(recipient).run();
+    }
+  } else if (type === "email.complained") {
+    await env.DB.prepare(
+      `UPDATE leads SET status='unsubscribed', error='spam complaint (resend webhook)', updated_at=unixepoch()
+         WHERE email = ?1 AND status != 'unsubscribed'`,
+    ).bind(recipient).run();
+  }
+  return new Response("ok", { status: 200 });
+}
+
+async function verifySvix(req: Request, body: string, secret: string): Promise<boolean> {
+  const id = req.headers.get("svix-id");
+  const ts = req.headers.get("svix-timestamp");
+  const sig = req.headers.get("svix-signature");
+  if (!id || !ts || !sig) return false;
+  const key = secret.startsWith("whsec_") ? secret.slice(6) : secret;
+  const keyBytes = Uint8Array.from(atob(key), (c) => c.charCodeAt(0));
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw", keyBytes, { name: "HMAC", hash: "SHA-256" }, false, ["sign"],
+  );
+  const toSign = new TextEncoder().encode(`${id}.${ts}.${body}`);
+  const macBuf = await crypto.subtle.sign("HMAC", cryptoKey, toSign);
+  const expected = btoa(String.fromCharCode(...new Uint8Array(macBuf)));
+  return sig.split(" ").some((s) => s.split(",")[1] === expected);
 }
 
 async function handleUnsubscribe(url: URL, env: Env): Promise<Response> {

@@ -26,6 +26,32 @@ const {
       href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Manrope:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content="https://signaladvise.com" />
+    <meta property="og:site_name" content="Signal Advisory" />
+    <!-- Schema.org Organization -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Signal Advisory",
+      "legalName": "Signal Advisory LLC",
+      "url": "https://signaladvise.com",
+      "logo": "https://signaladvise.com/email-icon.png",
+      "description": description,
+      "email": "info@signaladvise.com",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Kansas City",
+        "addressRegion": "MO",
+        "addressCountry": "US"
+      },
+      "sameAs": [
+        "https://www.linkedin.com/company/signaladvise"
+      ]
+    })} />
   </head>
   <body>
     <slot />
