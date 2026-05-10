@@ -21,10 +21,10 @@ export function buildEmail(lead: Lead, env: Env): {
   const unsubUrl = `${env.UNSUBSCRIBE_BASE_URL}?t=${lead.unsubscribe_token}`;
 
   const sigText =
-    `Founder & Strategic Orchestrator\n` +
+    `Principal Advisor\n` +
     `Signal Advisory\n` +
     `brandon@signaladvise.com · 816.721.6501\n` +
-    `linkedin.com/company/signaladvise`;
+    `linkedin.com/company/signal-advisory-llc`;
 
   const text =
     `${bodyText}\n${sigText}\n\n` +
@@ -95,9 +95,9 @@ function sigHtml(): string {
     `<img src="https://signaladvise.com/email-icon.png" width="44" height="44" alt="Signal Advisory" style="display:block;border-radius:6px">` +
     `</td>` +
     `<td style="vertical-align:middle;line-height:1.45">` +
-    `<div style="color:#7a7067;font-size:12px">Founder &amp; Strategic Orchestrator · Signal Advisory</div>` +
+    `<div style="color:#7a7067;font-size:12px">Principal Advisor · Signal Advisory</div>` +
     `<div><a href="mailto:brandon@signaladvise.com" style="color:#222;text-decoration:none">brandon@signaladvise.com</a> · 816.721.6501</div>` +
-    `<div><a href="https://www.linkedin.com/company/signaladvise" style="color:#c9462c;text-decoration:none">linkedin.com/company/signaladvise</a></div>` +
+    `<div><a href="https://www.linkedin.com/company/signal-advisory-llc" style="color:#c9462c;text-decoration:none">linkedin.com/company/signal-advisory-llc</a></div>` +
     `</td>` +
     `</tr>` +
     `</table>`
