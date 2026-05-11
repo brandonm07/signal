@@ -38,6 +38,7 @@ export interface Lead {
   error: string | null;
   unsubscribe_token: string;
   resend_message_id: string | null;
+  step: number;
   created_at: number;
   updated_at: number;
 }

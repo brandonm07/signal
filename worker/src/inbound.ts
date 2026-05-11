@@ -78,14 +78,21 @@ export async function pollInbound(env: Env): Promise<void> {
       )
         .bind(lead.id)
         .run();
-    }
-    if (intent === "bounce" && lead) {
+    } else if (intent === "bounce" && lead) {
       await env.DB.prepare(
         `UPDATE leads SET status = 'bounced', updated_at = unixepoch() WHERE id = ?1`,
       )
         .bind(lead.id)
         .run();
+    } else if ((intent === "meeting" || intent === "other") && lead) {
+      // Any human reply stops the follow-up sequence.
+      await env.DB.prepare(
+        `UPDATE leads SET status = 'replied', updated_at = unixepoch() WHERE id = ?1`,
+      )
+        .bind(lead.id)
+        .run();
     }
+    // ooo intent: leave status unchanged — system retries naturally.
 
     await logReply(env, parsed, intent, confidence, draftId);
     newCursor = Math.max(newCursor, parsed.internalDate);

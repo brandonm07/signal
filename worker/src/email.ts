@@ -1,4 +1,5 @@
 import type { Lead, Env } from "./types";
+import { SEQUENCE_STEPS } from "./sequence";
 
 export function renderTemplate(tpl: string, lead: Lead): string {
   return tpl.replace(/\{\{\s*(\w+)\s*\}\}/g, (_m, key: string) => {
@@ -16,8 +17,19 @@ export function buildEmail(lead: Lead, env: Env): {
   html: string;
   headers: Record<string, string>;
 } {
-  const subject = renderTemplate(lead.subject_template, lead);
-  const bodyText = renderTemplate(lead.body_template, lead);
+  // Step 1 uses the per-lead body (with role-specific opener).
+  // Steps 2+ use shared, generic follow-up templates.
+  const step = lead.step ?? 1;
+  let subjectTpl = lead.subject_template;
+  let bodyTpl = lead.body_template;
+  if (step >= 2) {
+    const tpl = SEQUENCE_STEPS[step];
+    if (!tpl) throw new Error(`No template for step ${step}`);
+    subjectTpl = tpl.subject;
+    bodyTpl = tpl.body;
+  }
+  const subject = renderTemplate(subjectTpl, lead);
+  const bodyText = renderTemplate(bodyTpl, lead);
   const unsubUrl = `${env.UNSUBSCRIBE_BASE_URL}?t=${lead.unsubscribe_token}`;
 
   const sigText =

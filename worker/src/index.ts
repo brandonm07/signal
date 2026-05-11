@@ -1,6 +1,7 @@
 import type { Env, Lead, QueueJob } from "./types";
 import { buildEmail, sendViaResend } from "./email";
 import { pollInbound } from "./inbound";
+import { SEQUENCE_STEPS } from "./sequence";
 
 export default {
   async scheduled(_event: ScheduledController, env: Env, ctx: ExecutionContext) {
@@ -97,13 +98,23 @@ async function processSend(leadId: number, env: Env): Promise<void> {
     const resp = await sendViaResend(msg, env.RESEND_API_KEY);
 
     const today = todayInTz(env.SEND_WINDOW_TZ);
+    const currentStep = lead.step ?? 1;
+    const nextStep = currentStep + 1;
+    const nextTpl = SEQUENCE_STEPS[nextStep];
+    // Advance the sequence: if a next step exists, requeue with delay.
+    // If we just sent the final step (4), mark the lead 'completed'.
+    const nextStatus = nextTpl ? "queued" : "completed";
+    const nextScheduledFor = nextTpl
+      ? Math.floor(Date.now() / 1000) + nextTpl.delayDays * 86400
+      : null;
     await env.DB.batch([
       env.DB.prepare(
         `UPDATE leads
-            SET status = 'sent', sent_at = unixepoch(),
-                resend_message_id = ?2, updated_at = unixepoch()
+            SET status = ?2, sent_at = unixepoch(),
+                resend_message_id = ?3, step = ?4,
+                scheduled_for = ?5, updated_at = unixepoch()
           WHERE id = ?1`,
-      ).bind(lead.id, resp.id),
+      ).bind(lead.id, nextStatus, resp.id, nextTpl ? nextStep : currentStep, nextScheduledFor),
       env.DB.prepare(
         `INSERT INTO send_log (lead_id, outcome, resend_message_id)
            VALUES (?1, 'sent', ?2)`,
