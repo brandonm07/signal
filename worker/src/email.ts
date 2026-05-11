@@ -38,21 +38,19 @@ export function buildEmail(lead: Lead, env: Env): {
     `brandon@signaladvise.com · 816.721.6501\n` +
     `linkedin.com/company/signal-advisory-llc`;
 
+  // Option 2 formatting: keep List-Unsubscribe headers (Gmail/Yahoo native button +
+  // CAN-SPAM compliance), drop the visible body footer block. Physical address
+  // shown as a single very small gray line — required by CAN-SPAM, visually subtle.
   const text =
     `${bodyText}\n${sigText}\n\n` +
-    `---\n` +
-    `${env.PHYSICAL_ADDRESS}\n` +
-    `Unsubscribe: ${unsubUrl}\n`;
+    `${env.PHYSICAL_ADDRESS}\n`;
 
   const html =
     `<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;color:#222">` +
     bodyText.split(/\n\n+/).map(blockToHtml).join("") +
     sigHtml() +
-    `<hr style="border:none;border-top:1px solid #ddd;margin:24px 0">` +
-    `<p style="font-size:12px;color:#888">` +
-    `${escapeHtml(env.PHYSICAL_ADDRESS)}<br>` +
-    `<a href="${unsubUrl}" style="color:#888">Unsubscribe</a>` +
-    `</p></div>`;
+    `<p style="font-size:10px;color:#bbb;margin-top:18px">${escapeHtml(env.PHYSICAL_ADDRESS)}</p>` +
+    `</div>`;
 
   return {
     from: `${env.SENDER_NAME} <${env.SENDER_EMAIL}>`,

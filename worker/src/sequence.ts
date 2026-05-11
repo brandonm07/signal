@@ -18,7 +18,7 @@ export const SEQUENCE_STEPS: Record<number, SequenceStep> = {
     delayDays: 4,
     body: `Hi {{first_name}},
 
-Floating this back up. One pattern worth flagging: carriers are pushing 3-year renewals hard right now to lock pricing ahead of Q3 rate increases. The trade is usually 18 months early-renewal in exchange for "rate protection." In most cases the protection isn't worth what you give up in flexibility.
+Floating this back up. One pattern worth flagging: your network providers (Spectrum, AT&T, Lumen, Verizon — pick your flavor) are pushing 3-year renewals hard right now to lock pricing ahead of Q3 rate increases. The usual trade is 18 months early-renewal in exchange for "rate protection." In most cases the protection isn't worth what you give up in flexibility.
 
 If {{company}} has anything coming up on the renewal radar — even just informally — happy to take a look before you sign. Zero commitment.
 
