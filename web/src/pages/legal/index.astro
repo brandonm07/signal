@@ -7,13 +7,15 @@ const docs = [
   {
     title: 'Master Services Agreement (MSA)',
     href: '/legal/msa',
-    rawHref: '/legal/signal-advisory-msa-template.md',
+    docxHref: '/legal/signal-advisory-msa-template.docx',
+    mdHref: '/legal/signal-advisory-msa-template.md',
     summary: 'Template engagement agreement covering scope, fees, confidentiality, IP, liability cap, indemnification, and Missouri governing law. Signed once per client, references one or more SOWs.',
   },
   {
     title: 'Letter of Authorization (LOA)',
     href: '/legal/loa',
-    rawHref: '/legal/signal-advisory-loa-template.md',
+    docxHref: '/legal/signal-advisory-loa-template.docx',
+    mdHref: '/legal/signal-advisory-loa-template.md',
     summary: 'Authorization for Signal Advisory to act on a client\'s behalf with their carriers and vendors — account inquiries, MAC orders, billing disputes, contract negotiation support. Scoped, time-limited, no contractual binding authority.',
   },
 ];
@@ -39,7 +41,8 @@ const docs = [
           <p class="mt-3 text-ink/70 leading-relaxed">{d.summary}</p>
           <div class="mt-5 flex flex-wrap gap-3">
             <a href={d.href} class="text-sm rounded-sm bg-ink px-5 py-2.5 text-paper hover:bg-signal">View / Print</a>
-            <a href={d.rawHref} download class="text-sm rounded-sm border border-ink/20 px-5 py-2.5 hover:border-ink">Download .md</a>
+            <a href={d.docxHref} download class="text-sm rounded-sm border border-ink/20 px-5 py-2.5 hover:border-ink">Download .docx</a>
+            <a href={d.mdHref} download class="text-sm rounded-sm border border-ink/20 px-5 py-2.5 hover:border-ink">Download .md</a>
           </div>
         </div>
       ))}

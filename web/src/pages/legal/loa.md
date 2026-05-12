@@ -3,6 +3,7 @@ layout: ../../layouts/LegalDoc.astro
 title: Letter of Authorization — Signal Advisory
 description: Letter of Authorization for Signal Advisory to act on a client's behalf with their carriers and technology vendors.
 rawMdHref: /legal/signal-advisory-loa-template.md
+docxHref: /legal/signal-advisory-loa-template.docx
 ---
 
 # Letter of Authorization (LOA)

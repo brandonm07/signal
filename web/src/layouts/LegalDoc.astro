@@ -8,6 +8,7 @@ interface Props {
     title: string;
     description: string;
     rawMdHref?: string;
+    docxHref?: string;
   };
 }
 
@@ -22,7 +23,12 @@ const { frontmatter } = Astro.props;
   <main class="container mx-auto max-w-3xl px-6 py-12 md:px-10 md:py-16">
     <div class="screen-only mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-ink/10 pb-6">
       <a href="/legal" class="text-sm text-stone hover:text-ink">← Back to legal documents</a>
-      <div class="flex gap-3">
+      <div class="flex gap-3 flex-wrap">
+        {frontmatter.docxHref && (
+          <a href={frontmatter.docxHref} class="text-sm rounded-sm border border-ink/20 px-4 py-2 hover:border-ink" download>
+            Download .docx
+          </a>
+        )}
         {frontmatter.rawMdHref && (
           <a href={frontmatter.rawMdHref} class="text-sm rounded-sm border border-ink/20 px-4 py-2 hover:border-ink" download>
             Download .md

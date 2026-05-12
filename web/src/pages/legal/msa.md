@@ -3,6 +3,7 @@ layout: ../../layouts/LegalDoc.astro
 title: Master Services Agreement — Signal Advisory
 description: Master Services Agreement used for Signal Advisory client engagements.
 rawMdHref: /legal/signal-advisory-msa-template.md
+docxHref: /legal/signal-advisory-msa-template.docx
 ---
 
 # Master Services Agreement
