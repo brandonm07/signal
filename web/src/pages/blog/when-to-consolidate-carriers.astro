@@ -1,0 +1,202 @@
+---
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+
+const title = 'When to Consolidate Carriers: A Buyer-Side Framework for IT Teams Managing 4+ Providers — Signal Advisory';
+const description = 'How to decide whether to consolidate multiple carrier vendors into one, when to stay diversified, and how to negotiate the consolidation without losing leverage.';
+const articleSchema = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "When to consolidate carriers: a buyer-side framework",
+  "datePublished": "2026-05-12",
+  "author": { "@type": "Organization", "name": "Signal Advisory" },
+  "publisher": { "@type": "Organization", "name": "Signal Advisory", "logo": { "@type": "ImageObject", "url": "https://signaladvise.com/email-icon.png" } },
+  "mainEntityOfPage": "https://signaladvise.com/blog/when-to-consolidate-carriers"
+};
+---
+
+<Base title={title} description={description}>
+  <Nav />
+  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+
+  <article class="container mx-auto max-w-3xl px-6 py-20 md:px-10 md:py-28">
+    <p class="mb-5 text-xs uppercase tracking-[0.2em] text-stone">May 2026 · 10 min read</p>
+    <h1 class="display text-4xl font-light leading-[1.05] md:text-5xl">
+      When to consolidate carriers — a buyer-side framework for IT teams managing 4+ providers
+    </h1>
+    <p class="mt-8 text-xl leading-relaxed text-ink/75">
+      "Consolidate your vendors and save money" is the cliché. Sometimes it's true. Sometimes it
+      costs you 30% more and locks you into a single point of failure. Here's how to decide for
+      your specific footprint.
+    </p>
+
+    <div class="prose prose-lg mt-12 max-w-none text-ink/85">
+      <h2>What the consolidation pitch actually looks like</h2>
+      <p>
+        A typical mid-market IT team has 4–6 vendor relationships: a primary carrier (internet
+        and/or MPLS), a secondary internet provider at each site, a mobile carrier for the
+        company fleet, a UCaaS provider, sometimes a separate SD-WAN platform, sometimes a
+        separate security vendor.
+      </p>
+      <p>
+        Every account manager at every one of those vendors will, at some point, pitch you on
+        "consolidating onto us." The arguments are usually the same:
+      </p>
+      <ul>
+        <li>One invoice, one point of accountability</li>
+        <li>Pricing discount for combining services</li>
+        <li>Single ticket queue for support</li>
+        <li>"Strategic partnership" framing</li>
+      </ul>
+      <p>
+        Some of those claims are true. Some are heavily oversold. The right framing is not
+        "should I consolidate" — it's <strong>"which functions benefit from consolidation and
+        which functions benefit from competition."</strong>
+      </p>
+
+      <h2>The four functions to think about separately</h2>
+      <p>
+        Don't think of your vendor portfolio as one decision. Think of it as four:
+      </p>
+      <ol>
+        <li><strong>Primary site connectivity</strong> (internet/MPLS to each location)</li>
+        <li><strong>Backup site connectivity</strong> (secondary circuit for redundancy)</li>
+        <li><strong>Voice / UCaaS</strong> (phone system, contact center)</li>
+        <li><strong>Mobile</strong> (cell phones, MDM, mobile data)</li>
+      </ol>
+      <p>
+        Each one has different consolidation economics. Treating them as a single decision is
+        how IT teams end up either over-consolidated (no redundancy) or over-fragmented (no
+        leverage).
+      </p>
+
+      <h2>Where consolidation usually wins</h2>
+      <p><strong>Voice + Primary connectivity from the same carrier.</strong></p>
+      <p>
+        If you're getting your MPLS or DIA from Spectrum Business at all your sites and your
+        phone system is a hosted PBX from an unrelated vendor, you're often paying more than if
+        you ran UCaaS over the same Spectrum connection. Modern UCaaS platforms (Spectrum,
+        AT&T, Verizon all sell their own; RingCentral, Zoom Phone, 8x8 sell theirs)
+        increasingly bundle voice into the data contract. The bundle discount is real — typically
+        15–30% off list — and the operational simplification is meaningful.
+      </p>
+      <p>
+        We've seen this consolidation produce $1,500–4,000/month savings on a 10-location
+        footprint without any change in service quality.
+      </p>
+      <p><strong>Mobile across the whole fleet, single carrier.</strong></p>
+      <p>
+        Multi-carrier mobile fleets are almost always a legacy artifact — somebody at HQ wanted
+        Verizon, somebody at a regional office got AT&T because Verizon had no coverage in
+        that area in 2014. By 2026, coverage maps have closed most of those gaps. Going from
+        two mobile carriers to one is usually a 10–20% spend reduction and a massive operational
+        simplification (one portal, one bill, one set of policies).
+      </p>
+
+      <h2>Where consolidation usually loses</h2>
+      <p><strong>Primary AND backup connectivity from the same carrier.</strong></p>
+      <p>
+        This is the single most common consolidation mistake we see. Carrier account managers
+        will gladly sell you a "diverse" backup circuit on their own network — they'll route it
+        through a different POP, use a different physical path, give it a different LATA — and
+        call it "carrier-diverse redundancy."
+      </p>
+      <p>
+        It's not. The day Spectrum has a regional outage, your "redundant" backup goes down too,
+        because it's on the same network. True redundancy requires <strong>different physical
+        carrier networks</strong>, not different products from the same carrier. For any site
+        that matters to your business operating, primary on one carrier and backup on another
+        is non-negotiable.
+      </p>
+      <p>
+        This is also where consolidation pressure most often fails the business. A finance team
+        sees "one carrier, one bill, 15% bundle discount" and pushes IT to consolidate. The
+        right answer is: <em>operational simplicity is great, but redundancy is non-negotiable,
+        and on this specific function the cost of carrier diversity is justified.</em>
+      </p>
+      <p><strong>SD-WAN platform tied to a single carrier's underlay.</strong></p>
+      <p>
+        Carrier-managed SD-WAN can be attractive because it bundles transport + overlay
+        management. But it ties you operationally to that carrier's product roadmap, their
+        portal, their support escalation path. We've seen multiple clients regret going
+        carrier-managed when they later wanted to switch one site's underlay to a competing
+        provider and the SD-WAN couldn't follow.
+      </p>
+      <p>
+        For most mid-market companies, <strong>SD-WAN platform from one vendor, transport from
+        multiple carriers</strong> is the right architecture. The decoupling preserves your
+        negotiating leverage on every renewal.
+      </p>
+
+      <h2>The vendor-count target most companies should aim for</h2>
+      <p>
+        At a 10-location mid-market business, a reasonable target portfolio is:
+      </p>
+      <ul>
+        <li><strong>2 carriers for site connectivity</strong> (primary + redundancy, different networks)</li>
+        <li><strong>1 UCaaS provider</strong> (either carrier-bundled or pure-play)</li>
+        <li><strong>1 mobile carrier</strong> (the one with best coverage across your locations)</li>
+        <li><strong>1 SD-WAN platform</strong> (if you have one; vendor-agnostic to underlay)</li>
+      </ul>
+      <p>
+        That's 4 vendors, sometimes 5. Going below that number sacrifices redundancy. Going
+        above it usually means a legacy contract is still around that should be renegotiated
+        out at renewal.
+      </p>
+
+      <h2>How to use consolidation as negotiating leverage</h2>
+      <p>
+        Here's the part most IT teams miss: <strong>even if consolidation isn't the right
+        end-state, the implied threat of consolidation is the most powerful renewal lever you
+        have.</strong>
+      </p>
+      <p>
+        Walk into each carrier's renewal conversation having priced out what it would cost to
+        move their services to a competitor. Your incumbent account manager doesn't know whether
+        you'll actually do it. Their pricing reflects that ambiguity. Properly used, the
+        consolidation conversation is worth 10–15% on a renewal even when you have no intention
+        of actually consolidating.
+      </p>
+
+      <h2>The questions to ask before consolidating anything</h2>
+      <ol>
+        <li>What happens to my redundancy posture? Specifically, will primary and backup be on the same physical network?</li>
+        <li>What's the early termination liability if this doesn't work and we want to unwind?</li>
+        <li>What's the SLA on each consolidated service, individually?</li>
+        <li>If this carrier has a regional outage, what's our continuity plan?</li>
+        <li>Are we losing any niche capability we currently use? (Specific carrier features, regulatory framing, contact center integrations.)</li>
+        <li>What's the total dollar savings, year 1 vs year 3? (Carriers often discount year 1 then escalate.)</li>
+        <li>How does this affect our negotiating leverage at the next renewal?</li>
+      </ol>
+
+      <h2>A practical starting point</h2>
+      <p>
+        If you're looking at consolidation right now, the first concrete step we recommend:
+        <strong>build a single-page vendor inventory.</strong> Every vendor, every service, every
+        monthly cost, every contract end-date, every account manager. Once it's on one page,
+        the decisions get easier. The four or five vendors that don't need to exist as separate
+        relationships become obvious.
+      </p>
+      <p>
+        We do this exercise as part of our <a class="text-signal underline" href="/services">contract review service</a> and most clients say it's the single most useful deliverable — separate from any savings we produce.
+      </p>
+
+      <h2>Want help thinking through your specific situation?</h2>
+      <p>
+        <a class="text-signal underline" href="/audit">Send us a snapshot of your current vendor list</a> and we'll come back with: which of the four functions you should consolidate, which you shouldn't, and where the biggest dollar opportunity hides. 24-hour turnaround, no obligation. If we don't find at least $250/month in savings, the review is free.
+      </p>
+    </div>
+
+    <div class="mt-16 border-t border-ink/10 pt-12">
+      <p class="text-sm text-stone uppercase tracking-[0.2em] mb-4">Related</p>
+      <ul class="space-y-3">
+        <li><a class="text-signal underline" href="/blog/sdwan-vs-mpls-decision-guide">SD-WAN vs MPLS — a decision guide</a></li>
+        <li><a class="text-signal underline" href="/blog/how-to-negotiate-carrier-renewals">How to negotiate a carrier renewal</a></li>
+        <li><a class="text-signal underline" href="/blog/hidden-line-items-on-your-carrier-invoice">5 line items hiding on your carrier invoice</a></li>
+      </ul>
+    </div>
+  </article>
+
+  <Footer />
+</Base>

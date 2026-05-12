@@ -1,0 +1,179 @@
+---
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+
+const title = 'SD-WAN vs MPLS: A 2026 Decision Guide for Multi-Site Mid-Market — Signal Advisory';
+const description = 'The honest framework for choosing between SD-WAN and MPLS at a 5–25 location business. Cost math, performance tradeoffs, hybrid options, and the questions to ask carriers before signing.';
+const articleSchema = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "SD-WAN vs MPLS: a 2026 decision guide for multi-site mid-market",
+  "datePublished": "2026-05-12",
+  "author": { "@type": "Organization", "name": "Signal Advisory" },
+  "publisher": { "@type": "Organization", "name": "Signal Advisory", "logo": { "@type": "ImageObject", "url": "https://signaladvise.com/email-icon.png" } },
+  "mainEntityOfPage": "https://signaladvise.com/blog/sdwan-vs-mpls-decision-guide"
+};
+---
+
+<Base title={title} description={description}>
+  <Nav />
+  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+
+  <article class="container mx-auto max-w-3xl px-6 py-20 md:px-10 md:py-28">
+    <p class="mb-5 text-xs uppercase tracking-[0.2em] text-stone">May 2026 · 12 min read</p>
+    <h1 class="display text-4xl font-light leading-[1.05] md:text-5xl">
+      SD-WAN vs MPLS — a 2026 decision guide for multi-site mid-market
+    </h1>
+    <p class="mt-8 text-xl leading-relaxed text-ink/75">
+      If you have 5–25 sites and an MPLS contract coming up for renewal, this is the most
+      consequential network decision you'll make in the next decade. Here's the framework we use —
+      stripped of the carrier marketing pitch and the SD-WAN vendor marketing pitch.
+    </p>
+
+    <div class="prose prose-lg mt-12 max-w-none text-ink/85">
+      <h2>The setup most mid-market companies are in right now</h2>
+      <p>
+        A typical mid-market IT footprint we audit looks like this: 8–15 locations, a primary
+        carrier providing MPLS or Ethernet private line between them, a secondary connection
+        (sometimes business broadband, sometimes a backup DIA circuit) at each site, and total
+        WAN spend somewhere between $8k and $25k/month.
+      </p>
+      <p>
+        The MPLS contract was probably signed somewhere between 2017 and 2021. At the time, MPLS
+        was still the only reasonable answer for a multi-site company that cared about
+        application performance. SD-WAN was newer and the operational story wasn't fully baked.
+      </p>
+      <p>
+        In 2026 that's no longer true. SD-WAN is mature. The math is usually significantly
+        better. But "usually" is doing a lot of work in that sentence, so let's break it down.
+      </p>
+
+      <h2>The honest cost math</h2>
+      <p>
+        MPLS pricing varies wildly by region, carrier, and site type, but a reasonable benchmark
+        for a 50Mbps MPLS port at a typical mid-market site is $750–1,400/month. At 10 sites
+        that's $7,500–14,000/month before any added services or DIA fallback.
+      </p>
+      <p>
+        SD-WAN replacement using business broadband or fiber DIA at each site typically runs
+        $200–600/month per site for the underlay connectivity, plus an SD-WAN overlay license
+        ($25–75/site/month depending on platform) and (optionally) a managed service from the
+        carrier or VAR.
+      </p>
+      <p>
+        Net at 10 sites: typically <strong>40–60% cost reduction</strong> on like-for-like
+        capacity, often with 5–10× the bandwidth at each site because you're moving from
+        50Mbps MPLS to 500Mbps–1Gbps broadband.
+      </p>
+      <p>
+        Caveat: this math gets worse for rural or hard-to-serve sites where commodity broadband
+        isn't available. If three of your fifteen locations are at the end of an old copper run
+        with no fiber and no cable, your "SD-WAN cost savings" can compress to 10–15% because
+        you're still paying carrier prices for those last-mile circuits.
+      </p>
+
+      <h2>When MPLS is still the right answer</h2>
+      <p>
+        We don't recommend SD-WAN universally. There are four scenarios where the MPLS renewal
+        is still the right call:
+      </p>
+      <ol>
+        <li><strong>Heavy real-time application use across sites with no cloud equivalent.</strong>
+          Older on-prem voice systems, certain ERP architectures, latency-sensitive manufacturing
+          control systems. If your traffic profile is dominated by one of these and you don't have
+          a near-term plan to move it to cloud, MPLS QoS still wins.</li>
+        <li><strong>Compliance or regulatory frameworks that require private connectivity.</strong>
+          Some PCI scope reduction strategies, certain healthcare networks, and government
+          contracts still meaningfully prefer (or require) private WAN architecture.</li>
+        <li><strong>Geography that doesn't have broadband alternatives.</strong> If five of your
+          ten sites are rural and only have DSL or fixed wireless options, the SD-WAN
+          performance story breaks down. MPLS sites in those locations may be your only path to
+          reliable application performance.</li>
+        <li><strong>Active project conflict.</strong> SD-WAN migration is a 4–9 month project
+          when done well. If your team is mid-ERP-replacement or mid-merger-integration, layering
+          a network transformation on top is asking for failure.</li>
+      </ol>
+
+      <h2>The hybrid option people forget</h2>
+      <p>
+        Most multi-site mid-market companies don't need a binary choice. The right answer is
+        often <strong>SD-WAN with selective MPLS hold-over for specific sites or applications.</strong>
+        You keep MPLS at the 2–3 sites where it's irreplaceable (data center, regional HQ,
+        rural plant) and migrate everywhere else to SD-WAN over commodity transport.
+      </p>
+      <p>
+        Carriers will not lead with this option. They make more on the MPLS-only renewal and
+        more on the SD-WAN-everywhere transformation than they do on the hybrid. The buyer-side
+        framing — <em>what do we actually need where</em> — is the framing that produces the
+        lowest-cost, lowest-risk outcome.
+      </p>
+
+      <h2>SASE — why people are confusing this with SD-WAN</h2>
+      <p>
+        SASE (Secure Access Service Edge) gets pitched alongside SD-WAN constantly, and it's
+        creating real confusion. Quick clarification:
+      </p>
+      <ul>
+        <li><strong>SD-WAN</strong> = a way of overlaying intelligent routing on commodity transport (broadband, LTE, fiber, MPLS) for multi-site connectivity. Replaces or augments MPLS.</li>
+        <li><strong>SASE</strong> = a cloud-delivered model that combines SD-WAN with a security stack (SWG, CASB, ZTNA, FWaaS) into a single service. Replaces SD-WAN plus your separate security appliances.</li>
+      </ul>
+      <p>
+        SASE is the right direction for many mid-market companies, but it's also more expensive
+        and more disruptive than just adopting SD-WAN. If your security architecture is already
+        working — appliances at sites, working SSL inspection, working DNS filtering — there's no
+        forced timeline to consolidate to SASE. Many of our clients do SD-WAN first, then layer
+        in cloud security 12–24 months later. That sequencing controls risk.
+      </p>
+
+      <h2>The questions to ask any SD-WAN proposal</h2>
+      <p>
+        When you receive an SD-WAN proposal from any carrier (Spectrum, AT&T, Lumen, Verizon)
+        or any pure-play vendor (Versa, VMware VeloCloud/Broadcom, Cisco Meraki, Fortinet,
+        Aryaka, Cato Networks), ask these eight questions in writing:
+      </p>
+      <ol>
+        <li>What's the total monthly cost at year 1 vs year 2 vs year 3 (some vendors discount year 1 then ramp)?</li>
+        <li>Are SD-WAN appliances included or is hardware separate capex?</li>
+        <li>What's the SLA for the overlay vs the underlay (these are often different)?</li>
+        <li>Who do we call if a circuit goes down — the underlay carrier or the SD-WAN provider?</li>
+        <li>Can we bring our own transport at any site (bring-your-own-circuit) or are we locked into your underlay options?</li>
+        <li>What's the early termination clause and partial termination clause at individual sites?</li>
+        <li>What's the architecture for cloud on-ramp (direct AWS/Azure peering) and does it cost extra?</li>
+        <li>Is the SD-WAN platform on the vendor's roadmap for 5+ years, or has it been acquired/sunset?</li>
+      </ol>
+
+      <h2>The decision framework</h2>
+      <p>
+        At a five-question level, here's how we actually frame the choice:
+      </p>
+      <ul>
+        <li><strong>Q1:</strong> Do you have 5+ sites where commodity broadband (≥300Mbps) is available? If no → renew MPLS, revisit in 24 months.</li>
+        <li><strong>Q2:</strong> Is your current MPLS spend over $5k/month? If no → the savings probably don't justify the project disruption. Renew MPLS with negotiated rate reduction.</li>
+        <li><strong>Q3:</strong> Do you have a stable IT team or vendor relationship that can run a 4–9 month transition project? If no → wait, address the team gap first.</li>
+        <li><strong>Q4:</strong> Are you within 12 months of an MPLS renewal? If no → start the planning now; you want to be ready to execute when the renewal hits.</li>
+        <li><strong>Q5:</strong> Are 80%+ of your applications already in cloud (SaaS, IaaS)? If yes → SD-WAN's value increases dramatically; this is exactly the traffic profile SD-WAN was designed for.</li>
+      </ul>
+      <p>
+        Three or four "yes" answers → start the SD-WAN evaluation now. Two or fewer → renew the
+        MPLS contract for a 24-month term (not 36, you want flexibility) and revisit.
+      </p>
+
+      <h2>Want a buyer-side review of your specific situation?</h2>
+      <p>
+        We do contract reviews on this exact decision constantly — usually for IT teams at
+        5–25 location mid-market companies in the Midwest. <a class="text-signal underline" href="/audit">Send us your last MPLS invoice</a> and we'll mark up where we'd renegotiate, lay out whether SD-WAN math actually works for your footprint, and tell you whether to renew or migrate. 24-hour turnaround, no obligation.
+      </p>
+    </div>
+
+    <div class="mt-16 border-t border-ink/10 pt-12">
+      <p class="text-sm text-stone uppercase tracking-[0.2em] mb-4">Related</p>
+      <ul class="space-y-3">
+        <li><a class="text-signal underline" href="/blog/how-to-negotiate-carrier-renewals">How to negotiate a carrier renewal</a></li>
+        <li><a class="text-signal underline" href="/blog/when-to-consolidate-carriers">When to consolidate carriers</a></li>
+      </ul>
+    </div>
+  </article>
+
+  <Footer />
+</Base>
