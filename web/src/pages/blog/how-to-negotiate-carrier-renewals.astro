@@ -1,0 +1,160 @@
+---
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+
+const title = 'How to Negotiate a Carrier Renewal (Without a Quota in the Room) — Signal Advisory';
+const description = 'A buyer-side playbook for negotiating telecom renewals with Spectrum, AT&T, Lumen, or any carrier. What to do at 9 months, 6 months, and 90 days out.';
+const articleSchema = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How to negotiate a carrier renewal (without a quota in the room)",
+  "datePublished": "2026-05-11",
+  "author": { "@type": "Organization", "name": "Signal Advisory" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Signal Advisory",
+    "logo": { "@type": "ImageObject", "url": "https://signaladvise.com/email-icon.png" }
+  },
+  "mainEntityOfPage": "https://signaladvise.com/blog/how-to-negotiate-carrier-renewals"
+};
+---
+
+<Base title={title} description={description}>
+  <Nav />
+  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+
+  <article class="container mx-auto max-w-3xl px-6 py-20 md:px-10 md:py-28">
+    <p class="mb-5 text-xs uppercase tracking-[0.2em] text-stone">May 2026 · 11 min read</p>
+    <h1 class="display text-4xl font-light leading-[1.05] md:text-5xl">
+      How to negotiate a carrier renewal (without a quota in the room)
+    </h1>
+    <p class="mt-8 text-xl leading-relaxed text-ink/75">
+      The mistake most IT teams make on a carrier renewal is starting too late and treating the
+      account manager as the negotiation. Here's what to do instead — month by month.
+    </p>
+
+    <div class="prose prose-lg mt-12 max-w-none text-ink/85">
+      <h2>The renewal calendar matters more than the rate</h2>
+      <p>
+        Carrier account managers are paid on commission, and commission compounds on length and
+        size of contract. The closer you get to your renewal date, the less leverage you have —
+        because at 30 days out, you can't credibly walk. At 9 months out, you can. The first thing
+        we tell every new client is: <strong>pull every carrier contract you have right now,
+        identify the renewal date on each, and back-time your work from there.</strong>
+      </p>
+      <p>
+        A 36-month contract that auto-renews in 6 months is already mostly negotiated against you.
+        A 36-month contract with 9 months on the clock is wide open.
+      </p>
+
+      <h2>9 months out: build a credible alternative</h2>
+      <p>
+        The single most powerful thing in a carrier renewal conversation is the ability to say
+        "if we don't get terms we're happy with, we're moving to [other provider] on this specific
+        timeline." That sentence only works if it's true. So at 9 months out, do this:
+      </p>
+      <ul>
+        <li><strong>Map your footprint.</strong> Every site, every circuit, every service. Bandwidth, term-end-date, monthly recurring cost, port speed.</li>
+        <li><strong>Pull alternate quotes.</strong> For each location, get pricing from at least one competing carrier — not for "we're switching," but for "what would this look like." Lumen, AT&T Business, Verizon Business, Spectrum Enterprise, Comcast Business, Cox Business, regional providers — none of them care if you actually intend to switch. They want the data point.</li>
+        <li><strong>Document the competitive baseline.</strong> Write down what each competitor would do for you. This is the gun on the table in month 6.</li>
+      </ul>
+
+      <h2>6 months out: open the renewal conversation</h2>
+      <p>
+        At this point you go to your incumbent's account manager with a specific request: "We want
+        to talk about renewal terms now, well before the auto-renew window, and we want a sharp
+        pencil." Two things you should explicitly say:
+      </p>
+      <ol>
+        <li><em>You have alternate quotes in hand</em>, and you're happy to share them if it speeds the conversation along. Sometimes they want to see them. Sometimes they don't. Either way you've established that you have them.</li>
+        <li><em>You're open to a longer term</em> (24 or 36 months) in exchange for genuinely better economics — not just a "rate protection" promise on what you're already paying.</li>
+      </ol>
+
+      <p>
+        Then ask for three things on the proposal: a lower rate per circuit, the elimination of
+        cost-recovery line items (more on those in our <a href="/blog/hidden-line-items-on-your-carrier-invoice" class="text-signal underline">invoice line-items piece</a>), and a meaningful termination-for-convenience clause. The third is usually the one they pretend they can't move on. They can.
+      </p>
+
+      <h2>3 months out: pressure-test, don't accept</h2>
+      <p>
+        Whatever proposal comes back at month 6, you should treat it as the opening bid, not the
+        final number. The carrier almost always builds in a buffer because <em>they expect to
+        negotiate.</em> If you accept the first proposal, you leave money on the table — and the
+        account team knows it.
+      </p>
+      <p>
+        Counter with two specific moves:
+      </p>
+      <ul>
+        <li><strong>Match the best alternate quote on circuit pricing</strong>, with a defined per-month dollar number you want. Not "more aggressive." A number.</li>
+        <li><strong>Bundle in something you've been wanting but haven't budgeted for</strong> — a redundant circuit at a key site, an SD-WAN trial, free professional services on a UCaaS migration. Bundles cost the carrier less than they cost you, and account teams have flexibility on bundles they don't have on rates.</li>
+      </ul>
+
+      <h2>30–60 days out: walk the line</h2>
+      <p>
+        By now you should have a final proposal within 5–10% of what you actually want. Don't sign
+        yet. Two ways to get the last bit of movement:
+      </p>
+      <ul>
+        <li><strong>Escalate intentionally.</strong> Ask the account manager to bring their director or RSM (regional sales manager) into the next conversation. The conversation changes when you're talking to someone with discount authority instead of someone who has to ask for it.</li>
+        <li><strong>Be ready to actually walk.</strong> If the math doesn't work, port-out projects are a pain but they are doable. Most carriers don't believe you'll do it. The 10% of clients who actually have done it before get materially better proposals.</li>
+      </ul>
+
+      <h2>What account managers are actually optimizing for</h2>
+      <p>
+        Understanding this is the entire game. An incumbent carrier account manager is not paid to
+        protect your rate. They are paid on:
+      </p>
+      <ol>
+        <li><strong>Retention</strong> — keeping the account from churning</li>
+        <li><strong>Term length</strong> — longer contracts pay more commission</li>
+        <li><strong>Service expansion</strong> — adding new circuits, products, or services</li>
+        <li><strong>Rate</strong> — distantly, because most carriers have wide latitude here</li>
+      </ol>
+      <p>
+        Notice rate isn't first. That's why "we want a lower rate" alone is a weak ask. "We want a
+        lower rate <em>and</em> we're considering not renewing <em>and</em> we'd take a longer term
+        if the economics work" hits three of their four levers at once. That's a conversation they
+        can take to their leadership and get authority on.
+      </p>
+
+      <h2>The single biggest mistake we see</h2>
+      <p>
+        IT teams who run their own renewals almost always wait until 60–90 days out to start the
+        process — because they're busy, because nobody flagged it on the calendar, because last
+        renewal was "fine." By then, the carrier knows you can't realistically port. The
+        proposal they give you reflects that.
+      </p>
+      <p>
+        If you remember nothing else: <strong>set a calendar reminder 9 months before every
+        carrier contract end-date.</strong> That single habit is worth 8–15% on your renewal in
+        most cases. We've literally seen accounts where that one change paid for our entire
+        engagement.
+      </p>
+
+      <h2>When it's worth bringing in an advisor</h2>
+      <p>
+        The math is simple. If your monthly carrier spend is over ~$8k/month and you're approaching
+        a renewal, the savings on a well-run negotiation almost always exceed the cost of advisory
+        help. We work hourly or retained — no carrier commissions tied to our recommendations, so
+        the advice we give isn't downstream of which provider pays us more.
+      </p>
+      <p>
+        If we can't find cost reduction across your IT spend in an initial review, we pay you for
+        the hour you spent with us. <a href="/audit" class="text-signal underline">Free invoice
+        audit</a> if you'd like to see what we'd flag on yours.
+      </p>
+    </div>
+
+    <div class="mt-16 border-t border-ink/10 pt-12">
+      <p class="text-sm text-stone uppercase tracking-[0.2em] mb-4">Related</p>
+      <ul class="space-y-3">
+        <li><a class="text-signal underline" href="/blog/hidden-line-items-on-your-carrier-invoice">5 line items hiding on your carrier invoice (and what they actually are)</a></li>
+        <li><a class="text-signal underline" href="/blog/independent-advisor-vs-master-agent">Independent advisor vs master agent — what's the difference?</a></li>
+      </ul>
+    </div>
+  </article>
+
+  <Footer />
+</Base>

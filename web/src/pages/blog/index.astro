@@ -1,0 +1,64 @@
+---
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+
+const posts = [
+  {
+    slug: 'how-to-negotiate-carrier-renewals',
+    title: 'How to negotiate a carrier renewal (without a quota in the room)',
+    summary: 'The buyer-side playbook for getting a real number out of Spectrum, AT&T, Lumen, or any carrier — 9 months out, 6 months out, 90 days out.',
+    date: 'May 2026',
+    read: '11 min',
+  },
+  {
+    slug: 'hidden-line-items-on-your-carrier-invoice',
+    title: '5 line items hiding on your carrier invoice (and what they actually are)',
+    summary: 'Regulatory Recovery Fee. Cost Assessment Charge. Property Tax Allotment. They look like taxes. They are not. Here is what they are and how to renegotiate them.',
+    date: 'May 2026',
+    read: '8 min',
+  },
+  {
+    slug: 'independent-advisor-vs-master-agent',
+    title: 'Independent advisor vs master agent — what is the difference, and which do you want?',
+    summary: 'Both call themselves "agents." Both promise "no cost to you." The economics are radically different, and most buyers do not know until they are 18 months into a contract.',
+    date: 'May 2026',
+    read: '9 min',
+  },
+];
+---
+
+<Base
+  title="Insights — Signal Advisory"
+  description="Buyer-side commentary on telecom, cloud, and UCaaS — practical playbooks for IT teams negotiating carrier contracts and renewals."
+>
+  <Nav />
+
+  <section class="container mx-auto max-w-3xl px-6 py-20 md:px-10 md:py-28">
+    <p class="mb-5 text-xs uppercase tracking-[0.2em] text-stone">Insights</p>
+    <h1 class="display text-5xl font-light leading-[0.95] md:text-6xl">
+      Plain-language commentary<br />for the buyer side.
+    </h1>
+    <p class="mt-8 text-lg leading-relaxed text-ink/75">
+      We write what we tell clients. Carrier contract mechanics, renewal leverage,
+      cost-recovery fees you can actually negotiate — practical, no jargon, no quota.
+    </p>
+  </section>
+
+  <section class="border-t border-ink/10 py-12">
+    <div class="container mx-auto max-w-3xl px-6 md:px-10">
+      <div class="divide-y divide-ink/10">
+        {posts.map((p) => (
+          <a href={`/blog/${p.slug}`} class="block py-10 group">
+            <p class="mb-3 text-xs uppercase tracking-[0.2em] text-stone">{p.date} · {p.read} read</p>
+            <h2 class="display text-3xl font-medium leading-tight group-hover:text-signal transition-colors">{p.title}</h2>
+            <p class="mt-4 text-ink/70 leading-relaxed">{p.summary}</p>
+            <p class="mt-4 text-sm font-medium text-signal">Read article →</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</Base>

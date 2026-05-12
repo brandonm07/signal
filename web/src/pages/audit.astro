@@ -1,0 +1,113 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Base
+  title="Free Carrier Invoice Audit — Signal Advisory"
+  description="Send us your last telecom invoice. We mark up where we'd renegotiate, surface hidden charges, and tell you what your contract is worth. No obligation."
+>
+  <Nav />
+
+  <section class="container mx-auto max-w-3xl px-6 py-20 md:px-10 md:py-28">
+    <p class="mb-5 text-xs uppercase tracking-[0.2em] text-stone">No-cost audit · 24-hour turnaround</p>
+    <h1 class="display text-5xl font-light leading-[0.95] md:text-6xl">
+      We'll mark up your<br />
+      <em class="text-signal not-italic font-medium">last carrier invoice.</em>
+    </h1>
+    <p class="mt-8 text-lg leading-relaxed text-ink/75">
+      Send one recent invoice from any of your carrier, internet, or UCaaS providers. Within 24
+      business hours we send back the same PDF with three things flagged:
+    </p>
+    <ul class="mt-6 space-y-3 text-ink/80 text-lg">
+      <li class="flex gap-3"><span class="text-signal font-semibold">·</span>Line items we'd renegotiate, with the rate we'd target</li>
+      <li class="flex gap-3"><span class="text-signal font-semibold">·</span>Hidden recovery fees and surcharges (typically 8–12% of invoice)</li>
+      <li class="flex gap-3"><span class="text-signal font-semibold">·</span>Contract clauses worth a closer look before your next renewal</li>
+    </ul>
+    <p class="mt-8 text-ink/75">
+      Zero obligation to engage further. If we don't find anything material, you get an honest
+      "looks tight" — and the time we spent reviewing is on us.
+    </p>
+
+    <!-- Form -->
+    <form id="audit-form" class="mt-16 grid gap-5 border-t border-ink/10 pt-12">
+      <p class="mb-2 text-xs uppercase tracking-[0.2em] text-stone">Request the audit</p>
+
+      <div class="grid gap-5 md:grid-cols-2">
+        <div>
+          <label class="block text-sm font-medium text-ink mb-2" for="first_name">First name</label>
+          <input id="first_name" name="first_name" type="text" required class="w-full border border-ink/20 px-4 py-3 focus:border-signal outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-ink mb-2" for="company">Company</label>
+          <input id="company" name="company" type="text" required class="w-full border border-ink/20 px-4 py-3 focus:border-signal outline-none" />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-ink mb-2" for="email">Work email</label>
+        <input id="email" name="email" type="email" required class="w-full border border-ink/20 px-4 py-3 focus:border-signal outline-none" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-ink mb-2" for="carrier">Primary carrier (optional)</label>
+        <input id="carrier" name="carrier" type="text" placeholder="e.g. Spectrum Business, AT&T, Lumen" class="w-full border border-ink/20 px-4 py-3 focus:border-signal outline-none" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-ink mb-2" for="notes">Anything specific to flag? (optional)</label>
+        <textarea id="notes" name="notes" rows="3" class="w-full border border-ink/20 px-4 py-3 focus:border-signal outline-none"></textarea>
+      </div>
+
+      <p class="text-sm text-stone">
+        We'll reply with a secure upload link for the invoice — keeping it out of email attachments.
+      </p>
+
+      <button type="submit" class="mt-2 inline-block w-full rounded-sm bg-signal px-6 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors">
+        Request my audit
+      </button>
+
+      <div id="audit-status" class="hidden text-sm"></div>
+    </form>
+  </section>
+
+  <Footer />
+</Base>
+
+<script>
+  const form = document.getElementById('audit-form') as HTMLFormElement;
+  const status = document.getElementById('audit-status');
+  if (form && status) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(form);
+      const payload = Object.fromEntries(fd.entries());
+      const btn = form.querySelector('button[type=submit]') as HTMLButtonElement;
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      try {
+        const res = await fetch('https://api.signaladvise.com/audit', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (res.ok) {
+          status.className = 'text-sm text-moss font-medium';
+          status.textContent = 'Got it. Check your inbox in a few minutes for the upload link.';
+          status.classList.remove('hidden');
+          form.reset();
+        } else {
+          throw new Error(await res.text());
+        }
+      } catch (err) {
+        status.className = 'text-sm text-signal font-medium';
+        status.textContent = 'Something went wrong. Email info@signaladvise.com instead and we\'ll pick it up.';
+        status.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Request my audit';
+      }
+    });
+  }
+</script>

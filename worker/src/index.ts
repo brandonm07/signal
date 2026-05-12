@@ -28,6 +28,13 @@ export default {
 
   async fetch(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(req.url);
+    // CORS preflight for browser POSTs from signaladvise.com
+    if (req.method === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: corsHeaders(),
+      });
+    }
     if (url.pathname === "/u" || url.pathname === "/u/") {
       return handleUnsubscribe(url, env);
     }
@@ -36,6 +43,9 @@ export default {
     }
     if (url.pathname === "/webhook/resend" && req.method === "POST") {
       return handleResendWebhook(req, env);
+    }
+    if (url.pathname === "/audit" && req.method === "POST") {
+      return handleAuditIntake(req, env);
     }
     if (url.pathname.startsWith("/admin/")) {
       const secret = req.headers.get("x-admin-secret");
@@ -138,6 +148,99 @@ async function processSend(leadId: number, env: Env): Promise<void> {
     ]);
     throw err;
   }
+}
+
+function corsHeaders(): Record<string, string> {
+  return {
+    "Access-Control-Allow-Origin": "https://signaladvise.com",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Max-Age": "86400",
+  };
+}
+
+async function handleAuditIntake(req: Request, env: Env): Promise<Response> {
+  let body: {
+    first_name?: string;
+    company?: string;
+    email?: string;
+    carrier?: string;
+    notes?: string;
+  };
+  try {
+    body = await req.json();
+  } catch {
+    return jsonResponse({ error: "bad json" }, 400);
+  }
+  const { first_name = "", company = "", email = "", carrier = "", notes = "" } = body;
+  if (!email || !email.includes("@") || !first_name || !company) {
+    return jsonResponse({ error: "missing required fields" }, 400);
+  }
+  // Honeypot: simple email validation already done above.
+
+  // Log to D1
+  await env.DB.prepare(
+    `INSERT INTO audit_requests (first_name, company, email, carrier, notes) VALUES (?1, ?2, ?3, ?4, ?5)`,
+  )
+    .bind(first_name, company, email.toLowerCase(), carrier, notes)
+    .run();
+
+  // Notify Brandon
+  await sendNotification(env, {
+    to: "brandon@signaladvise.com",
+    subject: `New audit request — ${company} (${first_name})`,
+    text:
+      `New invoice audit request from the website:\n\n` +
+      `Name: ${first_name}\n` +
+      `Company: ${company}\n` +
+      `Email: ${email}\n` +
+      `Primary carrier: ${carrier || "—"}\n` +
+      `Notes: ${notes || "—"}\n\n` +
+      `Reply within 24 business hours with a secure upload link.`,
+  });
+
+  // Confirmation to prospect
+  await sendNotification(env, {
+    to: email,
+    subject: `Your invoice audit request — Signal Advisory`,
+    text:
+      `Hi ${first_name},\n\n` +
+      `Got your request. I'll reply personally within 24 business hours with a secure upload link for your invoice.\n\n` +
+      `Once I have it, you'll get the marked-up version back the next business day.\n\n` +
+      `Brandon\n` +
+      `Principal Advisor\n` +
+      `Signal Advisory\n` +
+      `brandon@signaladvise.com · 816.721.6501`,
+  });
+
+  return jsonResponse({ ok: true }, 200);
+}
+
+async function sendNotification(
+  env: Env,
+  msg: { to: string; subject: string; text: string },
+): Promise<void> {
+  await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: `${env.SENDER_NAME} <${env.SENDER_EMAIL}>`,
+      to: msg.to,
+      reply_to: env.REPLY_TO,
+      subject: msg.subject,
+      text: msg.text,
+    }),
+  });
+}
+
+function jsonResponse(data: unknown, status: number): Response {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { "content-type": "application/json", ...corsHeaders() },
+  });
 }
 
 async function handleResendWebhook(req: Request, env: Env): Promise<Response> {

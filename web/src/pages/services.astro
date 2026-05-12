@@ -1,0 +1,159 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Base
+  title="Services — Signal Advisory · Independent Telecom & Cloud Advisor"
+  description="Carrier sourcing, technology advisory, and managed services for IT teams renegotiating telecom, cloud, and UCaaS contracts. Buyer-side. Independent."
+>
+  <Nav />
+
+  <section class="container mx-auto max-w-5xl px-6 pb-20 pt-20 md:px-10 md:pt-28">
+    <p class="mb-5 text-xs uppercase tracking-[0.2em] text-stone">Services</p>
+    <h1 class="display text-5xl font-light leading-[0.95] md:text-6xl">
+      We work for the buyer.<br />
+      <em class="text-signal not-italic font-medium">Not the carrier.</em>
+    </h1>
+    <p class="mt-8 max-w-2xl text-lg leading-relaxed text-ink/75">
+      Three disciplines. One trusted advisor. Hourly or retained — no carrier commissions
+      tied to recommendations, no quota driving our advice.
+    </p>
+  </section>
+
+  <!-- 01: Carrier sourcing -->
+  <section id="carrier-sourcing" class="border-t border-ink/10 py-20">
+    <div class="container mx-auto max-w-5xl px-6 md:px-10">
+      <div class="grid gap-10 md:grid-cols-3">
+        <div class="md:col-span-1">
+          <p class="mb-3 font-mono text-xs text-stone">01</p>
+          <h2 class="display text-3xl font-medium">Carrier sourcing</h2>
+          <p class="mt-3 text-stone text-sm">
+            SD-WAN · UCaaS · DIA · SASE · MPLS · Mobility
+          </p>
+        </div>
+        <div class="md:col-span-2 prose prose-lg max-w-none text-ink/80">
+          <p>
+            One advisor, every carrier evaluated. Most organizations have 4–6 carrier relationships
+            split across internet, voice, mobile, and SD-WAN, with separate account teams and renewal
+            cycles at each. We assess the entire market on your behalf — Spectrum, AT&T, Verizon, Lumen,
+            Comcast Business, Cox, Frontier, and dozens more — negotiate the terms, and stay on the
+            account for the life of the relationship.
+          </p>
+          <p>
+            What's different about working with us versus a traditional master-agent agent: we don't
+            carry a quota for any single provider. Our recommendations aren't downstream of which
+            carrier pays a higher residual. They're downstream of which carrier actually serves your
+            footprint, term flexibility, and operational requirements best.
+          </p>
+          <p><strong>Engagements typically address:</strong></p>
+          <ul>
+            <li>Upcoming renewals on existing carrier contracts (start 6–9 months out for maximum leverage)</li>
+            <li>New site builds, M&A integration, location consolidation</li>
+            <li>MPLS-to-SD-WAN transitions and SASE evaluations</li>
+            <li>PBX-to-UCaaS migrations (RingCentral, 8x8, Zoom Phone, Cisco Webex Calling)</li>
+            <li>Mobile fleet renegotiation and TEM (telecom expense management) setup</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02: Technology advisory -->
+  <section id="technology-advisory" class="border-t border-ink/10 bg-ink/[0.03] py-20">
+    <div class="container mx-auto max-w-5xl px-6 md:px-10">
+      <div class="grid gap-10 md:grid-cols-3">
+        <div class="md:col-span-1">
+          <p class="mb-3 font-mono text-xs text-stone">02</p>
+          <h2 class="display text-3xl font-medium">Technology advisory</h2>
+          <p class="mt-3 text-stone text-sm">
+            Vendor selection · Contract review · Architecture
+          </p>
+        </div>
+        <div class="md:col-span-2 prose prose-lg max-w-none text-ink/80">
+          <p>
+            Independent counsel on what to buy, who to buy it from, and how to structure the
+            agreement. Hourly or retained — we provide expertise your team needs without the bias
+            of a vendor relationship and without adding headcount.
+          </p>
+          <p><strong>Common engagements:</strong></p>
+          <ul>
+            <li><strong>Carrier contract review.</strong> Send us your last 3 months of invoices and current MSA. We come back with a marked-up version flagging renegotiable line items, term traps, and SLA gaps. Most reviews surface 8–15% of annual spend in addressable savings.</li>
+            <li><strong>RFP support.</strong> We write the requirements doc, run the bid, score the responses, and present a recommendation. Saves IT teams 80–120 hours per RFP.</li>
+            <li><strong>Architecture planning.</strong> SD-WAN vs SASE vs hybrid, single-carrier vs diversified, on-prem vs cloud UC. We bring carrier-agnostic perspective on what your specific footprint actually needs.</li>
+            <li><strong>Implementation oversight.</strong> Carrier projects ship late. We sit between your team and the carrier project manager to keep things accountable.</li>
+          </ul>
+          <p>
+            If we cannot find cost reduction across your IT spend in an initial review, we pay you for
+            the hour you spent with us.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03: Managed services -->
+  <section id="managed-services" class="border-t border-ink/10 py-20">
+    <div class="container mx-auto max-w-5xl px-6 md:px-10">
+      <div class="grid gap-10 md:grid-cols-3">
+        <div class="md:col-span-1">
+          <p class="mb-3 font-mono text-xs text-stone">03</p>
+          <h2 class="display text-3xl font-medium">Managed services</h2>
+          <p class="mt-3 text-stone text-sm">
+            Operations · Escalations · Invoice auditing
+          </p>
+        </div>
+        <div class="md:col-span-2 prose prose-lg max-w-none text-ink/80">
+          <p>
+            Once the contract is signed, the operational headache begins. Carrier project managers
+            change every six months. Tickets sit in queues. Billing errors compound. We absorb that
+            work so your IT team doesn't have to.
+          </p>
+          <p><strong>What we manage:</strong></p>
+          <ul>
+            <li>Implementation oversight — coordinating the carrier's project team, the LEC, and your network team through delivery</li>
+            <li>Tier-2 escalations on tickets that get stuck</li>
+            <li>Monthly invoice auditing — billing errors run 3–6% of telecom invoices on average</li>
+            <li>Carrier portal administration (account access, MACDs, ticket logging)</li>
+            <li>Quarterly business reviews — vendor scorecards, spend trending, renewal forecasting</li>
+          </ul>
+          <p>
+            Retained on a monthly basis. Typically pays for itself in invoice errors caught + soft-cost
+            offload from your team.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="border-t border-ink/10 bg-ink py-24 text-paper">
+    <div class="container mx-auto max-w-3xl px-6 text-center md:px-10">
+      <h2 class="display mb-6 text-4xl font-normal leading-tight md:text-5xl">
+        Ready to look at the numbers?
+      </h2>
+      <p class="mb-10 text-lg text-paper/60 leading-relaxed">
+        Send us your last carrier invoice. We'll mark up what we'd renegotiate, no obligation.
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a
+          href="/audit"
+          class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-paper hover:text-ink transition-colors"
+        >
+          Free invoice audit
+        </a>
+        <a
+          href="https://calendly.com/signaladvise-info/30min"
+          target="_blank"
+          rel="noopener"
+          class="inline-block rounded-sm border border-paper/30 px-8 py-4 text-sm font-medium hover:border-paper transition-colors"
+        >
+          Schedule a 30-min call
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</Base>

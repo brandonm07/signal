@@ -50,22 +50,29 @@ const differentiators = [
       <em class="text-signal not-italic font-medium">Measurable</em> results.
     </h1>
     <p class="mt-8 max-w-2xl text-lg leading-relaxed text-ink/75">
-      Signal Advisory provides independent counsel on technology infrastructure — connectivity,
-      cloud, security, and mobility. We evaluate every option on the market, negotiate on your
-      behalf, and stay accountable to the outcome.
+      Independent counsel on carrier, cloud, and UCaaS contracts. We sit on your side of the
+      table — evaluate every option on the market, negotiate on your behalf, and stay
+      accountable to the outcome.
+    </p>
+    <p class="mt-5 max-w-2xl text-base leading-relaxed text-ink/70">
+      Most engagements surface <strong class="text-ink">$40k–$120k</strong> in year-one savings
+      on a mid-market telecom footprint. If we can't find cost reduction across your IT spend,
+      we pay you for the hour you spent with us.
     </p>
     <div class="mt-10 flex flex-wrap gap-4">
       <a
-        href="#contact"
+        href="https://calendly.com/signaladvise-info/30min"
+        target="_blank"
+        rel="noopener"
         class="inline-block rounded-sm bg-signal px-6 py-3 text-sm font-semibold text-paper hover:bg-ink transition-colors"
       >
         Schedule a consultation
       </a>
       <a
-        href="#services"
+        href="/audit"
         class="inline-block rounded-sm border border-ink/20 px-6 py-3 text-sm font-medium hover:border-ink transition-colors"
       >
-        What we do
+        Free invoice audit →
       </a>
     </div>
   </section>
@@ -112,6 +119,44 @@ const differentiators = [
           ))
         }
       </div>
+    </div>
+  </section>
+
+  <!-- Recent outcomes / proof -->
+  <section class="border-t border-ink/10 py-24">
+    <div class="container mx-auto max-w-5xl px-6 md:px-10">
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Recent engagements</p>
+      <h2 class="display mb-16 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
+        What an engagement actually looks like.
+      </h2>
+      <div class="grid gap-8 md:grid-cols-3">
+        {[
+          {
+            metric: '$94k',
+            label: 'Annual savings, year one',
+            note: 'Mid-market manufacturer · MPLS to SD-WAN transition, dual-carrier diversity preserved at lower spend.',
+          },
+          {
+            metric: '6 → 1',
+            label: 'Vendor relationships consolidated',
+            note: 'Multi-site retail client · Five carrier invoices and one UCaaS contract reduced to a single quarterly statement and one point of accountability.',
+          },
+          {
+            metric: '23%',
+            label: 'Telecom spend reduction',
+            note: 'Logistics company · Renegotiated three-year renewal with incumbent carrier ahead of cycle; preserved flexibility, reduced effective rate.',
+          },
+        ].map((c) => (
+          <div class="border border-ink/10 p-8">
+            <p class="display text-5xl font-medium text-signal mb-3">{c.metric}</p>
+            <p class="text-ink mb-3 font-medium">{c.label}</p>
+            <p class="text-ink/60 text-sm leading-relaxed">{c.note}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-12 text-sm text-stone italic">
+        Engagement profiles representative of typical mid-market client work. Contact us for client references on request.
+      </p>
     </div>
   </section>
 
