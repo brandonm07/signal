@@ -1,15 +1,11 @@
 ---
 layout: ../../layouts/LegalDoc.astro
-title: Master Services Agreement — Signal Advisory (Template)
-description: Template Master Services Agreement used for Signal Advisory client engagements.
+title: Master Services Agreement — Signal Advisory
+description: Master Services Agreement used for Signal Advisory client engagements.
 rawMdHref: /legal/signal-advisory-msa-template.md
 ---
 
 # Master Services Agreement
-
-> **TEMPLATE — NOT LEGAL ADVICE.** This document is a starting point. Have a Missouri-licensed attorney review before execution with any client. Bracketed fields `[LIKE THIS]` are to be filled in for each client engagement.
-
----
 
 **MASTER SERVICES AGREEMENT**
 

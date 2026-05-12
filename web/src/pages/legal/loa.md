@@ -1,15 +1,11 @@
 ---
 layout: ../../layouts/LegalDoc.astro
-title: Letter of Authorization — Signal Advisory (Template)
-description: Template Letter of Authorization for Signal Advisory to act on a client's behalf with their carriers and technology vendors.
+title: Letter of Authorization — Signal Advisory
+description: Letter of Authorization for Signal Advisory to act on a client's behalf with their carriers and technology vendors.
 rawMdHref: /legal/signal-advisory-loa-template.md
 ---
 
 # Letter of Authorization (LOA)
-
-> **TEMPLATE — NOT LEGAL ADVICE.** This is a starting point. Some carriers (AT&T, Verizon, Lumen, Spectrum Business, etc.) require their own LOA form — when they do, you'll need to use theirs in addition to or instead of this one. This document is for the general case and for vendors that accept a generic LOA. Have a Missouri-licensed attorney review before first use.
-
----
 
 ## LETTER OF AUTHORIZATION
 

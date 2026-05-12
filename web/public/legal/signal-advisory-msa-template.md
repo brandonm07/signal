@@ -1,9 +1,5 @@
 # Master Services Agreement
 
-> **TEMPLATE — NOT LEGAL ADVICE.** This document is a starting point. Have a Missouri-licensed attorney review before execution with any client. Bracketed fields `[LIKE THIS]` are to be filled in for each client engagement.
-
----
-
 **MASTER SERVICES AGREEMENT**
 
 This Master Services Agreement (the "**Agreement**") is entered into as of `[EFFECTIVE DATE]` (the "**Effective Date**") by and between:
