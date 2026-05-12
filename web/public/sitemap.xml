@@ -9,6 +9,9 @@
   <url><loc>https://signaladvise.com/blog/how-to-negotiate-carrier-renewals</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://signaladvise.com/blog/hidden-line-items-on-your-carrier-invoice</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://signaladvise.com/blog/independent-advisor-vs-master-agent</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://signaladvise.com/legal</loc><changefreq>yearly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://signaladvise.com/legal/msa</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://signaladvise.com/legal/loa</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://signaladvise.com/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://signaladvise.com/terms</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
 </urlset>

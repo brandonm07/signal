@@ -1,19 +1,75 @@
 ---
 ---
 
-<nav class="container mx-auto flex max-w-5xl items-center justify-between px-6 py-6 md:px-10">
-  <a href="/" class="display text-xl font-medium">Signal Advisory</a>
-  <ul class="hidden gap-8 text-sm md:flex">
-    <li><a href="/services" class="hover:text-signal">Services</a></li>
-    <li><a href="/blog" class="hover:text-signal">Insights</a></li>
-    <li><a href="/audit" class="hover:text-signal">Free audit</a></li>
-  </ul>
-  <a
-    href="https://calendly.com/signaladvise-info/30min"
-    target="_blank"
-    rel="noopener"
-    class="hidden rounded-sm bg-ink px-4 py-2 text-sm text-paper hover:bg-signal md:inline-block"
-  >
-    Schedule a call
-  </a>
+<nav class="container mx-auto max-w-5xl px-6 py-6 md:px-10">
+  <div class="flex items-center justify-between">
+    <a href="/" class="display text-xl font-medium">Signal Advisory</a>
+
+    <!-- Desktop nav -->
+    <ul class="hidden gap-8 text-sm md:flex">
+      <li><a href="/services" class="hover:text-signal">Services</a></li>
+      <li><a href="/blog" class="hover:text-signal">Insights</a></li>
+      <li><a href="/audit" class="hover:text-signal">Free audit</a></li>
+    </ul>
+    <a
+      href="https://calendly.com/signaladvise-info/30min"
+      target="_blank"
+      rel="noopener"
+      class="hidden rounded-sm bg-ink px-4 py-2 text-sm text-paper hover:bg-signal md:inline-block"
+    >
+      Schedule a call
+    </a>
+
+    <!-- Mobile hamburger toggle -->
+    <button
+      id="nav-toggle"
+      aria-label="Toggle menu"
+      aria-expanded="false"
+      class="md:hidden flex flex-col gap-1.5 p-2 -mr-2"
+    >
+      <span class="block w-6 h-0.5 bg-ink transition-transform"></span>
+      <span class="block w-6 h-0.5 bg-ink transition-opacity"></span>
+      <span class="block w-6 h-0.5 bg-ink transition-transform"></span>
+    </button>
+  </div>
+
+  <!-- Mobile menu -->
+  <div id="nav-mobile" class="md:hidden hidden mt-6 pb-4">
+    <ul class="flex flex-col gap-5 text-base border-t border-ink/10 pt-5">
+      <li><a href="/services" class="block hover:text-signal">Services</a></li>
+      <li><a href="/blog" class="block hover:text-signal">Insights</a></li>
+      <li><a href="/audit" class="block hover:text-signal">Free audit</a></li>
+      <li class="pt-2">
+        <a
+          href="https://calendly.com/signaladvise-info/30min"
+          target="_blank"
+          rel="noopener"
+          class="inline-block rounded-sm bg-ink px-5 py-3 text-sm text-paper"
+        >
+          Schedule a call
+        </a>
+      </li>
+    </ul>
+  </div>
 </nav>
+
+<script>
+  const btn = document.getElementById('nav-toggle');
+  const menu = document.getElementById('nav-mobile');
+  if (btn && menu) {
+    btn.addEventListener('click', () => {
+      const open = menu.classList.toggle('hidden') === false;
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      const bars = btn.querySelectorAll('span');
+      if (open) {
+        bars[0].style.transform = 'translateY(8px) rotate(45deg)';
+        bars[1].style.opacity = '0';
+        bars[2].style.transform = 'translateY(-8px) rotate(-45deg)';
+      } else {
+        bars[0].style.transform = '';
+        bars[1].style.opacity = '';
+        bars[2].style.transform = '';
+      }
+    });
+  }
+</script>
