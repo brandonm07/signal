@@ -2,6 +2,15 @@ import type { Env, Lead, QueueJob } from "./types";
 import { buildEmail, sendViaResend } from "./email";
 import { pollInbound } from "./inbound";
 import { runPeriodicMaintenance } from "./health";
+import {
+  handleCreateClient,
+  handleCreateInvoice,
+  handleSendInvoice,
+  handleVoidInvoice,
+  serveInvoicePage,
+  handlePayInvoice,
+  handleStripeWebhook,
+} from "./invoices";
 import { SEQUENCE_STEPS } from "./sequence";
 
 export default {
@@ -54,6 +63,19 @@ export default {
       if (req.method === "GET") return serveUploadPage(token, env);
       if (req.method === "POST") return handleUploadSubmission(token, req, env);
     }
+    // --- Billing: public invoice view + pay redirect ---
+    const viewMatch = url.pathname.match(/^\/i\/([a-f0-9]{32})$/);
+    if (viewMatch && req.method === "GET") {
+      return serveInvoicePage(viewMatch[1], env);
+    }
+    const payMatch = url.pathname.match(/^\/i\/([a-f0-9]{32})\/pay$/);
+    if (payMatch) {
+      return handlePayInvoice(payMatch[1], env);
+    }
+    // --- Billing: Stripe webhook (no admin auth — uses HMAC) ---
+    if (url.pathname === "/webhook/stripe" && req.method === "POST") {
+      return handleStripeWebhook(req, env);
+    }
     if (url.pathname.startsWith("/admin/")) {
       const secret = req.headers.get("x-admin-secret");
       if (!env.ADMIN_SECRET || secret !== env.ADMIN_SECRET) {
@@ -70,6 +92,21 @@ export default {
       const dlMatch = url.pathname.match(/^\/admin\/audit\/(\d+)\/download$/);
       if (dlMatch) {
         return handleAdminDownload(parseInt(dlMatch[1], 10), env);
+      }
+      // --- Billing admin ---
+      if (url.pathname === "/admin/clients" && req.method === "POST") {
+        return handleCreateClient(req, env);
+      }
+      if (url.pathname === "/admin/invoices" && req.method === "POST") {
+        return handleCreateInvoice(req, env);
+      }
+      const sendMatch = url.pathname.match(/^\/admin\/invoices\/(\d+)\/send$/);
+      if (sendMatch && req.method === "POST") {
+        return handleSendInvoice(parseInt(sendMatch[1], 10), env);
+      }
+      const voidMatch = url.pathname.match(/^\/admin\/invoices\/(\d+)\/void$/);
+      if (voidMatch && req.method === "POST") {
+        return handleVoidInvoice(parseInt(voidMatch[1], 10), env);
       }
     }
     return new Response("Not found", { status: 404 });

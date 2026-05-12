@@ -22,6 +22,9 @@ export interface Env {
   DRAFT_MODE: string; // "1" = create drafts, "0" = auto-send
   ADMIN_SECRET: string;
   RESEND_WEBHOOK_SECRET?: string;
+  STRIPE_SECRET_KEY: string;
+  STRIPE_WEBHOOK_SECRET: string;
+  STRIPE_PUBLISHABLE_KEY?: string;
 }
 
 export interface Lead {
