@@ -13,7 +13,10 @@ import {
   verifyStripeWebhook,
 } from "./stripe";
 
-const BILLING_HOST = "https://signaladvise.com";
+// Customer-facing invoice URLs go on api.signaladvise.com for now (where the
+// worker is bound). If we later add a Cloudflare route for signaladvise.com/i/*
+// → signal-pitcher, this can flip back to the bare domain for nicer branding.
+const BILLING_HOST = "https://api.signaladvise.com";
 const ADMIN_HOST = "https://api.signaladvise.com";
 
 // ---------- shared types ----------

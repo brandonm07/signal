@@ -11,6 +11,7 @@ import {
   handlePayInvoice,
   handleStripeWebhook,
 } from "./invoices";
+import { handleAdminUi } from "./admin-ui";
 import { SEQUENCE_STEPS } from "./sequence";
 
 export default {
@@ -75,6 +76,10 @@ export default {
     // --- Billing: Stripe webhook (no admin auth — uses HMAC) ---
     if (url.pathname === "/webhook/stripe" && req.method === "POST") {
       return handleStripeWebhook(req, env);
+    }
+    // --- Admin UI (cookie-auth, browser-friendly) ---
+    if (url.pathname === "/admin/ui" || url.pathname.startsWith("/admin/ui/")) {
+      return handleAdminUi(req, env);
     }
     if (url.pathname.startsWith("/admin/")) {
       const secret = req.headers.get("x-admin-secret");
