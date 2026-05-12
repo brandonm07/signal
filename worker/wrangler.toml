@@ -17,6 +17,10 @@ binding = "DB"
 database_name = "signaladvise"
 database_id = "3524064f-ff87-4de8-a62e-1961124aaf7b"
 
+[[r2_buckets]]
+binding = "AUDIT_UPLOADS"
+bucket_name = "signal-audit-uploads"
+
 [[queues.producers]]
 binding = "PITCHER_QUEUE"
 queue = "signal-pitcher"

@@ -1,5 +1,6 @@
 export interface Env {
   DB: D1Database;
+  AUDIT_UPLOADS: R2Bucket;
   PITCHER_QUEUE: Queue<QueueJob>;
   RESEND_API_KEY: string;
   SENDER_EMAIL: string;
