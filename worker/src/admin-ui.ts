@@ -79,9 +79,42 @@ function parseCookies(header: string | null): Record<string, string> {
 }
 
 async function handleLogin(req: Request, env: Env): Promise<Response> {
+  const ip = req.headers.get("cf-connecting-ip") ?? "unknown";
+
+  // Brute-force throttle: max 5 failed attempts per IP in last 15 minutes.
+  const recentFails = await env.DB.prepare(
+    `SELECT COUNT(*) as n FROM login_attempts
+       WHERE ip = ?1 AND outcome = 'fail' AND attempted_at > unixepoch() - 900`,
+  )
+    .bind(ip)
+    .first<{ n: number }>();
+  if (recentFails && recentFails.n >= 5) {
+    return Response.redirect(
+      new URL(req.url).origin + "/admin/ui/?err=" + encodeURIComponent("Too many failed attempts. Wait 15 minutes."),
+      302,
+    );
+  }
+
   const form = await req.formData();
   const provided = String(form.get("secret") ?? "");
-  if (!provided || provided !== env.ADMIN_SECRET) {
+
+  // Constant-time compare to avoid timing-based secret extraction.
+  let ok = false;
+  if (provided && env.ADMIN_SECRET && provided.length === env.ADMIN_SECRET.length) {
+    let diff = 0;
+    for (let i = 0; i < provided.length; i++) {
+      diff |= provided.charCodeAt(i) ^ env.ADMIN_SECRET.charCodeAt(i);
+    }
+    ok = diff === 0;
+  }
+
+  await env.DB.prepare(
+    `INSERT INTO login_attempts (ip, outcome) VALUES (?1, ?2)`,
+  )
+    .bind(ip, ok ? "ok" : "fail")
+    .run();
+
+  if (!ok) {
     return Response.redirect(new URL(req.url).origin + "/admin/ui/?err=Invalid+secret", 302);
   }
   const cookie = `${COOKIE_NAME}=${encodeURIComponent(provided)}; Path=/admin/ui; HttpOnly; Secure; SameSite=Strict; Max-Age=86400`;
@@ -187,7 +220,22 @@ function layout(title: string, body: string, opts: { flash?: string | null; acti
 }
 
 function html(body: string, status = 200): Response {
-  return new Response(body, { status, headers: { "content-type": "text/html; charset=utf-8" } });
+  return new Response(body, {
+    status,
+    headers: {
+      "content-type": "text/html; charset=utf-8",
+      // Defense-in-depth headers for the admin UI (logged-in surface).
+      "strict-transport-security": "max-age=31536000; includeSubDomains",
+      "x-frame-options": "DENY",
+      "x-content-type-options": "nosniff",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      // Restrictive CSP — admin UI uses inline styles + minimal inline JS
+      // (the line-item add button), so 'unsafe-inline' is required for now.
+      "content-security-policy":
+        "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+      "cache-control": "no-store, max-age=0",
+    },
+  });
 }
 
 function esc(s: string | number | null | undefined): string {

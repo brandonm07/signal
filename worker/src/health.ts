@@ -17,6 +17,60 @@ export async function runPeriodicMaintenance(env: Env): Promise<void> {
 
   await maybeRunHealthcheck(env);
   await maybeRunBackup(env);
+  await maybeRunRetention(env);
+}
+
+const KEY_LAST_RETENTION = "last_retention_ts";
+
+async function maybeRunRetention(env: Env): Promise<void> {
+  const last = await getState(env, KEY_LAST_RETENTION);
+  const now = Math.floor(Date.now() / 1000);
+  // Run weekly on Sundays alongside backup.
+  const isSunday =
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: env.SEND_WINDOW_TZ,
+      weekday: "short",
+    }).format(new Date()) === "Sun";
+  if (!isSunday) return;
+  if (last && now - last < WEEK_SECONDS - DAY_SECONDS) return;
+
+  const oneYear = 365 * DAY_SECONDS;
+  const ninetyDays = 90 * DAY_SECONDS;
+
+  // Audit requests + replies + login attempts older than retention windows.
+  const auditDel = await env.DB.prepare(
+    `DELETE FROM audit_requests WHERE created_at < unixepoch() - ?1`,
+  ).bind(oneYear).run();
+  const repliesDel = await env.DB.prepare(
+    `DELETE FROM replies WHERE received_at < unixepoch() - ?1`,
+  ).bind(oneYear).run();
+  const loginDel = await env.DB.prepare(
+    `DELETE FROM login_attempts WHERE attempted_at < unixepoch() - ?1`,
+  ).bind(ninetyDays).run();
+
+  await setState(env, KEY_LAST_RETENTION, now);
+
+  // Only email if anything was actually deleted
+  const total = (auditDel.meta.changes ?? 0) + (repliesDel.meta.changes ?? 0) + (loginDel.meta.changes ?? 0);
+  if (total > 0) {
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: `${env.SENDER_NAME} <${env.SENDER_EMAIL}>`,
+        to: "brandon@signaladvise.com",
+        subject: `[Signal Pitcher] Weekly retention sweep — ${total} rows purged`,
+        text:
+          `Weekly D1 retention purge complete.\n\n` +
+          `audit_requests (>1y old): ${auditDel.meta.changes ?? 0}\n` +
+          `replies (>1y old): ${repliesDel.meta.changes ?? 0}\n` +
+          `login_attempts (>90d old): ${loginDel.meta.changes ?? 0}\n`,
+      }),
+    });
+  }
 }
 
 async function maybeRunHealthcheck(env: Env): Promise<void> {

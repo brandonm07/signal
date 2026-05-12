@@ -524,13 +524,14 @@ async function handleAdminDownload(auditId: number, env: Env): Promise<Response>
 }
 
 async function handleResendWebhook(req: Request, env: Env): Promise<Response> {
-  // Resend sends svix-style signed webhooks. Verify if a secret is configured;
-  // otherwise accept (best-effort) and rely on the obscure URL.
-  const body = await req.text();
-  if (env.RESEND_WEBHOOK_SECRET) {
-    const ok = await verifySvix(req, body, env.RESEND_WEBHOOK_SECRET);
-    if (!ok) return new Response("invalid signature", { status: 401 });
+  // Resend sends svix-style signed webhooks. Signature verification is MANDATORY —
+  // we refuse to process any webhook payload without it.
+  if (!env.RESEND_WEBHOOK_SECRET) {
+    return new Response("webhook secret not configured", { status: 503 });
   }
+  const body = await req.text();
+  const ok = await verifySvix(req, body, env.RESEND_WEBHOOK_SECRET);
+  if (!ok) return new Response("invalid signature", { status: 401 });
   let evt: { type?: string; data?: { email_id?: string; to?: string[]; bounce?: { type?: string } } };
   try {
     evt = JSON.parse(body);

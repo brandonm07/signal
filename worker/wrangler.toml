@@ -2,6 +2,8 @@ name = "signal-pitcher"
 main = "src/index.ts"
 compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat"]
+workers_dev = false           # disable the *.workers.dev preview URL — only serve from api.signaladvise.com
+preview_urls = false
 
 routes = [
   { pattern = "api.signaladvise.com", custom_domain = true }
