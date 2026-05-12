@@ -1,15 +1,17 @@
 import type { Env, Lead, QueueJob } from "./types";
 import { buildEmail, sendViaResend } from "./email";
 import { pollInbound } from "./inbound";
+import { runPeriodicMaintenance } from "./health";
 import { SEQUENCE_STEPS } from "./sequence";
 
 export default {
   async scheduled(_event: ScheduledController, env: Env, ctx: ExecutionContext) {
-    // Run outbound + inbound concurrently. Either failing should not block the other.
+    // Run outbound + inbound + periodic maintenance concurrently.
     ctx.waitUntil(
       Promise.allSettled([
         tick(env).catch((e) => console.error("tick failed", e)),
         pollInbound(env).catch((e) => console.error("pollInbound failed", e)),
+        runPeriodicMaintenance(env).catch((e) => console.error("maintenance failed", e)),
       ]),
     );
   },
