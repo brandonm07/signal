@@ -188,7 +188,7 @@ async function handleAuditIntake(req: Request, env: Env): Promise<Response> {
 
   // Generate a single-use upload token for this request.
   const uploadToken = randomHex(16);
-  const uploadUrl = `https://signaladvise.com/upload/${uploadToken}`;
+  const uploadUrl = `https://api.signaladvise.com/upload/${uploadToken}`;
 
   await env.DB.prepare(
     `INSERT INTO audit_requests (first_name, company, email, carrier, notes, upload_token)
