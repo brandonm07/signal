@@ -772,7 +772,7 @@ function invoiceHtml(inv: InvoiceRow, client: ClientRow, lines: LineItemRow[]): 
 
   <div class="footer">
     <p><strong>Payment terms.</strong> Due ${escapeHtml(due)}. Payment via card or ACH bank transfer. Invoices unpaid after the due date accrue interest at 1.5% per month or the maximum rate permitted by law.</p>
-    <p>Questions? Reply directly to this invoice link or email <a href="mailto:brandon@signaladvise.com" style="color:#c9462c">brandon@signaladvise.com</a>.</p>
+    <p>Questions? Reply directly to this invoice link or email <a href="mailto:invoice@signaladvise.com" style="color:#c9462c">invoice@signaladvise.com</a>.</p>
     <p style="margin-top:16px;font-size:11px;color:#7a7067">Signal Advisory LLC · Kansas City, MO · signaladvise.com</p>
   </div>
 </div>
