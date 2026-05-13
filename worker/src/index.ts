@@ -269,7 +269,7 @@ async function handleAuditIntake(req: Request, env: Env): Promise<Response> {
       `Brandon\n` +
       `Principal Advisor\n` +
       `Signal Advisory\n` +
-      `brandon@signaladvise.com · 816.721.6501`,
+      `brandon@signaladvise.com · 816.355.3350`,
   });
 
   return jsonResponse({ ok: true }, 200);
