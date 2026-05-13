@@ -133,13 +133,22 @@ async function runHealthcheck(env: Env): Promise<CheckResult[]> {
     return "ok";
   }));
 
-  // 3. Resend reachable (HEAD their API root via a benign call — list domains is cheap)
-  out.push(await check("resend api", async () => {
-    const r = await fetch("https://api.resend.com/domains", {
-      headers: { Authorization: `Bearer ${env.RESEND_API_KEY}` },
-    });
-    if (!r.ok) throw new Error(`http ${r.status}`);
-    return `http ${r.status}`;
+  // 3. Resend health = "no recent send failures" instead of probing API.
+  // Our key is sending-only scope; /domains 401s. Real sends provide the signal:
+  // if Resend were down we'd see status='failed' in send_log within minutes.
+  out.push(await check("resend (via send history)", async () => {
+    const row = await env.DB.prepare(
+      `SELECT
+         SUM(CASE WHEN outcome='error' THEN 1 ELSE 0 END) as errors,
+         SUM(CASE WHEN outcome='sent' THEN 1 ELSE 0 END) as sent
+       FROM send_log WHERE attempted_at > unixepoch() - 86400`,
+    ).first<{ errors: number; sent: number }>();
+    const errors = row?.errors ?? 0;
+    const sent = row?.sent ?? 0;
+    if (sent > 0 && errors > sent * 0.2) {
+      throw new Error(`high failure rate: ${errors} errors / ${sent} sent in last 24h`);
+    }
+    return `${sent} sent / ${errors} errors in last 24h`;
   }));
 
   // 4. Gmail OAuth refresh token still valid (token endpoint accepts our refresh)
