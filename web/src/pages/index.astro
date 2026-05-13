@@ -7,37 +7,56 @@ const services = [
   {
     tag: '01',
     title: 'Provider negotiation',
-    body: 'We renegotiate your internet, phone, and cloud contracts directly with the providers. Every major carrier in the U.S. — AT&T, Verizon, Lumen, Spectrum, Comcast Business, and 200+ others — quoted on your behalf. Because we work for you, not the providers, our recommendation is the best fit for your business, not the highest commission.',
+    body: 'Direct negotiation with every major U.S. provider on your behalf. We negotiate the rate, the term, and the contract terms most agents do not ask about. The recommendation is the right answer, not the highest-commission answer.',
   },
   {
     tag: '02',
     title: 'Vendor consolidation',
-    body: 'Most companies pay 4 to 6 different providers for technology services that should come from one or two. We map your current vendors, find the overlap, and consolidate down without losing the redundancy you actually need.',
+    body: 'Most companies pay four to six providers for services that belong with one or two. We map the current footprint, find the overlap, and consolidate where it pays. We keep separation where the redundancy matters.',
   },
   {
     tag: '03',
     title: 'Telecom expense management',
-    body: 'Every month, we audit your telecom invoices for billing errors, unused services, and contract violations. The typical mid-market company is overpaying 3 to 6 percent through mistakes the providers will not catch on their own. We catch them, dispute them, and recover the money.',
+    body: 'Monthly auditing of every invoice against every contract. We dispute the errors, retire unused services, and recover the credits. Industry data suggests three to six percent of telecom spend is recoverable through this work alone.',
   },
   {
     tag: '04',
     title: 'Ongoing advisory',
-    body: 'Long-term independent guidance on which providers to use, when to renew, and how to structure contracts. Hourly or monthly retainer. No commissions tied to any single recommendation, so the advice you receive is the advice we would follow ourselves.',
+    body: 'Long-term counsel on architecture, vendor selection, contract structure, and renewal timing. Hourly or monthly retainer. The same advice we would follow if it were our business.',
   },
 ];
 
 const differentiators = [
   {
-    title: 'We work for you',
-    body: 'You pay us. The providers do not. That single fact changes what we are willing to tell you compared to a typical sales agent.',
+    title: 'Aligned',
+    body: 'Clients pay us. Providers do not. The recommendation is the same one we would give if it were our own contract.',
   },
   {
-    title: 'We stay accountable',
-    body: 'After the contract is signed, we stay on the account. Implementation, billing questions, service problems, renewals — we are still on your team. Most agents disappear once the deal closes.',
+    title: 'Accountable',
+    body: 'We stay on every account through implementation, billing disputes, and the next renewal. Most agents do not.',
   },
   {
-    title: 'We know the inside game',
-    body: 'Our principals spent decades inside the largest providers in the country. We know how they price, where the margin hides, and which terms they will move on when pushed.',
+    title: 'Experienced',
+    body: 'Our principals worked inside the largest U.S. technology providers for decades. We know where margin sits and which terms they will move on.',
+  },
+];
+
+const capabilities = [
+  {
+    group: 'Network & Connectivity',
+    items: ['Internet (DIA, broadband, fiber)', 'Network design (SD-WAN, MPLS, SASE)', 'Data center connectivity', 'Cloud on-ramp'],
+  },
+  {
+    group: 'Voice & Communications',
+    items: ['Cloud phone systems (UCaaS)', 'Contact center', 'Voice services (SIP, PRI)', 'Conference-room A/V'],
+  },
+  {
+    group: 'Cloud & Infrastructure',
+    items: ['Public, private, and hybrid cloud', 'IaaS, PaaS, SaaS sourcing', 'Hardware procurement', 'Software licensing'],
+  },
+  {
+    group: 'Security & Operations',
+    items: ['Network and endpoint security', 'Mobility and MDM', 'IoT and connected devices', 'Energy procurement'],
   },
 ];
 ---
@@ -51,19 +70,19 @@ const differentiators = [
       Independent technology advisors
     </p>
     <h1 class="display text-5xl font-light leading-[1.0] md:text-[5rem]">
-      Lower the cost of the technology<br />
-      <em class="text-signal not-italic font-medium">you already pay for.</em>
+      Buy technology<br />
+      <em class="text-signal not-italic font-medium">better.</em>
     </h1>
     <p class="mt-10 max-w-2xl text-lg leading-relaxed text-ink/80">
-      We help mid-market companies negotiate better deals on the internet, phone systems,
-      cloud services, and software they are already buying. We work for you. The providers
-      do not pay us, so we are free to tell you the truth about who is overcharging and where
-      the leverage actually is.
+      We work with mid-market leadership teams to lower the cost of the network, voice,
+      cloud, and software services that run their business. We negotiate the contracts. We
+      audit the invoices. We stay involved through every renewal. Clients pay us directly.
+      Providers do not.
     </p>
     <p class="mt-6 max-w-2xl text-base leading-relaxed text-ink/70">
-      The typical mid-market client sees <strong class="text-ink">$40,000 to $120,000</strong>
-      in first-year savings on technology spend they were already paying. If we cannot find
-      cost reduction in an initial review, we pay you for the hour you spent with us.
+      First-year savings typically run <strong class="text-ink">$40,000 to $120,000</strong>
+      on a mid-market footprint. If an initial review does not surface savings, the time is
+      on us.
     </p>
     <div class="mt-10 flex flex-wrap gap-4">
       <a
@@ -108,17 +127,45 @@ const differentiators = [
     </div>
   </section>
 
+  <!-- Capabilities -->
+  <section class="border-t border-ink/10 py-24">
+    <div class="container mx-auto max-w-5xl px-6 md:px-10">
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Capabilities</p>
+      <h2 class="display mb-6 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
+        Every category of business technology.
+      </h2>
+      <p class="mb-16 max-w-2xl text-ink/70 leading-relaxed">
+        We work across the full range of services a company pays for every month. If it
+        carries a monthly invoice, we can probably help you buy it for less.
+      </p>
+      <div class="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+        {
+          capabilities.map((c) => (
+            <div>
+              <h3 class="display text-lg font-medium text-ink mb-4">{c.group}</h3>
+              <ul class="space-y-2 text-sm text-ink/70">
+                {c.items.map((item) => (
+                  <li class="leading-relaxed">{item}</li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
   <!-- Why Signal -->
   <section class="border-t border-ink/10 bg-ink py-24 text-paper">
     <div class="container mx-auto max-w-5xl px-6 md:px-10">
       <p class="mb-4 text-xs uppercase tracking-[0.2em] text-paper/40">Why Signal Advisory</p>
       <h2 class="display mb-4 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
-        Honest advice. From someone who is not selling it.
+        The buyer needs a partner. The seller already has one.
       </h2>
       <p class="mb-16 max-w-2xl text-paper/60 text-lg leading-relaxed">
-        Most technology agents are paid by the providers they recommend. We are not. You write
-        us a check; the providers do not. That structural difference is the entire reason the
-        advice we give is different from the advice you have received before.
+        Most technology agents earn commissions from the providers they recommend. We work
+        the other way. Clients pay us directly. The model determines the work — what we say,
+        what we negotiate, and what we walk away from.
       </p>
       <div class="grid gap-10 md:grid-cols-3">
         {
@@ -178,29 +225,28 @@ const differentiators = [
         <div>
           <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">How we work</p>
           <h2 class="display mb-6 text-4xl font-normal leading-tight md:text-5xl">
-            On your side of the table.
+            On the buyer's side.
           </h2>
           <p class="text-ink/75 leading-relaxed mb-6">
-            We were built on a simple idea: the people who buy technology deserve the same
-            quality of advice the providers themselves receive when they negotiate. Today, most
-            companies do not get that.
+            The companies that buy technology should have the same quality of counsel the
+            companies that sell it already do. Most do not. We close that gap.
           </p>
           <p class="text-ink/75 leading-relaxed">
-            Our principals spent more than two decades inside the largest technology providers
-            in the country. We know how they price their services, where the margin actually
-            sits, and which terms they will move on when pressed. We use that knowledge on
-            behalf of clients — from a ten-person company buying their first business phone
-            system to a multi-site company renegotiating a seven-figure contract.
+            Our principals worked inside the largest U.S. technology providers for more than
+            two decades. We know how they build their pricing, where the margin sits, and
+            which terms they will move on when pressed. We apply that knowledge to client
+            contracts — from a ten-person business buying its first phone system to a
+            multi-site company renegotiating a seven-figure agreement.
           </p>
         </div>
         <div class="grid gap-6">
           {[
-            { num: '25+', label: 'Years of combined experience inside the largest technology providers' },
-            { num: '150+', label: 'Providers we can quote on your behalf, across every category' },
-            { num: '2', label: 'Master agent partnerships (Avant, AppDirect) giving us direct contract access' },
+            { num: '25+', label: 'Years inside the largest U.S. technology providers' },
+            { num: '200+', label: 'Providers quoted across every business technology category' },
+            { num: '$40k–$120k', label: 'Typical first-year savings on a mid-market footprint' },
           ].map((stat) => (
             <div class="border border-ink/10 p-8">
-              <p class="display text-5xl font-medium text-signal mb-2">{stat.num}</p>
+              <p class="display text-4xl md:text-5xl font-medium text-signal mb-2">{stat.num}</p>
               <p class="text-ink/60 text-sm leading-relaxed">{stat.label}</p>
             </div>
           ))}
@@ -214,12 +260,12 @@ const differentiators = [
     <div class="container mx-auto max-w-3xl px-6 text-center md:px-10">
       <p class="mb-4 text-xs uppercase tracking-[0.2em] text-paper/40">Get started</p>
       <h2 class="display mb-6 text-4xl font-normal leading-tight md:text-5xl">
-        Send us your last invoice.
+        Start with one invoice.
       </h2>
       <p class="mb-10 text-lg text-paper/60 leading-relaxed">
-        We will mark up where we would renegotiate, what we would target, and whether the
-        savings are worth the conversation. No obligation, twenty-four hour turnaround. If we
-        cannot find savings, the time we spent is on us.
+        Send a recent telecom or cloud invoice. We mark up what we would renegotiate, what we
+        would target, and what the savings are likely worth. Twenty-four hour turnaround.
+        No obligation. If there is nothing material to recover, the review is free.
       </p>
       <a
         href="/audit"
