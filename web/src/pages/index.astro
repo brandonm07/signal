@@ -59,9 +59,75 @@ const capabilities = [
     items: ['Network and endpoint security', 'Mobility and MDM', 'IoT and connected devices', 'Energy procurement'],
   },
 ];
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'What does a technology broker do?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'An independent technology broker represents the buyer, not the carrier. We inventory every technology contract a business has — internet, phone, mobile, cloud, security — then put providers in competition for the renewal. The result is lower cost, better terms, and fewer vendors to manage. The client pays the broker; the providers do not.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How much can a business save by auditing telecom and technology invoices?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'A typical mid-market audit recovers three to six percent of annual telecom and technology spend through billing errors, unused services, and renegotiation. Small businesses commonly save 15 to 30 percent on a single internet or phone contract when it is put out to bid.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Do I have to switch carriers to work with Signal Advisory?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'No. Many of our engagements end with the client staying on the incumbent carrier at materially better rates and terms. The leverage is in being willing to switch, not in actually switching.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How are independent technology brokers paid?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Signal Advisory is paid directly by the client, typically on contingency against documented savings or on a monthly advisory retainer. We do not accept commissions from carriers, which is what separates an independent broker from a master agent.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What is the difference between a technology broker and a master agent?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'A master agent is paid by the carrier and is required to disclose that relationship. Their economic incentive is to place you with the carrier that pays them most. An independent technology broker is paid by you, has no carrier in the recommendation, and audits the contract on your behalf after it is signed.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Where is Signal Advisory based?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Signal Advisory is based in Kansas City, Missouri, and serves clients across the United States. Reach Brandon Murphy at 816-355-3350 or brandon@signaladvise.com.',
+      },
+    },
+  ],
+};
+
+const serviceSchema = services.map((s) => ({
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: s.title,
+  provider: { '@id': 'https://signaladvise.com/#org' },
+  areaServed: { '@type': 'Country', name: 'United States' },
+  description: s.body,
+}));
+
+const jsonLd = [faqSchema, ...serviceSchema];
 ---
 
-<Base>
+<Base jsonLd={jsonLd}>
   <Nav />
 
   <!-- Hero -->

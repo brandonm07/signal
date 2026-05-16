@@ -48,7 +48,7 @@ export default {
       });
     }
     if (url.pathname === "/u" || url.pathname === "/u/") {
-      return handleUnsubscribe(url, env);
+      return handleUnsubscribe(url, req, env);
     }
     if (url.pathname === "/health") {
       return new Response("ok", { status: 200 });
@@ -575,9 +575,28 @@ async function verifySvix(req: Request, body: string, secret: string): Promise<b
   return sig.split(" ").some((s) => s.split(",")[1] === expected);
 }
 
-async function handleUnsubscribe(url: URL, env: Env): Promise<Response> {
+async function handleUnsubscribe(url: URL, req: Request, env: Env): Promise<Response> {
   const token = url.searchParams.get("t");
   if (!token) return htmlResponse("Invalid link.", 400);
+
+  // GET only renders a confirmation page; link scanners (Microsoft Defender
+  // Safe Links, Proofpoint URL Defense, etc.) prefetch GET URLs and would
+  // otherwise auto-unsubscribe valid recipients. POST commits the change.
+  if (req.method !== "POST") {
+    const exists = await env.DB.prepare(
+      `SELECT 1 FROM leads WHERE unsubscribe_token = ?1`,
+    )
+      .bind(token)
+      .first();
+    if (!exists) return htmlResponse("Invalid or expired link.", 404);
+    return htmlResponse(
+      `<h1>Unsubscribe from Signal Advisory</h1>` +
+        `<p>Click the button below to stop receiving emails from Signal Advisory.</p>` +
+        `<form method="post" action="/u?t=${encodeURIComponent(token)}">` +
+        `<button type="submit" style="padding:12px 24px;background:#c9462c;color:#fff;border:0;border-radius:6px;font-size:15px;cursor:pointer">Confirm unsubscribe</button>` +
+        `</form>`,
+    );
+  }
 
   const result = await env.DB.prepare(
     `UPDATE leads

@@ -4,12 +4,20 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const {
-  title = 'Signal Advisory — Independent Technology Broker',
-  description = 'Carrier-agnostic connectivity advisory for enterprises that deserve honest counsel.',
+  title = 'Signal Advisory — Independent Technology Broker, Kansas City',
+  description = 'Independent technology broker in Kansas City. We audit and renegotiate business telecom, internet, cloud, phone, and mobile contracts to reduce cost and consolidate vendors.',
+  jsonLd,
 } = Astro.props;
+
+const extraJsonLd = jsonLd
+  ? Array.isArray(jsonLd)
+    ? jsonLd
+    : [jsonLd]
+  : [];
 ---
 
 <!doctype html>
@@ -41,26 +49,108 @@ const {
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content="https://signaladvise.com/og-image.jpg" />
-    <!-- Schema.org Organization -->
+    <!-- Schema.org ProfessionalService -->
     <script type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
-      "@type": "Organization",
+      "@type": "ProfessionalService",
+      "@id": "https://signaladvise.com/#org",
       "name": "Signal Advisory",
       "legalName": "Signal Advisory LLC",
       "url": "https://signaladvise.com",
       "logo": "https://signaladvise.com/email-icon.png",
+      "image": "https://signaladvise.com/og-image.jpg",
       "description": description,
       "email": "info@signaladvise.com",
+      "telephone": "+1-816-355-3350",
+      "priceRange": "Contingency-based",
       "address": {
         "@type": "PostalAddress",
         "addressLocality": "Kansas City",
         "addressRegion": "MO",
         "addressCountry": "US"
       },
+      "areaServed": [
+        { "@type": "Country", "name": "United States" },
+        { "@type": "State", "name": "Missouri" },
+        { "@type": "State", "name": "Kansas" },
+        { "@type": "City", "name": "Kansas City", "containedInPlace": { "@type": "State", "name": "Missouri" } },
+        { "@type": "City", "name": "Overland Park", "containedInPlace": { "@type": "State", "name": "Kansas" } },
+        { "@type": "City", "name": "Leawood", "containedInPlace": { "@type": "State", "name": "Kansas" } },
+        { "@type": "City", "name": "St. Louis", "containedInPlace": { "@type": "State", "name": "Missouri" } },
+        { "@type": "City", "name": "Springfield", "containedInPlace": { "@type": "State", "name": "Missouri" } },
+        { "@type": "City", "name": "Wichita", "containedInPlace": { "@type": "State", "name": "Kansas" } },
+        { "@type": "City", "name": "Omaha", "containedInPlace": { "@type": "State", "name": "Nebraska" } },
+        { "@type": "City", "name": "Des Moines", "containedInPlace": { "@type": "State", "name": "Iowa" } },
+        { "@type": "City", "name": "Tulsa", "containedInPlace": { "@type": "State", "name": "Oklahoma" } },
+        { "@type": "City", "name": "Oklahoma City", "containedInPlace": { "@type": "State", "name": "Oklahoma" } },
+        { "@type": "City", "name": "Little Rock", "containedInPlace": { "@type": "State", "name": "Arkansas" } },
+        { "@type": "City", "name": "Memphis", "containedInPlace": { "@type": "State", "name": "Tennessee" } },
+        { "@type": "City", "name": "Nashville", "containedInPlace": { "@type": "State", "name": "Tennessee" } },
+        { "@type": "City", "name": "Indianapolis", "containedInPlace": { "@type": "State", "name": "Indiana" } },
+        { "@type": "City", "name": "Chicago", "containedInPlace": { "@type": "State", "name": "Illinois" } },
+        { "@type": "City", "name": "Minneapolis", "containedInPlace": { "@type": "State", "name": "Minnesota" } },
+        { "@type": "City", "name": "Milwaukee", "containedInPlace": { "@type": "State", "name": "Wisconsin" } },
+        { "@type": "City", "name": "Detroit", "containedInPlace": { "@type": "State", "name": "Michigan" } },
+        { "@type": "City", "name": "Columbus", "containedInPlace": { "@type": "State", "name": "Ohio" } },
+        { "@type": "City", "name": "Cleveland", "containedInPlace": { "@type": "State", "name": "Ohio" } },
+        { "@type": "City", "name": "Cincinnati", "containedInPlace": { "@type": "State", "name": "Ohio" } },
+        { "@type": "City", "name": "Pittsburgh", "containedInPlace": { "@type": "State", "name": "Pennsylvania" } },
+        { "@type": "City", "name": "Philadelphia", "containedInPlace": { "@type": "State", "name": "Pennsylvania" } },
+        { "@type": "City", "name": "New York", "containedInPlace": { "@type": "State", "name": "New York" } },
+        { "@type": "City", "name": "Boston", "containedInPlace": { "@type": "State", "name": "Massachusetts" } },
+        { "@type": "City", "name": "Washington", "containedInPlace": { "@type": "State", "name": "District of Columbia" } },
+        { "@type": "City", "name": "Charlotte", "containedInPlace": { "@type": "State", "name": "North Carolina" } },
+        { "@type": "City", "name": "Raleigh", "containedInPlace": { "@type": "State", "name": "North Carolina" } },
+        { "@type": "City", "name": "Atlanta", "containedInPlace": { "@type": "State", "name": "Georgia" } },
+        { "@type": "City", "name": "Jacksonville", "containedInPlace": { "@type": "State", "name": "Florida" } },
+        { "@type": "City", "name": "Orlando", "containedInPlace": { "@type": "State", "name": "Florida" } },
+        { "@type": "City", "name": "Tampa", "containedInPlace": { "@type": "State", "name": "Florida" } },
+        { "@type": "City", "name": "Miami", "containedInPlace": { "@type": "State", "name": "Florida" } },
+        { "@type": "City", "name": "New Orleans", "containedInPlace": { "@type": "State", "name": "Louisiana" } },
+        { "@type": "City", "name": "Houston", "containedInPlace": { "@type": "State", "name": "Texas" } },
+        { "@type": "City", "name": "Dallas", "containedInPlace": { "@type": "State", "name": "Texas" } },
+        { "@type": "City", "name": "Austin", "containedInPlace": { "@type": "State", "name": "Texas" } },
+        { "@type": "City", "name": "San Antonio", "containedInPlace": { "@type": "State", "name": "Texas" } },
+        { "@type": "City", "name": "Denver", "containedInPlace": { "@type": "State", "name": "Colorado" } },
+        { "@type": "City", "name": "Salt Lake City", "containedInPlace": { "@type": "State", "name": "Utah" } },
+        { "@type": "City", "name": "Phoenix", "containedInPlace": { "@type": "State", "name": "Arizona" } },
+        { "@type": "City", "name": "Las Vegas", "containedInPlace": { "@type": "State", "name": "Nevada" } },
+        { "@type": "City", "name": "Los Angeles", "containedInPlace": { "@type": "State", "name": "California" } },
+        { "@type": "City", "name": "San Diego", "containedInPlace": { "@type": "State", "name": "California" } },
+        { "@type": "City", "name": "San Francisco", "containedInPlace": { "@type": "State", "name": "California" } },
+        { "@type": "City", "name": "San Jose", "containedInPlace": { "@type": "State", "name": "California" } },
+        { "@type": "City", "name": "Sacramento", "containedInPlace": { "@type": "State", "name": "California" } },
+        { "@type": "City", "name": "Portland", "containedInPlace": { "@type": "State", "name": "Oregon" } },
+        { "@type": "City", "name": "Seattle", "containedInPlace": { "@type": "State", "name": "Washington" } }
+      ],
+      "serviceArea": {
+        "@type": "GeoCircle",
+        "geoMidpoint": { "@type": "GeoCoordinates", "latitude": 39.0997, "longitude": -94.5786 },
+        "geoRadius": 5000000,
+        "description": "Remote-capable advisory across the contiguous United States."
+      },
+      "founder": {
+        "@type": "Person",
+        "name": "Brandon Murphy",
+        "jobTitle": "Principal Advisor",
+        "worksFor": { "@id": "https://signaladvise.com/#org" }
+      },
+      "knowsAbout": [
+        "telecom audit",
+        "technology expense management",
+        "vendor consolidation",
+        "carrier contract negotiation",
+        "UCaaS",
+        "SD-WAN",
+        "cloud cost optimization"
+      ],
       "sameAs": [
         "https://www.linkedin.com/company/signal-advisory-llc"
       ]
     })} />
+    {extraJsonLd.map((entry) => (
+      <script type="application/ld+json" set:html={JSON.stringify(entry)} />
+    ))}
   </head>
   <body>
     <slot />
