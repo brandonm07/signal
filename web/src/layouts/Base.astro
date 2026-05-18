@@ -5,12 +5,14 @@ interface Props {
   title?: string;
   description?: string;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  canonical?: string;
 }
 
 const {
   title = 'Signal Advisory — Independent Technology Broker, Kansas City',
   description = 'Independent technology broker in Kansas City. We audit and renegotiate business telecom, internet, cloud, phone, and mobile contracts to reduce cost and consolidate vendors.',
   jsonLd,
+  canonical,
 } = Astro.props;
 
 const extraJsonLd = jsonLd
@@ -18,6 +20,15 @@ const extraJsonLd = jsonLd
     ? jsonLd
     : [jsonLd]
   : [];
+
+// Canonical URL: strip trailing slash (except root) and resolve against
+// production origin so preview deploys (*.pages.dev) point Google back
+// to signaladvise.com.
+const PROD_ORIGIN = 'https://signaladvise.com';
+const rawPath = Astro.url.pathname;
+const normalizedPath =
+  rawPath !== '/' && rawPath.endsWith('/') ? rawPath.slice(0, -1) : rawPath;
+const canonicalUrl = canonical ?? `${PROD_ORIGIN}${normalizedPath}`;
 ---
 
 <!doctype html>
@@ -27,6 +38,7 @@ const extraJsonLd = jsonLd
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <title>{title}</title>
+    <link rel="canonical" href={canonicalUrl} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
