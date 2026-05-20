@@ -1,0 +1,6 @@
+Contact: mailto:security@signaladvise.com
+Contact: mailto:brandon@signaladvise.com
+Expires: 2027-05-18T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://signaladvise.com/.well-known/security.txt
+Policy: https://signaladvise.com/privacy
