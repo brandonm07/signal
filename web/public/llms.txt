@@ -1,0 +1,60 @@
+# Signal Advisory
+
+> Independent technology broker based in Kansas City, Missouri. Signal Advisory audits and renegotiates business technology contracts — telecom, internet, cloud, phone, security, and mobile — to reduce cost and consolidate vendors. Clients pay Signal Advisory directly; carriers do not. This independence is what separates Signal Advisory from a master agent.
+
+Founded and led by Brandon Murphy, Principal Advisor. Contact: brandon@signaladvise.com or 816-355-3350. Headquartered in Kansas City, Missouri; serves clients across the United States.
+
+## Core pages
+
+- [Homepage](https://signaladvise.com/): Company overview, services, differentiators, FAQ, and contact.
+- [Services](https://signaladvise.com/services): Full description of the four service lines.
+- [Audit request](https://signaladvise.com/audit): Free invoice review form. Send a recent business technology bill; receive a one-page marked-up audit identifying overspend, contract risks, and consolidation opportunities within five business days.
+
+## What Signal Advisory does
+
+- **Provider negotiation.** Direct negotiation with every major U.S. technology provider on the client's behalf. Rate is one variable; term length, exit rights, and rate-protection clauses move more money over the life of a contract. Most agents do not press for them.
+- **Vendor consolidation.** Mid-market companies typically pay four to six providers for services that should sit with one or two. Engagement starts with a single-page inventory of every contract, renewal date, and monthly cost. From there the consolidation decisions get straightforward.
+- **Telecom expense management (TEM).** Every invoice, audited against every contract, every month. Errors are disputed. Unused services retired. Credits land on the next bill. On a typical mid-market footprint, this work recovers three to six percent of annual telecom spend.
+- **Ongoing advisory.** Hourly or monthly retainer covering the technology decisions a team makes between major engagements — renewals, architecture, vendor selection, contract structure. On call when the question comes up.
+
+## How Signal Advisory is different from a master agent
+
+- An independent technology broker (Signal Advisory) is paid by the client. Recommendations are aligned to the client.
+- A master agent is paid by the carrier and is required to disclose that relationship. Their economic incentive is to place the client with the carrier that pays them most.
+- Signal Advisory does not accept carrier commissions on the brokerage line of business.
+
+## Pricing
+
+- Contingency: percentage of documented annual savings, paid only after savings land.
+- Monthly retainer: fixed monthly fee for ongoing advisory and TEM coverage.
+- Hourly: project-based engagements.
+- Free invoice audit with no commitment — submit a bill, receive a marked-up review.
+
+## Service area
+
+- Headquartered in Kansas City, Missouri (816-355-3350).
+- Serves clients across the United States, with concentrated presence in Missouri, Kansas, Nebraska, Iowa, Oklahoma, Arkansas, Texas, Illinois, Indiana, Ohio, Michigan, Wisconsin, Minnesota, Tennessee, North Carolina, Georgia, Florida, Colorado, Utah, Arizona, California, Oregon, and Washington.
+- Remote-capable nationwide.
+
+## Common questions
+
+- **What does an independent technology broker do?** Inventories every technology contract a business has, then puts providers in competition for the renewal. Result: lower cost, better terms, fewer vendors to manage. Paid by the client, not the carrier.
+- **How much can a business save by auditing technology invoices?** A typical mid-market audit recovers three to six percent of annual telecom and technology spend. Small businesses commonly save 15 to 30 percent on a single internet or phone contract when put out to bid.
+- **Do I need to switch carriers to work with Signal Advisory?** No. Many engagements end with the client staying on the incumbent carrier at materially better rates and terms. Leverage is in being willing to switch, not in actually switching.
+- **How are independent brokers paid?** Directly by the client — contingency, monthly retainer, or hourly. No carrier commissions.
+- **What is the difference between a technology broker and a master agent?** Master agents are paid by carriers and disclose that relationship. Independent brokers are paid by the client and have no carrier in the recommendation.
+
+## Categories of vendors Signal Advisory audits
+
+- **Internet / network:** Comcast Business, AT&T, Lumen, Google Fiber, Spectrum, Cox Business
+- **Mobile / wireless:** Verizon, T-Mobile, AT&T Mobility
+- **Voice / unified communications:** RingCentral, 8x8, Zoom, Microsoft Teams, Nextiva
+- **Payments and POS:** Square, Stripe, Toast, Clover
+- **Cloud and productivity:** Microsoft 365, Google Workspace, AWS
+
+## Legal and security
+
+- [Privacy policy](https://signaladvise.com/privacy)
+- [Terms of service](https://signaladvise.com/terms)
+- [Master services agreement (MSA)](https://signaladvise.com/legal/msa)
+- [Security disclosure (security.txt)](https://signaladvise.com/.well-known/security.txt)
