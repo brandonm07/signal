@@ -41,52 +41,6 @@ const differentiators = [
   },
 ];
 
-const framework = [
-  {
-    tag: '01',
-    title: 'See',
-    body: 'Most businesses do not know what they are paying, to whom, or for what. The engagement begins with a single-page inventory of every monthly technology invoice, every contract term, and every renewal date. Hidden risk surfaces fast.',
-  },
-  {
-    tag: '02',
-    title: 'Simplify',
-    body: 'Mid-market companies typically pay four to six providers for services that should sit with one or two. We consolidate without losing redundancy — fewer bills, fewer points of contact, less time spent managing vendors who should be managing themselves.',
-  },
-  {
-    tag: '03',
-    title: 'Secure',
-    body: 'Every contract has gaps. Service credits no one claims. Exit rights no one negotiated. Redundancy that exists on paper but not in practice. We close the gaps before they cost you a day of operations.',
-  },
-  {
-    tag: '04',
-    title: 'Scale',
-    body: 'Buy for the next location, the next acquisition, the next year of growth. Not for what the carrier wants to renew. We structure contracts and infrastructure so that scale does not require starting over.',
-  },
-];
-
-const engagement = [
-  {
-    step: 'Pain',
-    body: 'What is frustrating today? Where is the spend out of control? Which provider relationship is consuming time it should not?',
-  },
-  {
-    step: 'Impact',
-    body: 'What happens when it breaks? Where is the business actually exposed when a circuit drops, a contract auto-renews, or a vendor consolidates without notice?',
-  },
-  {
-    step: 'Cost',
-    body: 'What is overspend, downtime, and vendor friction costing right now? In dollars, in hours, in revenue at risk.',
-  },
-  {
-    step: 'Future',
-    body: 'What does the next year of growth require? More locations, more bandwidth, more security, more scale — each has a different contract structure behind it.',
-  },
-  {
-    step: 'Roadmap',
-    body: 'The simplest path forward, in priority order, with the savings tied to each step. No theory, no boilerplate. The exact moves, in the exact sequence.',
-  },
-];
-
 const capabilities = [
   {
     group: 'Network & Connectivity',
@@ -211,32 +165,6 @@ const jsonLd = [faqSchema, ...serviceSchema];
       >
         Free invoice audit →
       </a>
-    </div>
-  </section>
-
-  <!-- Framework: SEE / SIMPLIFY / SECURE / SCALE -->
-  <section class="border-t border-ink/10 py-24">
-    <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">How we think</p>
-      <h2 class="display mb-6 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
-        See. Simplify. Secure. Scale.
-      </h2>
-      <p class="mb-16 max-w-2xl text-ink/70 leading-relaxed">
-        The same four steps run every Signal Advisory engagement, whether a ten-person
-        business is buying its first phone system or a multi-site company is renegotiating
-        a seven-figure agreement. The order matters. Most agents skip the first one.
-      </p>
-      <div class="grid gap-x-10 gap-y-14 md:grid-cols-2">
-        {
-          framework.map((f) => (
-            <div class="border-t border-ink/10 pt-8">
-              <p class="mb-3 font-mono text-xs text-stone">{f.tag}</p>
-              <h3 class="display mb-4 text-2xl font-medium">{f.title}</h3>
-              <p class="text-ink/70 leading-relaxed text-[15px]">{f.body}</p>
-            </div>
-          ))
-        }
-      </div>
     </div>
   </section>
 
@@ -389,33 +317,6 @@ const jsonLd = [faqSchema, ...serviceSchema];
             </div>
           ))}
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Engagement: PAIN / IMPACT / COST / FUTURE / ROADMAP -->
-  <section class="border-t border-ink/10 py-24">
-    <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">How an engagement runs</p>
-      <h2 class="display mb-6 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
-        Five questions. In order.
-      </h2>
-      <p class="mb-16 max-w-2xl text-ink/70 leading-relaxed">
-        Every discovery conversation answers the same five questions. The answers shape the
-        engagement. The roadmap is what comes out the other side.
-      </p>
-      <div class="space-y-6">
-        {
-          engagement.map((e, i) => (
-            <div class="flex gap-8 border-t border-ink/10 pt-8">
-              <p class="display flex-none w-12 text-2xl font-medium text-signal">{String(i + 1).padStart(2, '0')}</p>
-              <div class="flex-1">
-                <h3 class="display mb-3 text-xl font-medium uppercase tracking-wide">{e.step}</h3>
-                <p class="text-ink/70 leading-relaxed text-[15px] max-w-3xl">{e.body}</p>
-              </div>
-            </div>
-          ))
-        }
       </div>
     </div>
   </section>
