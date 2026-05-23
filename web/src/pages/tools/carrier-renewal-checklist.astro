@@ -1,0 +1,144 @@
+---
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+
+const sections = [
+  {
+    title: 'Timing and process',
+    items: [
+      'Renewal date confirmed in writing — not just from the account team\'s memory. Auto-renewal language requires written notice 30 to 180 days prior in most master agreements.',
+      'Negotiation started at least 6 months before the renewal date. Leverage drops sharply inside 90 days.',
+      'Three competing quotes solicited, not one. The incumbent moves only when an alternative is on the table.',
+      'Decision-maker calendar held for a sign-by date that the buyer controls, not a sign-by date the carrier engineered.',
+    ],
+  },
+  {
+    title: 'Term and pricing',
+    items: [
+      'Term length matches the business horizon, not the carrier\'s commission structure. Five-year terms favor the carrier; one- and three-year terms favor the buyer in volatile pricing markets.',
+      'Annual escalator clause priced into the model. A 3% annual escalator on a five-year contract is roughly a 12.5% blended increase by the end.',
+      'Volume commitments measured in dollars, not units. Unit commitments penalize buyers who reduce footprint mid-term.',
+      'Most-Favored-Nation clause requested for buyers spending over $250k/year. Cap the rate at the carrier\'s best published or contracted rate to similarly-sized buyers.',
+      'Promotional pricing converted to permanent. Discounts that expire at month 13 are the single most common renewal trap.',
+    ],
+  },
+  {
+    title: 'Service levels and credits',
+    items: [
+      'SLA uptime threshold confirmed (typically 99.9% to 99.99% depending on service tier). Anything below 99.5% on a business contract is below market.',
+      'Service-credit formula written as a percentage of monthly recurring charge, not a percentage of "downtime hours billed." The first formula is enforceable; the second never pays out.',
+      'Mean Time to Repair (MTTR) committed in writing with credits for missed targets.',
+      'Notification process for outages defined: who gets paged, in what timeframe, and how status updates flow.',
+    ],
+  },
+  {
+    title: 'Exit rights and flexibility',
+    items: [
+      'Early termination liability (ETL) capped, not unlimited. Carriers default to full remaining term; the market norm is 50% of remaining commitment.',
+      'Right to terminate for chronic service failure (3+ outages in 90 days, or 1+ outage over 8 hours) without penalty.',
+      'Right to terminate for business-event triggers: acquisition, divestiture, location closure. Negotiate "out clauses" tied to events the buyer cannot control.',
+      'Portability rights for phone numbers and IP space confirmed before signing. Hostage data is the most expensive thing to discover after the fact.',
+    ],
+  },
+  {
+    title: 'Redundancy and continuity',
+    items: [
+      'Diverse carrier or diverse fiber path documented in writing, not just promised in a call. Get the carrier to identify the physical entrance facility and last-mile path.',
+      'Failover behavior tested and documented. Most "backup circuits" have never actually failed over in production.',
+    ],
+  },
+  {
+    title: 'Billing and dispute handling',
+    items: [
+      'First three months of invoices audited against contract before the dispute window closes (typically 90 days). Most billing errors first appear in the second or third bill, not the first.',
+      'Dispute escalation path named: who at the carrier owns billing disputes, what the SLA is on resolution, and what credit policy applies if the carrier is at fault.',
+    ],
+  },
+];
+---
+
+<Base
+  title="Carrier Renewal Checklist — Signal Advisory LLC"
+  description="Twenty-one items to confirm before signing a carrier renewal. Term, escalators, exit rights, redundancy, service credits, billing. Use as a meeting agenda with the account team."
+>
+  <Nav />
+
+  <section class="container mx-auto max-w-3xl px-6 pb-12 pt-20 md:px-10 md:pt-28">
+    <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone"><a href="/tools" class="hover:text-signal">← Tools</a></p>
+    <h1 class="display text-4xl font-light leading-[1.1] md:text-5xl">
+      Carrier Renewal<br />
+      <em class="text-signal not-italic font-medium">Checklist.</em>
+    </h1>
+    <p class="mt-8 max-w-2xl text-lg leading-relaxed text-ink/80">
+      Twenty-one items to confirm before you sign the next carrier renewal. Use it as a
+      meeting agenda with the account team. The carrier will not run through these in
+      order. The buyer should.
+    </p>
+    <div class="mt-8 flex flex-wrap gap-4 print:hidden">
+      <button
+        onclick="window.print()"
+        class="inline-block rounded-sm bg-signal px-6 py-3 text-sm font-semibold text-paper hover:bg-ink transition-colors"
+      >
+        Print or save as PDF
+      </button>
+      <a
+        href="/audit"
+        class="inline-block rounded-sm border border-ink/30 px-6 py-3 text-sm font-semibold text-ink hover:bg-ink hover:text-paper transition-colors"
+      >
+        Have us apply this to your contract →
+      </a>
+    </div>
+  </section>
+
+  <article class="container mx-auto max-w-3xl px-6 pb-24 md:px-10">
+    {
+      sections.map((section, sIdx) => (
+        <section class="border-t border-ink/10 pt-10 mt-10">
+          <p class="mb-2 font-mono text-xs text-stone">{String(sIdx + 1).padStart(2, '0')}</p>
+          <h2 class="display text-2xl font-medium mb-8">{section.title}</h2>
+          <ol class="space-y-6">
+            {section.items.map((item, iIdx) => {
+              const globalIdx = sections
+                .slice(0, sIdx)
+                .reduce((sum, s) => sum + s.items.length, 0) + iIdx + 1;
+              return (
+                <li class="flex gap-4">
+                  <span class="display flex-none w-8 text-lg font-medium text-signal">{String(globalIdx).padStart(2, '0')}</span>
+                  <p class="text-ink/80 leading-relaxed text-[15px]">{item}</p>
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+      ))
+    }
+
+    <section class="border-t border-ink/10 pt-10 mt-12 print:hidden">
+      <p class="mb-3 font-mono text-xs text-stone">Next step</p>
+      <h2 class="display text-2xl font-medium mb-4">Want us to apply this to your actual renewal?</h2>
+      <p class="text-ink/75 leading-relaxed mb-6">
+        Send us the contract or the most recent invoice. We'll mark up the opportunity —
+        which items the carrier has on lockdown, which they will move on, and what we
+        would target. Twenty-four-hour turnaround.
+      </p>
+      <a
+        href="/audit"
+        class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors"
+      >
+        Send one invoice →
+      </a>
+    </section>
+  </article>
+
+  <Footer />
+</Base>
+
+<style is:global>
+  @media print {
+    nav, footer { display: none !important; }
+    body { background: white; color: black; }
+    h1, h2, p, li { color: black !important; page-break-inside: avoid; }
+    a { text-decoration: none; color: black !important; }
+  }
+</style>
