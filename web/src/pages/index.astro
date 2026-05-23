@@ -30,8 +30,8 @@ const cases = [
   {
     metric: '$94k',
     label: 'Annual savings, year one',
-    before: 'A ten-location manufacturer had MPLS, backup internet, and voice split across multiple vendors. Renewal dates were scattered. No one had a clean inventory.',
-    did: 'Built a site-by-site inventory, priced SD-WAN alternatives, preserved carrier diversity, and renegotiated renewal terms ahead of cycle.',
+    before: 'A 10-location manufacturer had MPLS, backup internet, and voice split across multiple vendors. Renewal dates were scattered. No one had a clean inventory.',
+    did: 'Built a site-by-site inventory, priced SD-WAN alternatives, preserved carrier diversity, and renegotiated renewal terms.',
     result: '$94,000 first-year savings while preserving redundancy.',
   },
   {
@@ -48,6 +48,30 @@ const cases = [
     did: 'Audited the invoice against the original contract, recovered credits for retired services, and renegotiated the next term six months early using competitive pressure.',
     result: '23% reduction in monthly telecom spend, same carrier, same circuits.',
   },
+];
+
+const findings = [
+  'Inflated carrier fees',
+  'Bad renewal timing',
+  'Unused services',
+  'Overpriced circuits',
+  'Missing backup',
+  'Weak contract terms',
+  'Vendor sprawl',
+];
+
+const steps = [
+  { n: '01', t: 'Send one invoice or contract' },
+  { n: '02', t: 'We mark up what we would challenge' },
+  { n: '03', t: 'You decide whether the savings justify next steps' },
+];
+
+const offerDeliverables = [
+  'Fees we would challenge',
+  'Savings range',
+  'Contract risks',
+  'Renewal timing advice',
+  'Recommended next move',
 ];
 
 const faqSchema = {
@@ -119,7 +143,7 @@ const jsonLd = [faqSchema, ...serviceSchema];
 
 <Base
   title="Signal Advisory LLC — Independent Telecom & Technology Cost Advisor, Kansas City"
-  description="Stop overpaying for internet, voice, mobile, cloud, and carrier contracts. Signal Advisory audits invoices, renegotiates renewals, and consolidates vendors for businesses across the United States."
+  description="Stop overpaying for business technology. We help growing companies reduce internet, voice, cloud, wireless, and carrier contract costs. Send one invoice, 24-hour markup."
   jsonLd={jsonLd}
 >
   <Nav />
@@ -134,17 +158,19 @@ const jsonLd = [faqSchema, ...serviceSchema];
       <em class="text-signal not-italic font-medium">business technology.</em>
     </h1>
     <p class="mt-10 max-w-2xl text-lg leading-relaxed text-ink/80">
-      We help growing companies cut internet, voice, mobile, cloud, and carrier contract
-      costs — and renegotiate them before the next auto-renewal locks in. Send one recent
-      invoice. Within 24 business hours we'll mark up what we'd renegotiate, what fees
-      look inflated, and where savings are likely hiding.
+      Signal Advisory helps growing businesses cut technology costs, fix bad contracts,
+      and negotiate with providers before they lock into another expensive renewal.
+    </p>
+    <p class="mt-6 max-w-2xl text-base leading-relaxed text-ink/70">
+      Send us one invoice. Within 24 business hours, we'll show you what we would
+      renegotiate, what fees look inflated, and where savings may be hiding.
     </p>
     <div class="mt-10 flex flex-wrap gap-4">
       <a
         href="/audit"
         class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors"
       >
-        Send one invoice →
+        Get a free invoice review
       </a>
       <a
         href="https://calendly.com/signaladvise-info/30min"
@@ -152,7 +178,7 @@ const jsonLd = [faqSchema, ...serviceSchema];
         rel="noopener"
         class="inline-block rounded-sm border border-ink/20 px-8 py-4 text-sm font-medium hover:border-ink transition-colors"
       >
-        Schedule a 30-min call
+        Schedule a contract strategy call
       </a>
     </div>
   </section>
@@ -160,18 +186,22 @@ const jsonLd = [faqSchema, ...serviceSchema];
   <!-- Trust strip -->
   <section class="border-t border-ink/10 bg-ink py-10 text-paper">
     <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <div class="grid gap-6 md:grid-cols-3">
+      <div class="grid gap-6 md:grid-cols-4">
         <div>
-          <p class="display text-2xl font-medium text-signal mb-1">25+ years</p>
-          <p class="text-paper/70 text-sm leading-relaxed">Inside major U.S. technology providers</p>
+          <p class="display text-base font-medium text-signal mb-1">Independent</p>
+          <p class="text-paper/70 text-sm leading-relaxed">Across every major U.S. provider</p>
         </div>
         <div>
-          <p class="display text-2xl font-medium text-signal mb-1">$40k–$120k</p>
-          <p class="text-paper/70 text-sm leading-relaxed">Typical first-year savings on a mid-market footprint</p>
+          <p class="display text-base font-medium text-signal mb-1">25+ years</p>
+          <p class="text-paper/70 text-sm leading-relaxed">Inside major providers</p>
         </div>
         <div>
-          <p class="display text-2xl font-medium text-signal mb-1">24 hours</p>
-          <p class="text-paper/70 text-sm leading-relaxed">Turnaround on a free invoice review</p>
+          <p class="display text-base font-medium text-signal mb-1">$40k–$120k</p>
+          <p class="text-paper/70 text-sm leading-relaxed">Typical first-year savings on mid-market footprints</p>
+        </div>
+        <div>
+          <p class="display text-base font-medium text-signal mb-1">24 hours</p>
+          <p class="text-paper/70 text-sm leading-relaxed">Business-day turnaround on invoice review</p>
         </div>
       </div>
     </div>
@@ -187,30 +217,19 @@ const jsonLd = [faqSchema, ...serviceSchema];
       <div class="grid gap-10 md:grid-cols-2">
         <div class="border-t border-ink/10 pt-8">
           <h3 class="display mb-4 text-2xl font-medium">Growing businesses</h3>
-          <p class="text-ink/70 leading-relaxed text-[15px] mb-4">
-            One to ten locations. No internal telecom expert. Tired of confusing invoices,
-            quiet rate increases, and providers who never call back unless you're trying
-            to leave.
-          </p>
-          <p class="text-stone text-sm leading-relaxed">
-            Typical monthly spend: $1,500–$15,000 across internet, phone, mobile, and software.
+          <p class="text-ink/75 leading-relaxed text-[15px]">
+            1–10 locations, no internal telecom expert, tired of confusing invoices and
+            provider runaround.
           </p>
         </div>
         <div class="border-t border-ink/10 pt-8">
           <h3 class="display mb-4 text-2xl font-medium">Multi-site companies</h3>
-          <p class="text-ink/70 leading-relaxed text-[15px] mb-4">
-            Five to twenty-five-plus locations. Renewals coming up. Carrier sprawl across
-            sites. SD-WAN, MPLS, or hybrid network decisions on the table. Backup-circuit
-            and redundancy questions that have not been answered cleanly.
-          </p>
-          <p class="text-stone text-sm leading-relaxed">
-            Typical engagements: contract review, multi-site inventory, renewal strategy.
+          <p class="text-ink/75 leading-relaxed text-[15px]">
+            5–25+ locations, renewals coming, carrier sprawl, SD-WAN/MPLS decisions,
+            backup circuit concerns.
           </p>
         </div>
       </div>
-      <p class="mt-12 text-sm text-stone">
-        Both start the same way: send a recent invoice, get a 24-hour markup.
-      </p>
     </div>
   </section>
 
@@ -222,16 +241,7 @@ const jsonLd = [faqSchema, ...serviceSchema];
         The leaks are usually the same.
       </h2>
       <div class="grid gap-x-10 gap-y-6 md:grid-cols-2">
-        {[
-          'Inflated carrier fees and surcharges',
-          'Bad renewal timing — leverage gone before you ask',
-          'Unused services still billing every month',
-          'Overpriced circuits at one or two specific sites',
-          'No backup or weak failover paths',
-          'Contract terms that favor the carrier',
-          'Vendor sprawl that should consolidate',
-          'Auto-renewals that should never have triggered',
-        ].map((line) => (
+        {findings.map((line) => (
           <p class="border-t border-ink/10 pt-4 text-ink/80 leading-relaxed">{line}</p>
         ))}
       </div>
@@ -246,49 +256,49 @@ const jsonLd = [faqSchema, ...serviceSchema];
         Three steps. No commitment until you say so.
       </h2>
       <div class="grid gap-10 md:grid-cols-3">
-        {[
-          { n: '01', t: 'Send one invoice', b: 'Upload a recent carrier, internet, voice, or mobile bill. One file. No form behind a form.' },
-          { n: '02', t: 'We mark it up', b: 'Within 24 business hours you receive a marked-up version showing what we would challenge, renegotiate, or retire.' },
-          { n: '03', t: 'You decide', b: 'If the math justifies it, we run the engagement. If it does not, we tell you. No pressure call.' },
-        ].map((s) => (
+        {steps.map((s) => (
           <div>
             <p class="mb-3 font-mono text-xs text-stone">{s.n}</p>
-            <h3 class="display mb-4 text-xl font-medium">{s.t}</h3>
-            <p class="text-ink/70 leading-relaxed text-[15px]">{s.b}</p>
+            <p class="display text-xl font-medium leading-snug">{s.t}</p>
           </div>
         ))}
       </div>
     </div>
   </section>
 
-  <!-- Services (kept, condensed) -->
-  <section id="services" class="border-t border-ink/10 py-24">
+  <!-- Offer -->
+  <section class="border-t border-ink/10 bg-paper py-24">
     <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">What we do</p>
-      <h2 class="display mb-16 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
-        Four ways we lower your technology costs.
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">The offer</p>
+      <h2 class="display mb-6 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
+        Free invoice review.
       </h2>
-      <div class="grid gap-x-10 gap-y-14 md:grid-cols-2">
-        {
-          services.map((s) => (
-            <div class="border-t border-ink/10 pt-8">
-              <p class="mb-3 font-mono text-xs text-stone">{s.tag}</p>
-              <h3 class="display mb-4 text-2xl font-medium">{s.title}</h3>
-              <p class="text-ink/70 leading-relaxed text-[15px]">{s.body}</p>
-            </div>
-          ))
-        }
-      </div>
-      <p class="mt-14 text-sm text-stone">
-        <a href="/services" class="underline">See every category of business technology we work across →</a>
+      <p class="mb-12 max-w-2xl text-ink/70 leading-relaxed text-lg">
+        Within 24 business hours, you receive:
       </p>
+      <ul class="grid gap-4 md:grid-cols-2 max-w-3xl">
+        {offerDeliverables.map((d) => (
+          <li class="flex gap-3 border-t border-ink/10 pt-4">
+            <span class="text-signal font-semibold">·</span>
+            <span class="text-ink/80">{d}</span>
+          </li>
+        ))}
+      </ul>
+      <div class="mt-12">
+        <a
+          href="/audit"
+          class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors"
+        >
+          Get a free invoice review
+        </a>
+      </div>
     </div>
   </section>
 
-  <!-- Mini case studies -->
-  <section class="border-t border-ink/10 bg-paper py-24">
+  <!-- Proof / mini case studies -->
+  <section class="border-t border-ink/10 py-24">
     <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">What the work looks like</p>
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Proof</p>
       <h2 class="display mb-16 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
         Numbers you can defend in a budget meeting.
       </h2>
@@ -324,36 +334,24 @@ const jsonLd = [faqSchema, ...serviceSchema];
     </div>
   </section>
 
-  <!-- One-line differentiator -->
-  <section class="border-t border-ink/10 bg-ink py-20 text-paper">
-    <div class="container mx-auto max-w-3xl px-6 text-center md:px-10">
-      <p class="display text-2xl font-normal leading-snug md:text-3xl">
-        Independent across every major U.S. provider. On the buyer's side through
-        implementation, billing disputes, and the next renewal.
-      </p>
-      <p class="mt-6 text-paper/60 text-base">Most agents disappear after signature. We don't.</p>
-    </div>
-  </section>
-
   <!-- Final CTA -->
-  <section id="contact" class="border-t border-ink/10 py-24">
+  <section id="contact" class="border-t border-ink/10 bg-ink py-24 text-paper">
     <div class="container mx-auto max-w-3xl px-6 text-center md:px-10">
       <h2 class="display mb-6 text-4xl font-normal leading-tight md:text-5xl">
         Send one invoice.<br />
         <em class="text-signal not-italic font-medium">Know where you stand.</em>
       </h2>
-      <p class="mb-10 text-lg text-ink/70 leading-relaxed">
-        Before your next carrier renewal, let us look at the invoice. Twenty-four hour
-        turnaround. No obligation. If there is nothing material to recover, the review is free.
+      <p class="mb-10 text-lg text-paper/70 leading-relaxed">
+        Before you sign another carrier renewal, let us look at the invoice.
       </p>
       <a
         href="/audit"
-        class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors"
+        class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-paper hover:text-ink transition-colors"
       >
-        Send one invoice →
+        Get a free invoice review
       </a>
-      <p class="mt-6 text-sm text-stone">
-        Or email <a href="mailto:info@signaladvise.com" class="underline">info@signaladvise.com</a> · 816.355.3350
+      <p class="mt-6 text-sm text-paper/60">
+        Or email <a href="mailto:info@signaladvise.com" class="underline text-paper/80">info@signaladvise.com</a> · 816.355.3350
       </p>
     </div>
   </section>
