@@ -26,40 +26,6 @@ const services = [
   },
 ];
 
-const differentiators = [
-  {
-    title: 'Aligned',
-    body: 'Clients pay us. Providers do not. The recommendation is the same one we would give if it were our own contract.',
-  },
-  {
-    title: 'Accountable',
-    body: 'We stay on every account through implementation, billing disputes, and the next renewal. Most agents do not.',
-  },
-  {
-    title: 'Experienced',
-    body: 'Our principals worked inside the largest U.S. technology providers for decades. We know where margin sits and which terms they will move on.',
-  },
-];
-
-const capabilities = [
-  {
-    group: 'Network & Connectivity',
-    items: ['Internet (DIA, broadband, fiber)', 'Network design (SD-WAN, MPLS, SASE)', 'Data center connectivity', 'Cloud on-ramp'],
-  },
-  {
-    group: 'Voice & Communications',
-    items: ['Cloud phone systems (UCaaS)', 'Contact center', 'Voice services (SIP, PRI)', 'Conference-room A/V'],
-  },
-  {
-    group: 'Cloud & Infrastructure',
-    items: ['Public, private, and hybrid cloud', 'IaaS, PaaS, SaaS sourcing', 'Hardware procurement', 'Software licensing'],
-  },
-  {
-    group: 'Security & Operations',
-    items: ['Network and endpoint security', 'Mobility and MDM', 'IoT and connected devices', 'Energy procurement'],
-  },
-];
-
 const faqSchema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -131,127 +97,44 @@ const jsonLd = [faqSchema, ...serviceSchema];
   <Nav />
 
   <!-- Hero -->
-  <section class="container mx-auto max-w-5xl px-6 pb-28 pt-20 md:px-10 md:pt-28">
+  <section class="container mx-auto max-w-5xl px-6 pb-24 pt-20 md:px-10 md:pt-28">
     <p class="mb-5 text-xs uppercase tracking-[0.2em] text-stone">
-      Independent technology advisors
+      Independent technology advisors · Kansas City
     </p>
     <h1 class="display text-5xl font-light leading-[1.0] md:text-[5rem]">
-      Buy technology<br />
-      <em class="text-signal not-italic font-medium">better.</em>
+      Lower your<br />
+      <em class="text-signal not-italic font-medium">technology costs.</em>
     </h1>
     <p class="mt-10 max-w-2xl text-lg leading-relaxed text-ink/80">
-      We work with mid-market leadership teams to lower the cost of the network, voice,
-      cloud, and software services that run their business. We negotiate the contracts. We
-      audit the invoices. We stay involved through every renewal. Clients pay us directly.
-      Providers do not.
-    </p>
-    <p class="mt-6 max-w-2xl text-base leading-relaxed text-ink/70">
-      First-year savings typically run <strong class="text-ink">$40,000 to $120,000</strong>
-      on a mid-market footprint. If an initial review does not surface savings, the time is
-      on us.
+      We renegotiate the contracts your business already has — internet, phone, mobile,
+      cloud, security — and consolidate the ones that should never have been separate.
+      First-year savings typically run <strong class="text-ink">$40,000 to $120,000</strong>.
+      Clients pay us directly. Providers do not.
     </p>
     <div class="mt-10 flex flex-wrap gap-4">
+      <a
+        href="/audit"
+        class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors"
+      >
+        Free invoice audit →
+      </a>
       <a
         href="https://calendly.com/signaladvise-info/30min"
         target="_blank"
         rel="noopener"
-        class="inline-block rounded-sm bg-signal px-6 py-3 text-sm font-semibold text-paper hover:bg-ink transition-colors"
+        class="inline-block rounded-sm border border-ink/20 px-8 py-4 text-sm font-medium hover:border-ink transition-colors"
       >
-        Schedule a consultation
-      </a>
-      <a
-        href="/audit"
-        class="inline-block rounded-sm border border-ink/20 px-6 py-3 text-sm font-medium hover:border-ink transition-colors"
-      >
-        Free invoice audit →
+        Schedule a 30-min call
       </a>
     </div>
   </section>
 
-  <!-- Services -->
-  <section id="services" class="border-t border-ink/10 py-24">
-    <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">What we do</p>
-      <h2 class="display mb-6 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
-        Four ways we lower your technology costs.
-      </h2>
-      <p class="mb-16 max-w-2xl text-ink/70 leading-relaxed">
-        Engage us for one of these or for all four. Most clients begin with a contract
-        review and add the rest over time.
-      </p>
-      <div class="grid gap-x-10 gap-y-14 md:grid-cols-2">
-        {
-          services.map((s) => (
-            <div class="border-t border-ink/10 pt-8">
-              <p class="mb-3 font-mono text-xs text-stone">{s.tag}</p>
-              <h3 class="display mb-4 text-2xl font-medium">{s.title}</h3>
-              <p class="text-ink/70 leading-relaxed text-[15px]">{s.body}</p>
-            </div>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <!-- Capabilities -->
-  <section class="border-t border-ink/10 py-24">
-    <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Capabilities</p>
-      <h2 class="display mb-6 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
-        Every category of business technology.
-      </h2>
-      <p class="mb-16 max-w-2xl text-ink/70 leading-relaxed">
-        We work across the full range of services a company pays for every month. If it
-        carries a monthly invoice, we can probably help you buy it for less.
-      </p>
-      <div class="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
-        {
-          capabilities.map((c) => (
-            <div>
-              <h3 class="display text-lg font-medium text-ink mb-4">{c.group}</h3>
-              <ul class="space-y-2 text-sm text-ink/70">
-                {c.items.map((item) => (
-                  <li class="leading-relaxed">{item}</li>
-                ))}
-              </ul>
-            </div>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <!-- Why Signal -->
-  <section class="border-t border-ink/10 bg-ink py-24 text-paper">
-    <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-paper/40">Why Signal Advisory</p>
-      <h2 class="display mb-4 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
-        The buyer needs a partner. The seller already has one.
-      </h2>
-      <p class="mb-16 max-w-2xl text-paper/60 text-lg leading-relaxed">
-        Most technology agents earn commissions from the providers they recommend. We work
-        the other way. Clients pay us directly. The model determines the work — what we say,
-        what we negotiate, and what we walk away from.
-      </p>
-      <div class="grid gap-10 md:grid-cols-3">
-        {
-          differentiators.map((d) => (
-            <div class="border-t border-paper/10 pt-8">
-              <h3 class="display mb-4 text-xl font-medium">{d.title}</h3>
-              <p class="text-paper/60 leading-relaxed text-[15px]">{d.body}</p>
-            </div>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <!-- Recent outcomes / proof -->
+  <!-- Outcomes / proof -->
   <section class="border-t border-ink/10 py-24">
     <div class="container mx-auto max-w-5xl px-6 md:px-10">
       <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">What the work looks like</p>
       <h2 class="display mb-16 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
-        Real outcomes. Numbers you can defend in a budget meeting.
+        Numbers you can defend in a budget meeting.
       </h2>
       <div class="grid gap-8 md:grid-cols-3">
         {[
@@ -263,12 +146,12 @@ const jsonLd = [faqSchema, ...serviceSchema];
           {
             metric: '6 → 1',
             label: 'Vendor relationships consolidated',
-            note: 'Multi-site retail client · Five carrier invoices and one UCaaS contract reduced to a single quarterly statement and one point of accountability.',
+            note: 'Multi-site retail client · Five carrier invoices and one UCaaS contract reduced to a single quarterly statement.',
           },
           {
             metric: '23%',
             label: 'Telecom spend reduction',
-            note: 'Logistics company · Renegotiated three-year renewal with incumbent carrier ahead of cycle; preserved flexibility, reduced effective rate.',
+            note: 'Logistics company · Renegotiated three-year renewal with incumbent carrier ahead of cycle.',
           },
         ].map((c) => (
           <div class="border border-ink/10 p-8">
@@ -278,69 +161,62 @@ const jsonLd = [faqSchema, ...serviceSchema];
           </div>
         ))}
       </div>
-      <p class="mt-12 text-sm text-stone italic">
-        Engagement profiles representative of typical mid-market client work. Contact us for client references on request.
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section id="services" class="border-t border-ink/10 py-24">
+    <div class="container mx-auto max-w-5xl px-6 md:px-10">
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">What we do</p>
+      <h2 class="display mb-16 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
+        Four ways we lower your technology costs.
+      </h2>
+      <div class="grid gap-x-10 gap-y-14 md:grid-cols-2">
+        {
+          services.map((s) => (
+            <div class="border-t border-ink/10 pt-8">
+              <p class="mb-3 font-mono text-xs text-stone">{s.tag}</p>
+              <h3 class="display mb-4 text-2xl font-medium">{s.title}</h3>
+              <p class="text-ink/70 leading-relaxed text-[15px]">{s.body}</p>
+            </div>
+          ))
+        }
+      </div>
+      <p class="mt-14 text-sm text-stone">
+        <a href="/services" class="underline">See every category of business technology we work across →</a>
       </p>
     </div>
   </section>
 
-  <!-- Approach -->
-  <section id="about" class="border-t border-ink/10 py-24">
-    <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <div class="grid gap-16 md:grid-cols-2 md:items-center">
-        <div>
-          <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">How we work</p>
-          <h2 class="display mb-6 text-4xl font-normal leading-tight md:text-5xl">
-            On the buyer's side.
-          </h2>
-          <p class="text-ink/75 leading-relaxed mb-6">
-            The companies that buy technology should have the same quality of counsel the
-            companies that sell it already do. Most do not. We close that gap.
-          </p>
-          <p class="text-ink/75 leading-relaxed">
-            Our principals worked inside the largest U.S. technology providers for more than
-            two decades. We know how they build their pricing, where the margin sits, and
-            which terms they will move on when pressed. We apply that knowledge to client
-            contracts — from a ten-person business buying its first phone system to a
-            multi-site company renegotiating a seven-figure agreement.
-          </p>
-        </div>
-        <div class="grid gap-6">
-          {[
-            { num: '25+', label: 'Years inside the largest U.S. technology providers' },
-            { num: '200+', label: 'Providers quoted across every business technology category' },
-            { num: '$40k–$120k', label: 'Typical first-year savings on a mid-market footprint' },
-          ].map((stat) => (
-            <div class="border border-ink/10 p-8">
-              <p class="display text-4xl md:text-5xl font-medium text-signal mb-2">{stat.num}</p>
-              <p class="text-ink/60 text-sm leading-relaxed">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+  <!-- One-line differentiator -->
+  <section class="border-t border-ink/10 bg-ink py-20 text-paper">
+    <div class="container mx-auto max-w-3xl px-6 text-center md:px-10">
+      <p class="display text-2xl font-normal leading-snug md:text-3xl">
+        Clients pay us. Carriers do not. That is the entire model — and it changes
+        what we recommend, what we negotiate, and what we walk away from.
+      </p>
     </div>
   </section>
 
   <!-- Contact -->
-  <section id="contact" class="border-t border-ink/10 bg-ink py-24 text-paper">
+  <section id="contact" class="border-t border-ink/10 py-24">
     <div class="container mx-auto max-w-3xl px-6 text-center md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-paper/40">Get started</p>
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Get started</p>
       <h2 class="display mb-6 text-4xl font-normal leading-tight md:text-5xl">
         Start with one invoice.
       </h2>
-      <p class="mb-10 text-lg text-paper/60 leading-relaxed">
-        Send a recent telecom or cloud invoice. We mark up what we would renegotiate, what we
-        would target, and what the savings are likely worth. Twenty-four hour turnaround.
-        No obligation. If there is nothing material to recover, the review is free.
+      <p class="mb-10 text-lg text-ink/70 leading-relaxed">
+        Send a recent telecom or cloud invoice. We mark up what we would renegotiate
+        and what the savings are likely worth. Twenty-four hour turnaround. No obligation.
       </p>
       <a
         href="/audit"
-        class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-paper hover:text-ink transition-colors"
+        class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors"
       >
         Request a free invoice review
       </a>
-      <p class="mt-6 text-sm text-paper/50">
-        Or email <a href="mailto:info@signaladvise.com" class="text-paper/70 underline">info@signaladvise.com</a> directly.
+      <p class="mt-6 text-sm text-stone">
+        Or email <a href="mailto:info@signaladvise.com" class="underline">info@signaladvise.com</a> · 816.355.3350
       </p>
     </div>
   </section>

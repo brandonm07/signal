@@ -2,6 +2,25 @@
 import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+
+const capabilities = [
+  {
+    group: 'Network & Connectivity',
+    items: ['Internet (DIA, broadband, fiber)', 'Network design (SD-WAN, MPLS, SASE)', 'Data center connectivity', 'Cloud on-ramp'],
+  },
+  {
+    group: 'Voice & Communications',
+    items: ['Cloud phone systems (UCaaS)', 'Contact center', 'Voice services (SIP, PRI)', 'Conference-room A/V'],
+  },
+  {
+    group: 'Cloud & Infrastructure',
+    items: ['Public, private, and hybrid cloud', 'IaaS, PaaS, SaaS sourcing', 'Hardware procurement', 'Software licensing'],
+  },
+  {
+    group: 'Security & Operations',
+    items: ['Network and endpoint security', 'Mobility and MDM', 'IoT and connected devices', 'Energy procurement'],
+  },
+];
 ---
 
 <Base
@@ -222,6 +241,33 @@ import Footer from '../components/Footer.astro';
             threshold inside the first 20 minutes.
           </p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Capabilities -->
+  <section class="border-t border-ink/10 py-24">
+    <div class="container mx-auto max-w-5xl px-6 md:px-10">
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Capabilities</p>
+      <h2 class="display mb-6 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
+        Every category of business technology.
+      </h2>
+      <p class="mb-16 max-w-2xl text-ink/70 leading-relaxed">
+        If it carries a monthly invoice, we can probably help you buy it for less.
+      </p>
+      <div class="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+        {
+          capabilities.map((c) => (
+            <div>
+              <h3 class="display text-lg font-medium text-ink mb-4">{c.group}</h3>
+              <ul class="space-y-2 text-sm text-ink/70">
+                {c.items.map((item) => (
+                  <li class="leading-relaxed">{item}</li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
       </div>
     </div>
   </section>
