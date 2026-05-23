@@ -49,6 +49,12 @@ export async function handleAdminUi(req: Request, env: Env): Promise<Response> {
   const cliDetail = path.match(/^\/clients\/(\d+)$/);
   if (cliDetail) return await serveClientDetail(parseInt(cliDetail[1], 10), env);
 
+  if (path === "/contracts") return await serveContractList(env, url.searchParams.get("flash"));
+  if (path === "/contracts/new" && req.method === "GET") return await serveContractNewForm(env, url.searchParams.get("err"));
+  if (path === "/contracts/new" && req.method === "POST") return await handleContractNewSubmit(req, env);
+  const cxDelete = path.match(/^\/contracts\/(\d+)\/delete$/);
+  if (cxDelete && req.method === "POST") return await handleContractDelete(parseInt(cxDelete[1], 10), env);
+
   return html(`<h1>Not found</h1>`, 404);
 }
 
@@ -209,6 +215,7 @@ function layout(title: string, body: string, opts: { flash?: string | null; acti
   <nav>
     ${nav("Invoices", "/admin/ui/invoices")}
     ${nav("Clients", "/admin/ui/clients")}
+    ${nav("Contracts", "/admin/ui/contracts")}
   </nav>
   <span class="right">brandon@signaladvise.com · <form method="POST" action="/admin/ui/logout" style="display:inline"><button class="btn secondary" style="padding:4px 10px;font-size:12px">Log out</button></form></span>
 </header>
@@ -694,4 +701,168 @@ async function handleClientNewSubmit(req: Request, env: Env): Promise<Response> 
   }
   const data = (await apiRes.json()) as { id: number };
   return Response.redirect(new URL(req.url).origin + `/admin/ui/clients/${data.id}`, 302);
+}
+
+// ---------- contracts ----------
+
+interface ContractListRow {
+  id: number;
+  client_id: number;
+  client_name: string;
+  provider: string;
+  service_type: string;
+  monthly_spend_cents: number;
+  contract_expiration: number;
+  auto_renew_notice_days: number;
+  alerted_180_at: number | null;
+  alerted_90_at: number | null;
+  alerted_30_at: number | null;
+}
+
+async function serveContractList(env: Env, flash: string | null): Promise<Response> {
+  const rs = await env.DB.prepare(
+    `SELECT cc.id, cc.client_id, cc.provider, cc.service_type, cc.monthly_spend_cents,
+            cc.contract_expiration, cc.auto_renew_notice_days,
+            cc.alerted_180_at, cc.alerted_90_at, cc.alerted_30_at,
+            c.company_legal_name AS client_name
+       FROM client_contracts cc
+       JOIN clients c ON c.id = cc.client_id
+      ORDER BY cc.contract_expiration ASC`,
+  ).all<ContractListRow>();
+  const now = Math.floor(Date.now() / 1000);
+  const day = 86400;
+  const rows = rs.results ?? [];
+  const tableBody = rows.length === 0
+    ? `<tr><td colspan="7"><div class="empty">No contracts tracked yet. <a href="/admin/ui/contracts/new">Add the first one</a>.</div></td></tr>`
+    : rows.map((r) => {
+        const daysOut = Math.round((r.contract_expiration - now) / day);
+        let badge = "";
+        if (daysOut < 0) badge = `<span class="badge void">Expired</span>`;
+        else if (daysOut <= 30) badge = `<span class="badge sent">${daysOut}d</span>`;
+        else if (daysOut <= 90) badge = `<span class="badge draft">${daysOut}d</span>`;
+        else if (daysOut <= 180) badge = `<span class="badge draft">${daysOut}d</span>`;
+        else badge = `<span class="badge paid">${daysOut}d</span>`;
+        const spend = money(r.monthly_spend_cents, "usd");
+        return `<tr>
+          <td><a href="/admin/ui/clients/${r.client_id}">${esc(r.client_name)}</a></td>
+          <td>${esc(r.provider)}</td>
+          <td>${esc(r.service_type)}</td>
+          <td class="amount">${spend}/mo</td>
+          <td>${fmtDate(r.contract_expiration)}</td>
+          <td>${badge}</td>
+          <td><form method="POST" action="/admin/ui/contracts/${r.id}/delete" style="display:inline" onsubmit="return confirm('Delete this contract?')"><button class="btn danger" style="padding:4px 10px;font-size:12px">Delete</button></form></td>
+        </tr>`;
+      }).join("");
+  const body = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+      <h1 style="margin:0">Contracts</h1>
+      <a href="/admin/ui/contracts/new" class="btn primary">+ New contract</a>
+    </div>
+    <p style="color:#7a7067;font-size:13px;margin:0 0 16px">Renewal-defense alerts fire automatically at 180, 90, and 30 days before expiration.</p>
+    <table>
+      <thead><tr><th>Client</th><th>Provider</th><th>Service</th><th style="text-align:right">Monthly</th><th>Expires</th><th>Days out</th><th></th></tr></thead>
+      <tbody>${tableBody}</tbody>
+    </table>`;
+  return html(layout("Contracts", body, { flash, activeNav: "contracts" }));
+}
+
+async function serveContractNewForm(env: Env, err: string | null): Promise<Response> {
+  const clientsRes = await env.DB.prepare(
+    `SELECT id, company_legal_name FROM clients ORDER BY company_legal_name`,
+  ).all<{ id: number; company_legal_name: string }>();
+  const clientOptions = (clientsRes.results ?? [])
+    .map((c) => `<option value="${c.id}">${esc(c.company_legal_name)}</option>`)
+    .join("");
+  const body = `
+    <p style="margin-bottom:8px"><a href="/admin/ui/contracts">← All contracts</a></p>
+    <h1>New contract</h1>
+    ${err ? `<div class="err">${esc(err)}</div>` : ""}
+    ${clientsRes.results.length === 0 ? `<div class="err">No clients yet. <a href="/admin/ui/clients/new">Add a client first</a>.</div>` : `
+    <form method="POST" action="/admin/ui/contracts/new" class="stacked">
+      <label>Client</label>
+      <select name="client_id" required>${clientOptions}</select>
+
+      <div class="grid">
+        <div>
+          <label>Provider</label>
+          <input type="text" name="provider" placeholder="Comcast Business" required>
+        </div>
+        <div>
+          <label>Service type</label>
+          <select name="service_type" required>
+            <option value="internet">Internet</option>
+            <option value="voice">Voice / UCaaS</option>
+            <option value="mobile">Mobile</option>
+            <option value="cloud">Cloud</option>
+            <option value="security">Security</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <label>Monthly spend (USD)</label>
+          <input type="number" name="monthly_spend" min="0" step="0.01" placeholder="1250.00" required>
+        </div>
+        <div>
+          <label>Contract expiration</label>
+          <input type="date" name="contract_expiration" required>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <label>Contract start (optional)</label>
+          <input type="date" name="contract_start">
+        </div>
+        <div>
+          <label>Auto-renew notice required (days)</label>
+          <input type="number" name="auto_renew_notice_days" min="0" max="365" value="0">
+        </div>
+      </div>
+
+      <label>Notes</label>
+      <textarea name="notes" rows="3" placeholder="Anything to remember at renewal time."></textarea>
+
+      <div class="row-actions">
+        <button type="submit" class="btn primary">Save contract</button>
+        <a href="/admin/ui/contracts" class="btn secondary">Cancel</a>
+      </div>
+    </form>`}`;
+  return html(layout("New contract", body, { activeNav: "contracts" }));
+}
+
+async function handleContractNewSubmit(req: Request, env: Env): Promise<Response> {
+  const form = await req.formData();
+  const clientId = parseInt(String(form.get("client_id") ?? ""), 10);
+  const provider = String(form.get("provider") ?? "").trim();
+  const serviceType = String(form.get("service_type") ?? "").trim();
+  const monthlySpend = parseFloat(String(form.get("monthly_spend") ?? "0"));
+  const expirationStr = String(form.get("contract_expiration") ?? "");
+  const startStr = String(form.get("contract_start") ?? "");
+  const noticeDays = parseInt(String(form.get("auto_renew_notice_days") ?? "0"), 10);
+  const notes = String(form.get("notes") ?? "").trim() || null;
+
+  const origin = new URL(req.url).origin;
+  if (!clientId || !provider || !serviceType || !expirationStr || Number.isNaN(monthlySpend)) {
+    return Response.redirect(origin + "/admin/ui/contracts/new?err=" + encodeURIComponent("Missing required fields"), 302);
+  }
+  const expirationEpoch = Math.floor(new Date(expirationStr + "T12:00:00Z").getTime() / 1000);
+  const startEpoch = startStr ? Math.floor(new Date(startStr + "T12:00:00Z").getTime() / 1000) : null;
+  const monthlyCents = Math.round(monthlySpend * 100);
+
+  await env.DB.prepare(
+    `INSERT INTO client_contracts
+       (client_id, provider, service_type, monthly_spend_cents, contract_start,
+        contract_expiration, auto_renew_notice_days, notes)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)`,
+  ).bind(clientId, provider, serviceType, monthlyCents, startEpoch, expirationEpoch, noticeDays, notes).run();
+
+  return Response.redirect(origin + "/admin/ui/contracts?flash=" + encodeURIComponent("Contract saved."), 302);
+}
+
+async function handleContractDelete(id: number, env: Env): Promise<Response> {
+  await env.DB.prepare(`DELETE FROM client_contracts WHERE id = ?1`).bind(id).run();
+  return Response.redirect("/admin/ui/contracts?flash=" + encodeURIComponent("Contract deleted."), 302);
 }
