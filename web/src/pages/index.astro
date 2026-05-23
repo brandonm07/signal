@@ -7,7 +7,7 @@ const services = [
   {
     tag: '01',
     title: 'Provider negotiation',
-    body: 'We negotiate directly with every major U.S. provider on your behalf. Rate is one variable. Term length, exit rights, and rate-protection clauses move more money over the life of a contract, and most agents will not press for them.',
+    body: 'We negotiate directly with every major U.S. provider on your behalf. Rate is one variable. Term length, exit rights, redundancy, and rate-protection clauses move more money over the life of a contract — and most agents will not press for them.',
   },
   {
     tag: '02',
@@ -26,16 +26,40 @@ const services = [
   },
 ];
 
+const cases = [
+  {
+    metric: '$94k',
+    label: 'Annual savings, year one',
+    before: 'A ten-location manufacturer had MPLS, backup internet, and voice split across multiple vendors. Renewal dates were scattered. No one had a clean inventory.',
+    did: 'Built a site-by-site inventory, priced SD-WAN alternatives, preserved carrier diversity, and renegotiated renewal terms ahead of cycle.',
+    result: '$94,000 first-year savings while preserving redundancy.',
+  },
+  {
+    metric: '6 → 1',
+    label: 'Vendor relationships consolidated',
+    before: 'A multi-site retail client was managing five carrier invoices and a separate UCaaS contract. Renewals were rolling, support escalations went nowhere, and no single vendor owned the relationship.',
+    did: 'Consolidated connectivity and voice onto one provider with a single quarterly statement. Renegotiated SLA and credit terms in the process.',
+    result: 'One bill. One point of accountability. Lower effective rate.',
+  },
+  {
+    metric: '23%',
+    label: 'Telecom spend reduction',
+    before: 'A logistics company was twelve months from renewal on a three-year carrier contract. The incumbent had quietly raised rates twice and removed line items the company still believed were active.',
+    did: 'Audited the invoice against the original contract, recovered credits for retired services, and renegotiated the next term six months early using competitive pressure.',
+    result: '23% reduction in monthly telecom spend, same carrier, same circuits.',
+  },
+];
+
 const faqSchema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
   mainEntity: [
     {
       '@type': 'Question',
-      name: 'What does a technology broker do?',
+      name: 'What does an independent technology broker do?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'An independent technology broker represents the buyer, not the carrier. We inventory every technology contract a business has — internet, phone, mobile, cloud, security — then put providers in competition for the renewal. The result is lower cost, better terms, and fewer vendors to manage. The client pays the broker; the providers do not.',
+        text: 'An independent technology broker represents the buyer in technology purchasing decisions. We inventory every contract a business has — internet, phone, mobile, cloud, security — then put providers in competition for the renewal. The result is lower cost, better contract terms, and fewer vendors to manage. We are independent across every major U.S. provider rather than tied to any one of them.',
       },
     },
     {
@@ -56,18 +80,18 @@ const faqSchema = {
     },
     {
       '@type': 'Question',
-      name: 'How are independent technology brokers paid?',
+      name: 'How does Signal Advisory get paid?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Signal Advisory is paid directly by the client, typically on contingency against documented savings or on a monthly advisory retainer. We do not accept commissions from carriers, which is what separates an independent broker from a master agent.',
+        text: 'Engagements run on three models: a flat-fee contract review, hourly project work, or a monthly retainer for ongoing advisory. On brokered transactions we are compensated by the carrier through our master agency relationships, which is the standard model in the channel. For clients who prefer a fee-only arrangement, we can rebate the brokerage commission against a flat advisory fee.',
       },
     },
     {
       '@type': 'Question',
-      name: 'What is the difference between a technology broker and a master agent?',
+      name: 'How is Signal Advisory different from a master agent?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'A master agent is paid by the carrier and is required to disclose that relationship. Their economic incentive is to place you with the carrier that pays them most. An independent technology broker is paid by you, has no carrier in the recommendation, and audits the contract on your behalf after it is signed.',
+        text: 'We work independently across every major U.S. provider rather than steering business to any one carrier. We stay involved through implementation, billing disputes, and the next renewal — most agents disappear after signature. We negotiate the contract terms that protect the buyer, not just the rate that closes the deal.',
       },
     },
     {
@@ -93,30 +117,34 @@ const serviceSchema = services.map((s) => ({
 const jsonLd = [faqSchema, ...serviceSchema];
 ---
 
-<Base jsonLd={jsonLd}>
+<Base
+  title="Signal Advisory LLC — Independent Telecom & Technology Cost Advisor, Kansas City"
+  description="Stop overpaying for internet, voice, mobile, cloud, and carrier contracts. Signal Advisory audits invoices, renegotiates renewals, and consolidates vendors for businesses across the United States."
+  jsonLd={jsonLd}
+>
   <Nav />
 
   <!-- Hero -->
-  <section class="container mx-auto max-w-5xl px-6 pb-24 pt-20 md:px-10 md:pt-28">
+  <section class="container mx-auto max-w-5xl px-6 pb-20 pt-20 md:px-10 md:pt-28">
     <p class="mb-5 text-xs uppercase tracking-[0.2em] text-stone">
-      Independent technology advisors · Kansas City
+      Independent telecom &amp; technology cost advisor · Kansas City
     </p>
-    <h1 class="display text-5xl font-light leading-[1.0] md:text-[5rem]">
-      Lower your<br />
-      <em class="text-signal not-italic font-medium">technology costs.</em>
+    <h1 class="display text-4xl font-light leading-[1.05] md:text-[4.5rem]">
+      Stop overpaying for<br />
+      <em class="text-signal not-italic font-medium">business technology.</em>
     </h1>
     <p class="mt-10 max-w-2xl text-lg leading-relaxed text-ink/80">
-      We renegotiate the contracts your business already has — internet, phone, mobile,
-      cloud, security — and consolidate the ones that should never have been separate.
-      First-year savings typically run <strong class="text-ink">$40,000 to $120,000</strong>.
-      Clients pay us directly. Providers do not.
+      We help growing companies cut internet, voice, mobile, cloud, and carrier contract
+      costs — and renegotiate them before the next auto-renewal locks in. Send one recent
+      invoice. Within 24 business hours we'll mark up what we'd renegotiate, what fees
+      look inflated, and where savings are likely hiding.
     </p>
     <div class="mt-10 flex flex-wrap gap-4">
       <a
         href="/audit"
         class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors"
       >
-        Free invoice audit →
+        Send one invoice →
       </a>
       <a
         href="https://calendly.com/signaladvise-info/30min"
@@ -129,42 +157,111 @@ const jsonLd = [faqSchema, ...serviceSchema];
     </div>
   </section>
 
-  <!-- Outcomes / proof -->
+  <!-- Trust strip -->
+  <section class="border-t border-ink/10 bg-ink py-10 text-paper">
+    <div class="container mx-auto max-w-5xl px-6 md:px-10">
+      <div class="grid gap-6 md:grid-cols-3">
+        <div>
+          <p class="display text-2xl font-medium text-signal mb-1">25+ years</p>
+          <p class="text-paper/70 text-sm leading-relaxed">Inside major U.S. technology providers</p>
+        </div>
+        <div>
+          <p class="display text-2xl font-medium text-signal mb-1">$40k–$120k</p>
+          <p class="text-paper/70 text-sm leading-relaxed">Typical first-year savings on a mid-market footprint</p>
+        </div>
+        <div>
+          <p class="display text-2xl font-medium text-signal mb-1">24 hours</p>
+          <p class="text-paper/70 text-sm leading-relaxed">Turnaround on a free invoice review</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Who we help -->
   <section class="border-t border-ink/10 py-24">
     <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">What the work looks like</p>
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Who we help</p>
       <h2 class="display mb-16 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
-        Numbers you can defend in a budget meeting.
+        Two profiles. One review.
       </h2>
-      <div class="grid gap-8 md:grid-cols-3">
+      <div class="grid gap-10 md:grid-cols-2">
+        <div class="border-t border-ink/10 pt-8">
+          <h3 class="display mb-4 text-2xl font-medium">Growing businesses</h3>
+          <p class="text-ink/70 leading-relaxed text-[15px] mb-4">
+            One to ten locations. No internal telecom expert. Tired of confusing invoices,
+            quiet rate increases, and providers who never call back unless you're trying
+            to leave.
+          </p>
+          <p class="text-stone text-sm leading-relaxed">
+            Typical monthly spend: $1,500–$15,000 across internet, phone, mobile, and software.
+          </p>
+        </div>
+        <div class="border-t border-ink/10 pt-8">
+          <h3 class="display mb-4 text-2xl font-medium">Multi-site companies</h3>
+          <p class="text-ink/70 leading-relaxed text-[15px] mb-4">
+            Five to twenty-five-plus locations. Renewals coming up. Carrier sprawl across
+            sites. SD-WAN, MPLS, or hybrid network decisions on the table. Backup-circuit
+            and redundancy questions that have not been answered cleanly.
+          </p>
+          <p class="text-stone text-sm leading-relaxed">
+            Typical engagements: contract review, multi-site inventory, renewal strategy.
+          </p>
+        </div>
+      </div>
+      <p class="mt-12 text-sm text-stone">
+        Both start the same way: send a recent invoice, get a 24-hour markup.
+      </p>
+    </div>
+  </section>
+
+  <!-- What we find -->
+  <section class="border-t border-ink/10 bg-paper py-24">
+    <div class="container mx-auto max-w-5xl px-6 md:px-10">
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">What we find</p>
+      <h2 class="display mb-16 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
+        The leaks are usually the same.
+      </h2>
+      <div class="grid gap-x-10 gap-y-6 md:grid-cols-2">
         {[
-          {
-            metric: '$94k',
-            label: 'Annual savings, year one',
-            note: 'Mid-market manufacturer · MPLS to SD-WAN transition, dual-carrier diversity preserved at lower spend.',
-          },
-          {
-            metric: '6 → 1',
-            label: 'Vendor relationships consolidated',
-            note: 'Multi-site retail client · Five carrier invoices and one UCaaS contract reduced to a single quarterly statement.',
-          },
-          {
-            metric: '23%',
-            label: 'Telecom spend reduction',
-            note: 'Logistics company · Renegotiated three-year renewal with incumbent carrier ahead of cycle.',
-          },
-        ].map((c) => (
-          <div class="border border-ink/10 p-8">
-            <p class="display text-5xl font-medium text-signal mb-3">{c.metric}</p>
-            <p class="text-ink mb-3 font-medium">{c.label}</p>
-            <p class="text-ink/60 text-sm leading-relaxed">{c.note}</p>
+          'Inflated carrier fees and surcharges',
+          'Bad renewal timing — leverage gone before you ask',
+          'Unused services still billing every month',
+          'Overpriced circuits at one or two specific sites',
+          'No backup or weak failover paths',
+          'Contract terms that favor the carrier',
+          'Vendor sprawl that should consolidate',
+          'Auto-renewals that should never have triggered',
+        ].map((line) => (
+          <p class="border-t border-ink/10 pt-4 text-ink/80 leading-relaxed">{line}</p>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="border-t border-ink/10 py-24">
+    <div class="container mx-auto max-w-5xl px-6 md:px-10">
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">How it works</p>
+      <h2 class="display mb-16 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
+        Three steps. No commitment until you say so.
+      </h2>
+      <div class="grid gap-10 md:grid-cols-3">
+        {[
+          { n: '01', t: 'Send one invoice', b: 'Upload a recent carrier, internet, voice, or mobile bill. One file. No form behind a form.' },
+          { n: '02', t: 'We mark it up', b: 'Within 24 business hours you receive a marked-up version showing what we would challenge, renegotiate, or retire.' },
+          { n: '03', t: 'You decide', b: 'If the math justifies it, we run the engagement. If it does not, we tell you. No pressure call.' },
+        ].map((s) => (
+          <div>
+            <p class="mb-3 font-mono text-xs text-stone">{s.n}</p>
+            <h3 class="display mb-4 text-xl font-medium">{s.t}</h3>
+            <p class="text-ink/70 leading-relaxed text-[15px]">{s.b}</p>
           </div>
         ))}
       </div>
     </div>
   </section>
 
-  <!-- Services -->
+  <!-- Services (kept, condensed) -->
   <section id="services" class="border-t border-ink/10 py-24">
     <div class="container mx-auto max-w-5xl px-6 md:px-10">
       <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">What we do</p>
@@ -188,32 +285,72 @@ const jsonLd = [faqSchema, ...serviceSchema];
     </div>
   </section>
 
-  <!-- One-line differentiator -->
-  <section class="border-t border-ink/10 bg-ink py-20 text-paper">
-    <div class="container mx-auto max-w-3xl px-6 text-center md:px-10">
-      <p class="display text-2xl font-normal leading-snug md:text-3xl">
-        Clients pay us. Carriers do not. That is the entire model — and it changes
-        what we recommend, what we negotiate, and what we walk away from.
+  <!-- Mini case studies -->
+  <section class="border-t border-ink/10 bg-paper py-24">
+    <div class="container mx-auto max-w-5xl px-6 md:px-10">
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">What the work looks like</p>
+      <h2 class="display mb-16 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
+        Numbers you can defend in a budget meeting.
+      </h2>
+      <div class="space-y-12">
+        {
+          cases.map((c) => (
+            <div class="border-t border-ink/10 pt-10 grid gap-8 md:grid-cols-[200px_1fr]">
+              <div>
+                <p class="display text-5xl font-medium text-signal mb-2">{c.metric}</p>
+                <p class="text-ink font-medium text-sm">{c.label}</p>
+              </div>
+              <div class="grid gap-6 md:grid-cols-3 text-sm">
+                <div>
+                  <p class="mb-2 text-xs uppercase tracking-[0.15em] text-stone">Before</p>
+                  <p class="text-ink/75 leading-relaxed">{c.before}</p>
+                </div>
+                <div>
+                  <p class="mb-2 text-xs uppercase tracking-[0.15em] text-stone">What we did</p>
+                  <p class="text-ink/75 leading-relaxed">{c.did}</p>
+                </div>
+                <div>
+                  <p class="mb-2 text-xs uppercase tracking-[0.15em] text-stone">Result</p>
+                  <p class="text-ink/75 leading-relaxed">{c.result}</p>
+                </div>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+      <p class="mt-12 text-sm text-stone italic">
+        Engagement profiles representative of typical mid-market work. References available on request.
       </p>
     </div>
   </section>
 
-  <!-- Contact -->
+  <!-- One-line differentiator -->
+  <section class="border-t border-ink/10 bg-ink py-20 text-paper">
+    <div class="container mx-auto max-w-3xl px-6 text-center md:px-10">
+      <p class="display text-2xl font-normal leading-snug md:text-3xl">
+        Independent across every major U.S. provider. On the buyer's side through
+        implementation, billing disputes, and the next renewal.
+      </p>
+      <p class="mt-6 text-paper/60 text-base">Most agents disappear after signature. We don't.</p>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
   <section id="contact" class="border-t border-ink/10 py-24">
     <div class="container mx-auto max-w-3xl px-6 text-center md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Get started</p>
       <h2 class="display mb-6 text-4xl font-normal leading-tight md:text-5xl">
-        Start with one invoice.
+        Send one invoice.<br />
+        <em class="text-signal not-italic font-medium">Know where you stand.</em>
       </h2>
       <p class="mb-10 text-lg text-ink/70 leading-relaxed">
-        Send a recent telecom or cloud invoice. We mark up what we would renegotiate
-        and what the savings are likely worth. Twenty-four hour turnaround. No obligation.
+        Before your next carrier renewal, let us look at the invoice. Twenty-four hour
+        turnaround. No obligation. If there is nothing material to recover, the review is free.
       </p>
       <a
         href="/audit"
         class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors"
       >
-        Request a free invoice review
+        Send one invoice →
       </a>
       <p class="mt-6 text-sm text-stone">
         Or email <a href="mailto:info@signaladvise.com" class="underline">info@signaladvise.com</a> · 816.355.3350

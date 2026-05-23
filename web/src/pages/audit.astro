@@ -17,8 +17,8 @@ import Footer from '../components/Footer.astro';
       <em class="text-signal not-italic font-medium">last carrier invoice.</em>
     </h1>
     <p class="mt-8 text-lg leading-relaxed text-ink/75">
-      Send one recent invoice from any of your carrier, internet, or UCaaS providers. Within 24
-      business hours we send back the same PDF with three things flagged:
+      Send one recent invoice from any of your carriers, internet providers, or UCaaS
+      providers. Within 24 business hours we send back the same PDF with three things flagged:
     </p>
     <ul class="mt-6 space-y-3 text-ink/80 text-lg">
       <li class="flex gap-3"><span class="text-signal font-semibold">·</span>Line items we'd renegotiate, with the rate we'd target</li>
@@ -61,12 +61,15 @@ import Footer from '../components/Footer.astro';
       </div>
 
       <p class="text-sm text-stone">
-        We'll reply with a secure upload link for the invoice — keeping it out of email attachments.
-        By submitting, you agree to our <a href="/privacy" class="text-signal underline">privacy policy</a>. We use your invoice solely to provide the audit you requested and retain uploaded files no longer than 90 days.
+        Submit this form and we'll email you a secure one-time upload link for the invoice
+        within minutes — keeping it out of email attachments. By submitting, you agree to
+        our <a href="/privacy" class="text-signal underline">privacy policy</a>. We use
+        your invoice solely to provide the audit you requested and retain uploaded files
+        no longer than 90 days.
       </p>
 
       <button type="submit" class="mt-2 inline-block w-full rounded-sm bg-signal px-6 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors">
-        Request my audit
+        Request secure invoice upload link
       </button>
 
       <div id="audit-status" class="hidden text-sm"></div>
@@ -107,7 +110,7 @@ import Footer from '../components/Footer.astro';
         status.classList.remove('hidden');
       } finally {
         btn.disabled = false;
-        btn.textContent = 'Request my audit';
+        btn.textContent = 'Request secure invoice upload link';
       }
     });
   }

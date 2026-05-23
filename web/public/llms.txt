@@ -1,6 +1,6 @@
-# Signal Advisory
+# Signal Advisory LLC
 
-> Independent technology broker based in Kansas City, Missouri. Signal Advisory audits and renegotiates business technology contracts — telecom, internet, cloud, phone, security, and mobile — to reduce cost and consolidate vendors. Clients pay Signal Advisory directly; carriers do not. This independence is what separates Signal Advisory from a master agent.
+> Independent telecom and technology cost advisor based in Kansas City, Missouri. Signal Advisory audits and renegotiates business technology contracts — telecom, internet, cloud, phone, security, and mobile — to reduce cost and consolidate vendors. Independent across every major U.S. provider rather than tied to any one carrier. Buyer-side advocate through implementation, billing disputes, and the next renewal.
 
 Founded and led by Brandon Murphy, Principal Advisor. Contact: brandon@signaladvise.com or 816-355-3350. Headquartered in Kansas City, Missouri; serves clients across the United States.
 
@@ -17,11 +17,12 @@ Founded and led by Brandon Murphy, Principal Advisor. Contact: brandon@signaladv
 - **Telecom expense management (TEM).** Every invoice, audited against every contract, every month. Errors are disputed. Unused services retired. Credits land on the next bill. On a typical mid-market footprint, this work recovers three to six percent of annual telecom spend.
 - **Ongoing advisory.** Hourly or monthly retainer covering the technology decisions a team makes between major engagements — renewals, architecture, vendor selection, contract structure. On call when the question comes up.
 
-## How Signal Advisory is different from a master agent
+## How Signal Advisory works in the channel
 
-- An independent technology broker (Signal Advisory) is paid by the client. Recommendations are aligned to the client.
-- A master agent is paid by the carrier and is required to disclose that relationship. Their economic incentive is to place the client with the carrier that pays them most.
-- Signal Advisory does not accept carrier commissions on the brokerage line of business.
+- Independent across every major U.S. provider rather than steering business toward any one carrier.
+- Buyer-side advocate: negotiates term length, exit rights, redundancy, service-credit terms, and rate-protection clauses.
+- Stays involved through implementation, billing disputes, and the next renewal. Most agents disappear after signature.
+- Engagement models: flat-fee contract review, hourly project work, monthly retainer. On brokered transactions, compensated through master-agency relationships in the standard channel model. Fee-only arrangements available on request, with brokerage commission rebated against a flat advisory fee.
 
 ## Pricing
 
