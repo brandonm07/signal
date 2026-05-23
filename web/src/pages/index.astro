@@ -153,9 +153,9 @@ const jsonLd = [faqSchema, ...serviceSchema];
     <p class="mb-5 text-xs uppercase tracking-[0.2em] text-stone">
       Independent telecom &amp; technology cost advisor · Kansas City
     </p>
-    <h1 class="display text-4xl font-light leading-[1.05] md:text-[4.5rem]">
-      Stop overpaying for<br />
-      <em class="text-signal not-italic font-medium">business technology.</em>
+    <h1 class="display text-3xl font-light leading-[1.1] md:text-5xl lg:text-[3.75rem]">
+      Stop overpaying for internet, voice, cloud,<br class="hidden md:block" />
+      and <em class="text-signal not-italic font-medium">carrier contracts.</em>
     </h1>
     <p class="mt-10 max-w-2xl text-lg leading-relaxed text-ink/80">
       Signal Advisory helps growing businesses cut technology costs, fix bad contracts,
@@ -184,26 +184,14 @@ const jsonLd = [faqSchema, ...serviceSchema];
   </section>
 
   <!-- Trust strip -->
-  <section class="border-t border-ink/10 bg-ink py-10 text-paper">
+  <section class="border-t border-ink/10 bg-ink py-12 text-paper">
     <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <div class="grid gap-6 md:grid-cols-4">
-        <div>
-          <p class="display text-base font-medium text-signal mb-1">Independent</p>
-          <p class="text-paper/70 text-sm leading-relaxed">Across every major U.S. provider</p>
-        </div>
-        <div>
-          <p class="display text-base font-medium text-signal mb-1">25+ years</p>
-          <p class="text-paper/70 text-sm leading-relaxed">Inside major providers</p>
-        </div>
-        <div>
-          <p class="display text-base font-medium text-signal mb-1">$40k–$120k</p>
-          <p class="text-paper/70 text-sm leading-relaxed">Typical first-year savings on mid-market footprints</p>
-        </div>
-        <div>
-          <p class="display text-base font-medium text-signal mb-1">24 hours</p>
-          <p class="text-paper/70 text-sm leading-relaxed">Business-day turnaround on invoice review</p>
-        </div>
-      </div>
+      <ul class="space-y-3 text-paper/90 text-base md:text-lg leading-relaxed md:columns-2 md:gap-10">
+        <li class="flex gap-3"><span class="text-signal">·</span>Independent across every major U.S. provider.</li>
+        <li class="flex gap-3"><span class="text-signal">·</span>25+ years inside major providers.</li>
+        <li class="flex gap-3"><span class="text-signal">·</span>$40k–$120k typical first-year savings on mid-market footprints.</li>
+        <li class="flex gap-3"><span class="text-signal">·</span>24-business-hour invoice review.</li>
+      </ul>
     </div>
   </section>
 
@@ -215,19 +203,39 @@ const jsonLd = [faqSchema, ...serviceSchema];
         Two profiles. One review.
       </h2>
       <div class="grid gap-10 md:grid-cols-2">
-        <div class="border-t border-ink/10 pt-8">
+        <div class="border-t border-ink/10 pt-8 flex flex-col">
           <h3 class="display mb-4 text-2xl font-medium">Growing businesses</h3>
-          <p class="text-ink/75 leading-relaxed text-[15px]">
+          <p class="text-stone text-sm mb-4">
+            For businesses spending $1,500–$15,000/month on internet, phones, mobile, cloud, or software.
+          </p>
+          <p class="text-ink/75 leading-relaxed text-[15px] mb-6 flex-1">
             1–10 locations, no internal telecom expert, tired of confusing invoices and
             provider runaround.
           </p>
+          <a
+            href="/audit"
+            class="inline-block self-start rounded-sm bg-signal px-6 py-3 text-sm font-semibold text-paper hover:bg-ink transition-colors"
+          >
+            Get a free invoice review
+          </a>
         </div>
-        <div class="border-t border-ink/10 pt-8">
+        <div class="border-t border-ink/10 pt-8 flex flex-col">
           <h3 class="display mb-4 text-2xl font-medium">Multi-site companies</h3>
-          <p class="text-ink/75 leading-relaxed text-[15px]">
+          <p class="text-stone text-sm mb-4">
+            For companies with multiple locations, renewals, carrier sprawl, or complex network contracts.
+          </p>
+          <p class="text-ink/75 leading-relaxed text-[15px] mb-6 flex-1">
             5–25+ locations, renewals coming, carrier sprawl, SD-WAN/MPLS decisions,
             backup circuit concerns.
           </p>
+          <a
+            href="https://calendly.com/signaladvise-info/30min"
+            target="_blank"
+            rel="noopener"
+            class="inline-block self-start rounded-sm border border-ink/30 px-6 py-3 text-sm font-semibold text-ink hover:bg-ink hover:text-paper transition-colors"
+          >
+            Schedule a contract strategy call
+          </a>
         </div>
       </div>
     </div>
