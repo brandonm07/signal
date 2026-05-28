@@ -7,46 +7,22 @@ const services = [
   {
     tag: '01',
     title: 'Provider negotiation',
-    body: 'We negotiate directly with every major U.S. provider on your behalf. Rate is one variable. Term length, exit rights, redundancy, and rate-protection clauses move more money over the life of a contract — and most agents will not press for them.',
+    body: 'We negotiate directly with every major U.S. provider on your behalf. Rate is one variable. Term length, exit rights, redundancy, and rate-protection clauses move more money over the life of a contract.',
   },
   {
     tag: '02',
     title: 'Vendor consolidation',
-    body: 'Mid-market companies typically pay four to six providers for services that should sit with one or two. We start with a single-page inventory of every contract, renewal date, and monthly cost. From there the consolidation decisions get straightforward.',
+    body: 'Mid-market companies typically pay four to six providers for services that should sit with one or two. We inventory every contract, renewal date, and monthly cost, then make the consolidation decisions straightforward.',
   },
   {
     tag: '03',
     title: 'Telecom expense management',
-    body: 'Every invoice, audited against every contract, every month. Errors are disputed. Unused services are retired. Credits land on the next bill. On a typical mid-market footprint this work recovers three to six percent of annual telecom spend.',
+    body: 'Every invoice, audited against every contract, every month. On a typical mid-market footprint this work recovers three to six percent of annual telecom spend.',
   },
   {
     tag: '04',
     title: 'Ongoing advisory',
-    body: 'Hourly or monthly retainer covering the technology decisions your team makes between major engagements — renewals, architecture, vendor selection, contract structure. On call when the question comes up.',
-  },
-];
-
-const cases = [
-  {
-    metric: '$94k',
-    label: 'Annual savings, year one',
-    before: 'A 10-location manufacturer had MPLS, backup internet, and voice split across multiple vendors. Renewal dates were scattered. No one had a clean inventory.',
-    did: 'Built a site-by-site inventory, priced SD-WAN alternatives, preserved carrier diversity, and renegotiated renewal terms.',
-    result: '$94,000 first-year savings while preserving redundancy.',
-  },
-  {
-    metric: '6 → 1',
-    label: 'Vendor relationships consolidated',
-    before: 'A multi-site retail client was managing five carrier invoices and a separate UCaaS contract. Renewals were rolling, support escalations went nowhere, and no single vendor owned the relationship.',
-    did: 'Consolidated connectivity and voice onto one provider with a single quarterly statement. Renegotiated SLA and credit terms in the process.',
-    result: 'One bill. One point of accountability. Lower effective rate.',
-  },
-  {
-    metric: '23%',
-    label: 'Telecom spend reduction',
-    before: 'A logistics company was twelve months from renewal on a three-year carrier contract. The incumbent had quietly raised rates twice and removed line items the company still believed were active.',
-    did: 'Audited the invoice against the original contract, recovered credits for retired services, and renegotiated the next term six months early using competitive pressure.',
-    result: '23% reduction in monthly telecom spend, same carrier, same circuits.',
+    body: 'Hourly or monthly retainer covering the technology decisions your team makes between major engagements.',
   },
 ];
 
@@ -79,12 +55,10 @@ const steps = [
   { n: '03', t: 'You decide whether the savings justify next steps' },
 ];
 
-const offerDeliverables = [
-  'Fees we would challenge',
-  'Savings range',
-  'Contract risks',
-  'Renewal timing advice',
-  'Recommended next move',
+const proof = [
+  { metric: '$94,000', label: 'annual savings, year one' },
+  { metric: '6 → 1', label: 'vendor relationships consolidated' },
+  { metric: '23%', label: 'telecom spend reduction' },
 ];
 
 const faqSchema = {
@@ -156,113 +130,44 @@ const jsonLd = [faqSchema, ...serviceSchema];
 
 <Base
   title="Signal Advisory LLC — Independent Telecom & Technology Cost Advisor, Kansas City"
-  description="Signal Advisory is an independent telecom and technology advisory firm. We help businesses lower costs, reduce vendor confusion, negotiate better contracts, and make smarter decisions about internet, voice, mobile, cloud, and network services."
+  description="Signal Advisory helps businesses pay less for the technology they already buy. We review your internet, phone, cloud, mobile, and carrier contracts and renegotiate the ones that need it."
   jsonLd={jsonLd}
 >
   <Nav />
 
   <!-- Hero -->
-  <section class="container mx-auto max-w-5xl px-6 pb-20 pt-20 md:px-10 md:pt-28">
-    <p class="mb-5 text-xs uppercase tracking-[0.2em] text-stone">
-      Independent telecom &amp; technology cost advisor · Kansas City
-    </p>
-    <h1 class="display text-3xl font-light leading-[1.1] md:text-5xl lg:text-[3.75rem]">
-      Your independent advisor for telecom, internet, cloud,<br class="hidden md:block" />
-      and <em class="text-signal not-italic font-medium">carrier decisions.</em>
+  <section class="container mx-auto max-w-4xl px-6 pb-12 pt-24 md:px-10 md:pt-32 md:pb-20">
+    <h1 class="display text-3xl font-light leading-[1.15] md:text-5xl lg:text-[3.5rem]">
+      Signal Advisory helps businesses pay less for the
+      <em class="text-signal not-italic font-medium">technology they already buy.</em>
     </h1>
     <p class="mt-10 max-w-2xl text-lg leading-relaxed text-ink/80">
-      Signal Advisory helps business owners, executives, and IT teams lower costs,
-      compare providers, negotiate better contracts, and make technology decisions
-      with confidence.
+      We review your internet, phone, cloud, mobile, and carrier contracts. We renegotiate
+      the ones that need it. We stay involved through implementation, billing disputes,
+      and the next renewal.
     </p>
-    <p class="mt-6 max-w-2xl text-base leading-relaxed text-ink/70">
-      Send us one invoice. Within 24 business hours, we'll show you what we would
-      renegotiate, what fees look inflated, and where savings may be hiding.
-    </p>
-    <div class="mt-10 flex flex-wrap gap-4">
+    <div class="mt-10">
       <a
         href="/audit"
         class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors"
       >
-        Get a free invoice review
-      </a>
-      <a
-        href="https://calendly.com/signaladvise-info/30min"
-        target="_blank"
-        rel="noopener"
-        class="inline-block rounded-sm border border-ink/20 px-8 py-4 text-sm font-medium hover:border-ink transition-colors"
-      >
-        Schedule a contract strategy call
+        Send us one invoice →
       </a>
     </div>
-  </section>
-
-  <!-- Trust strip -->
-  <section class="border-t border-ink/10 bg-ink py-12 text-paper">
-    <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <ul class="space-y-3 text-paper/90 text-base md:text-lg leading-relaxed md:columns-2 md:gap-10">
-        <li class="flex gap-3"><span class="text-signal">·</span>Independent across every major U.S. provider.</li>
-        <li class="flex gap-3"><span class="text-signal">·</span>25+ years inside major providers.</li>
-        <li class="flex gap-3"><span class="text-signal">·</span>$40k–$120k typical first-year savings.</li>
-        <li class="flex gap-3"><span class="text-signal">·</span>24-business-hour invoice review.</li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- Who we help -->
-  <section class="border-t border-ink/10 py-24">
-    <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Who we help</p>
-      <h2 class="display mb-16 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
-        Two profiles. One review.
-      </h2>
-      <div class="grid gap-10 md:grid-cols-2">
-        <div class="border-t border-ink/10 pt-8 flex flex-col">
-          <h3 class="display mb-4 text-2xl font-medium">Growing businesses</h3>
-          <p class="text-stone text-sm mb-4">
-            For businesses spending $1,500–$15,000/month on internet, phones, mobile, cloud, or software.
-          </p>
-          <p class="text-ink/75 leading-relaxed text-[15px] mb-6 flex-1">
-            1–10 locations, no internal telecom expert, tired of confusing invoices and
-            provider runaround.
-          </p>
-          <a
-            href="/audit"
-            class="inline-block self-start rounded-sm bg-signal px-6 py-3 text-sm font-semibold text-paper hover:bg-ink transition-colors"
-          >
-            Get a free invoice review
-          </a>
-        </div>
-        <div class="border-t border-ink/10 pt-8 flex flex-col">
-          <h3 class="display mb-4 text-2xl font-medium">Multi-site companies</h3>
-          <p class="text-stone text-sm mb-4">
-            For companies with multiple locations, renewals, carrier sprawl, or complex network contracts.
-          </p>
-          <p class="text-ink/75 leading-relaxed text-[15px] mb-6 flex-1">
-            5–25+ locations, renewals coming, carrier sprawl, SD-WAN/MPLS decisions,
-            backup circuit concerns.
-          </p>
-          <a
-            href="https://calendly.com/signaladvise-info/30min"
-            target="_blank"
-            rel="noopener"
-            class="inline-block self-start rounded-sm border border-ink/30 px-6 py-3 text-sm font-semibold text-ink hover:bg-ink hover:text-paper transition-colors"
-          >
-            Schedule a contract strategy call
-          </a>
-        </div>
-      </div>
-    </div>
+    <p class="mt-10 text-sm text-stone leading-relaxed max-w-2xl">
+      25+ years inside major U.S. technology providers. Independent across every major carrier.
+      Based in Kansas City, serving clients across the United States.
+    </p>
   </section>
 
   <!-- What we help with -->
-  <section class="border-t border-ink/10 bg-paper py-24">
+  <section class="border-t border-ink/10 py-24">
     <div class="container mx-auto max-w-5xl px-6 md:px-10">
       <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">What we help with</p>
-      <h2 class="display mb-16 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
+      <h2 class="display mb-16 max-w-3xl text-3xl font-normal leading-tight md:text-4xl">
         Five categories of decisions.
       </h2>
-      <div class="grid gap-x-10 gap-y-10 md:grid-cols-2">
+      <div class="grid gap-x-12 gap-y-10 md:grid-cols-2">
         {helpWith.map((h) => (
           <div class="border-t border-ink/10 pt-6">
             <h3 class="display mb-3 text-xl font-medium">{h.title}</h3>
@@ -277,7 +182,7 @@ const jsonLd = [faqSchema, ...serviceSchema];
   <section class="border-t border-ink/10 py-24">
     <div class="container mx-auto max-w-5xl px-6 md:px-10">
       <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">How it works</p>
-      <h2 class="display mb-16 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
+      <h2 class="display mb-16 max-w-3xl text-3xl font-normal leading-tight md:text-4xl">
         Three steps. No commitment until you say so.
       </h2>
       <div class="grid gap-10 md:grid-cols-3">
@@ -291,70 +196,23 @@ const jsonLd = [faqSchema, ...serviceSchema];
     </div>
   </section>
 
-  <!-- Offer -->
-  <section class="border-t border-ink/10 bg-paper py-24">
-    <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">The offer</p>
-      <h2 class="display mb-6 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
-        Free invoice review.
-      </h2>
-      <p class="mb-12 max-w-2xl text-ink/70 leading-relaxed text-lg">
-        Within 24 business hours, you receive:
-      </p>
-      <ul class="grid gap-4 md:grid-cols-2 max-w-3xl">
-        {offerDeliverables.map((d) => (
-          <li class="flex gap-3 border-t border-ink/10 pt-4">
-            <span class="text-signal font-semibold">·</span>
-            <span class="text-ink/80">{d}</span>
-          </li>
-        ))}
-      </ul>
-      <div class="mt-12">
-        <a
-          href="/audit"
-          class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors"
-        >
-          Get a free invoice review
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Proof / mini case studies -->
+  <!-- Proof -->
   <section class="border-t border-ink/10 py-24">
     <div class="container mx-auto max-w-5xl px-6 md:px-10">
       <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Proof</p>
-      <h2 class="display mb-16 max-w-3xl text-4xl font-normal leading-tight md:text-5xl">
+      <h2 class="display mb-16 max-w-3xl text-3xl font-normal leading-tight md:text-4xl">
         Numbers you can defend in a budget meeting.
       </h2>
-      <div class="space-y-12">
-        {
-          cases.map((c) => (
-            <div class="border-t border-ink/10 pt-10 grid gap-8 md:grid-cols-[200px_1fr]">
-              <div>
-                <p class="display text-5xl font-medium text-signal mb-2">{c.metric}</p>
-                <p class="text-ink font-medium text-sm">{c.label}</p>
-              </div>
-              <div class="grid gap-6 md:grid-cols-3 text-sm">
-                <div>
-                  <p class="mb-2 text-xs uppercase tracking-[0.15em] text-stone">Before</p>
-                  <p class="text-ink/75 leading-relaxed">{c.before}</p>
-                </div>
-                <div>
-                  <p class="mb-2 text-xs uppercase tracking-[0.15em] text-stone">What we did</p>
-                  <p class="text-ink/75 leading-relaxed">{c.did}</p>
-                </div>
-                <div>
-                  <p class="mb-2 text-xs uppercase tracking-[0.15em] text-stone">Result</p>
-                  <p class="text-ink/75 leading-relaxed">{c.result}</p>
-                </div>
-              </div>
-            </div>
-          ))
-        }
+      <div class="grid gap-8 md:grid-cols-3">
+        {proof.map((p) => (
+          <div class="border-t border-ink/10 pt-8">
+            <p class="display text-5xl font-medium text-signal mb-3">{p.metric}</p>
+            <p class="text-ink/70 text-sm leading-relaxed">{p.label}</p>
+          </div>
+        ))}
       </div>
       <p class="mt-12 text-sm text-stone italic">
-        Engagement profiles representative of typical mid-market work. References available on request.
+        Engagement profiles representative of mid-market work. References available on request.
       </p>
     </div>
   </section>
@@ -362,18 +220,19 @@ const jsonLd = [faqSchema, ...serviceSchema];
   <!-- Final CTA -->
   <section id="contact" class="border-t border-ink/10 bg-ink py-24 text-paper">
     <div class="container mx-auto max-w-3xl px-6 text-center md:px-10">
-      <h2 class="display mb-6 text-4xl font-normal leading-tight md:text-5xl">
+      <h2 class="display mb-6 text-3xl font-normal leading-tight md:text-4xl">
         Send one invoice.<br />
         <em class="text-signal not-italic font-medium">Know where you stand.</em>
       </h2>
-      <p class="mb-10 text-lg text-paper/70 leading-relaxed">
-        Before you sign another carrier renewal, let us look at the invoice.
+      <p class="mb-10 text-base text-paper/70 leading-relaxed">
+        Before you sign another carrier renewal, let us look at the invoice. Twenty-four-hour
+        turnaround. No obligation.
       </p>
       <a
         href="/audit"
         class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-paper hover:text-ink transition-colors"
       >
-        Get a free invoice review
+        Send us one invoice →
       </a>
       <p class="mt-6 text-sm text-paper/60">
         Or email <a href="mailto:info@signaladvise.com" class="underline text-paper/80">info@signaladvise.com</a> · 816.355.3350
