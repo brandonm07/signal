@@ -1,4 +1,5 @@
 name = "signal-pitcher"
+account_id = "d816b643eb1eec32659687d67eec8e9a"
 main = "src/index.ts"
 compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat"]

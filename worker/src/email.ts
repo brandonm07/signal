@@ -35,7 +35,7 @@ export function buildEmail(lead: Lead, env: Env): {
   const sigText =
     `Principal Advisor\n` +
     `Signal Advisory\n` +
-    `brandon@signaladvise.com · 816.355.3350\n` +
+    `brandon@signaladvise.com · 816.328.8574\n` +
     `linkedin.com/company/signal-advisory-llc`;
 
   // Option 2 formatting: keep List-Unsubscribe headers (Gmail/Yahoo native button +
@@ -106,7 +106,7 @@ function sigHtml(): string {
     `</td>` +
     `<td style="vertical-align:middle;line-height:1.45">` +
     `<div style="color:#7a7067;font-size:12px">Principal Advisor · Signal Advisory</div>` +
-    `<div><a href="mailto:brandon@signaladvise.com" style="color:#222;text-decoration:none">brandon@signaladvise.com</a> · 816.355.3350</div>` +
+    `<div><a href="mailto:brandon@signaladvise.com" style="color:#222;text-decoration:none">brandon@signaladvise.com</a> · 816.328.8574</div>` +
     `<div><a href="https://www.linkedin.com/company/signal-advisory-llc" style="color:#c9462c;text-decoration:none">linkedin.com/company/signal-advisory-llc</a></div>` +
     `</td>` +
     `</tr>` +
