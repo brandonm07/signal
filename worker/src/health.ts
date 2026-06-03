@@ -3,6 +3,7 @@
 // of how many cron ticks happen.
 import type { Env, Lead } from "./types";
 import { maybeRunRenewalAlerts } from "./contracts";
+import { maybeScoreLeads } from "./scorer";
 
 const KEY_LAST_HEALTHCHECK = "last_healthcheck_ts";
 const KEY_LAST_BACKUP = "last_backup_ts";
@@ -20,6 +21,7 @@ export async function runPeriodicMaintenance(env: Env): Promise<void> {
   await maybeRunBackup(env);
   await maybeRunRetention(env);
   await maybeRunRenewalAlerts(env);
+  await maybeScoreLeads(env);
 }
 
 const KEY_LAST_RETENTION = "last_retention_ts";
