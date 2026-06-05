@@ -14,42 +14,38 @@ export interface SequenceStep {
 export const SEQUENCE_STEPS: Record<number, SequenceStep> = {
   2: {
     step: 2,
-    subject: "Re: {{company}} carrier network renewals",
+    subject: "Following up, {{company}}",
     delayDays: 4,
-    body: `Hi {{first_name}},
+    body: `{{first_name}},
 
-Floating this back up. One pattern worth flagging: your network providers (Spectrum, AT&T, Lumen, Verizon, take your pick) are pushing 3-year renewals hard right now to lock pricing ahead of Q3 rate increases. The usual trade is 18 months early-renewal in exchange for "rate protection." In most cases the protection isn't worth what you give up in flexibility.
+Following up on my last note. The reason I reach out to companies like {{company}} is simple. When no single person owns all the technology contracts, costs drift up and renewals get signed without anyone checking the market.
 
-If {{company}} has anything coming up on the renewal radar, even just informally, happy to take a look before you sign. Zero commitment.
+I look at what you pay now, compare it to what is available, and tell you where the room is. There is no cost to look.
 
-Brandon`,
+Are you open to a short call this week or next?`,
   },
   3: {
     step: 3,
-    subject: "Re: {{company}} carrier network renewals",
+    subject: "What a quick review usually finds",
     delayDays: 6,
-    body: `Hi {{first_name}},
+    body: `{{first_name}},
 
-Last note from me for a stretch. Wanted to leave something useful either way.
+One more from me. When I review a company's invoices, the savings usually come from three places: rates that sit above market, services no one uses anymore, and fees buried in the bill that are not actually taxes.
 
-Fastest place to find leverage on a carrier invoice: line items labeled "regulatory recovery fee," "carrier service fee," or "administrative cost recovery." They aren't taxes, they're carrier margin, and they're renegotiable. Most agents don't touch them because they don't move commission. They typically run 8-12% of your monthly invoice. For a mid-sized account that's $5k-15k a year sitting in plain sight.
+For a company your size, that often adds up to real money over a year.
 
-That's the kind of thing I dig into in every engagement.
-
-If it ever becomes useful to compare notes, you know where to find me.
-
-Brandon`,
+Send me one recent invoice and I will show you what I would target before we even talk. Or we grab 15 minutes. Whichever is easier for you.`,
   },
   4: {
     step: 4,
-    subject: "Re: {{company}} carrier network renewals",
+    subject: "Closing the loop",
     delayDays: 7,
-    body: `Hi {{first_name}},
+    body: `{{first_name}},
 
-I'll stop showing up in your inbox after this one. Not trying to be a nuisance.
+I will stop reaching out after this one. I do not want to crowd your inbox.
 
-If carrier, cloud, or UCaaS becomes a priority later, the line stays open. No hard feelings either way.
+If lowering technology costs or cleaning up vendor contracts ever becomes a priority, I am easy to find. The first look is always free.
 
-Brandon`,
+Wishing you the best either way.`,
   },
 };
