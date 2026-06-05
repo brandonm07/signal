@@ -750,7 +750,7 @@ function invoiceHtml(inv: InvoiceRow, client: ClientRow, lines: LineItemRow[]): 
       <div class="party-name">Signal Advisory LLC</div>
       <div class="party-line">Kansas City, MO</div>
       <div class="party-line" style="margin-top:6px;color:#7a7067">brandon@signaladvise.com</div>
-      <div class="party-line" style="color:#7a7067">816.328.8574</div>
+      <div class="party-line" style="color:#7a7067">816.355.3350</div>
     </div>
   </div>
 
