@@ -34,7 +34,7 @@ export function buildEmail(lead: Lead, env: Env): {
 
   const sigText =
     `Brandon\n` +
-    `Signal Advisory\n` +
+    `Principal Advisor, Signal Advisory\n` +
     `brandon@signaladvise.com · 816.355.3350\n` +
     `linkedin.com/company/signal-advisory-llc\n` +
     `signaladvise.com`;
@@ -107,7 +107,7 @@ function sigHtml(): string {
     `</td>` +
     `<td style="vertical-align:middle;line-height:1.45">` +
     `<div style="font-weight:bold;color:#1a1f24;font-size:14px">Brandon</div>` +
-    `<div style="color:#7a7067;font-size:12px">Signal Advisory</div>` +
+    `<div style="color:#7a7067;font-size:12px">Principal Advisor, Signal Advisory</div>` +
     `<div><a href="mailto:brandon@signaladvise.com" style="color:#222;text-decoration:none">brandon@signaladvise.com</a> · 816.355.3350</div>` +
     `<div><a href="https://www.linkedin.com/company/signal-advisory-llc" style="color:#c9462c;text-decoration:none">linkedin.com/company/signal-advisory-llc</a> · <a href="https://signaladvise.com" style="color:#c9462c;text-decoration:none">signaladvise.com</a></div>` +
     `</td>` +
