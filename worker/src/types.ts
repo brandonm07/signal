@@ -5,6 +5,11 @@ export interface Env {
   RESEND_API_KEY: string;
   SENDER_EMAIL: string;
   SENDER_NAME: string;
+  // Cold-outreach sender identity. Falls back to SENDER_* when unset.
+  // Point OUTREACH_SENDER_EMAIL at a dedicated cold domain to protect the
+  // primary domain's transactional reputation.
+  OUTREACH_SENDER_NAME?: string;
+  OUTREACH_SENDER_EMAIL?: string;
   REPLY_TO: string;
   PHYSICAL_ADDRESS: string;
   UNSUBSCRIBE_BASE_URL: string;

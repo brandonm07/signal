@@ -88,7 +88,7 @@ export default {
     }
     if (url.pathname.startsWith("/admin/")) {
       const secret = req.headers.get("x-admin-secret");
-      if (!env.ADMIN_SECRET || secret !== env.ADMIN_SECRET) {
+      if (!env.ADMIN_SECRET || !secret || !safeEqual(secret, env.ADMIN_SECRET)) {
         return new Response("forbidden", { status: 403 });
       }
       if (url.pathname === "/admin/tick") {
@@ -510,6 +510,15 @@ function jsonResponse(data: unknown, status: number): Response {
   });
 }
 
+// Constant-time string comparison so admin-secret checks don't leak length
+// or content through response timing.
+function safeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
 async function handleAdminDownload(auditId: number, env: Env): Promise<Response> {
   const row = await env.DB.prepare(
     `SELECT r2_key, uploaded_filename FROM audit_requests WHERE id = ?1`,
@@ -520,10 +529,14 @@ async function handleAdminDownload(auditId: number, env: Env): Promise<Response>
   const obj = await env.AUDIT_UPLOADS.get(row.r2_key);
   if (!obj) return new Response("file missing", { status: 410 });
   const filename = row.uploaded_filename || "invoice";
+  // RFC 5987: ASCII fallback (strip control/quote/path chars) + UTF-8 encoded
+  // form, so a crafted filename can't break out of the header.
+  const asciiName = filename.replace(/[^\w.\-]/g, "_");
+  const utf8Name = encodeURIComponent(filename);
   return new Response(obj.body, {
     headers: {
       "content-type": obj.httpMetadata?.contentType || "application/octet-stream",
-      "content-disposition": `attachment; filename="${filename.replace(/"/g, "")}"`,
+      "content-disposition": `attachment; filename="${asciiName}"; filename*=UTF-8''${utf8Name}`,
     },
   });
 }
@@ -560,6 +573,10 @@ async function handleResendWebhook(req: Request, env: Env): Promise<Response> {
       `UPDATE leads SET status='unsubscribed', error='spam complaint (resend webhook)', updated_at=unixepoch()
          WHERE email = ?1 AND status != 'unsubscribed'`,
     ).bind(recipient).run();
+  } else if (type === "email.delivered" || type === "email.opened" || type === "email.clicked") {
+    await env.DB.prepare(
+      `INSERT INTO email_events (email_id, recipient, event_type) VALUES (?1, ?2, ?3)`,
+    ).bind(evt.data?.email_id ?? null, recipient, type.slice("email.".length)).run();
   }
   return new Response("ok", { status: 200 });
 }

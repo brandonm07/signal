@@ -21,7 +21,94 @@ export async function runPeriodicMaintenance(env: Env): Promise<void> {
   await maybeRunBackup(env);
   await maybeRunRetention(env);
   await maybeRunRenewalAlerts(env);
+  await maybeRunOutreachReport(env);
   await maybeScoreLeads(env);
+}
+
+const KEY_LAST_OUTREACH_REPORT = "last_outreach_report_ts";
+
+// Weekly outreach scorecard: sent / delivered / opened / clicked, replies by
+// intent, reply rate, bounces, and per-step reply counts over the last 7 days.
+// Emailed to Brandon every Monday morning so deliverability vs. copy problems
+// are visible instead of guessed at.
+async function maybeRunOutreachReport(env: Env): Promise<void> {
+  const last = await getState(env, KEY_LAST_OUTREACH_REPORT);
+  const now = Math.floor(Date.now() / 1000);
+  const isMonday =
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: env.SEND_WINDOW_TZ,
+      weekday: "short",
+    }).format(new Date()) === "Mon";
+  if (!isMonday) return;
+  if (last && now - last < WEEK_SECONDS - DAY_SECONDS) return;
+
+  const week = 7 * DAY_SECONDS;
+
+  const sent = (await env.DB.prepare(
+    `SELECT COUNT(*) n FROM send_log WHERE outcome='sent' AND attempted_at > unixepoch() - ?1`,
+  ).bind(week).first<{ n: number }>())?.n ?? 0;
+
+  const eventsRs = await env.DB.prepare(
+    `SELECT event_type, COUNT(DISTINCT recipient) n FROM email_events
+       WHERE created_at > unixepoch() - ?1 GROUP BY event_type`,
+  ).bind(week).all<{ event_type: string; n: number }>();
+  const ev: Record<string, number> = {};
+  for (const r of eventsRs.results ?? []) ev[r.event_type] = r.n;
+
+  const repliesRs = await env.DB.prepare(
+    `SELECT intent, COUNT(*) n FROM replies WHERE received_at > unixepoch() - ?1 GROUP BY intent`,
+  ).bind(week).all<{ intent: string; n: number }>();
+  const replies: Record<string, number> = {};
+  let totalReplies = 0;
+  for (const r of repliesRs.results ?? []) {
+    replies[r.intent] = r.n;
+    totalReplies += r.n;
+  }
+
+  const bounced = (await env.DB.prepare(
+    `SELECT COUNT(*) n FROM leads WHERE status='bounced' AND updated_at > unixepoch() - ?1`,
+  ).bind(week).first<{ n: number }>())?.n ?? 0;
+
+  const stepRs = await env.DB.prepare(
+    `SELECT l.step, COUNT(*) n FROM replies r JOIN leads l ON l.id = r.lead_id
+       WHERE r.received_at > unixepoch() - ?1 GROUP BY l.step ORDER BY l.step`,
+  ).bind(week).all<{ step: number; n: number }>();
+
+  await setState(env, KEY_LAST_OUTREACH_REPORT, now);
+
+  const pct = (a: number, b: number) => (b > 0 ? `${((a / b) * 100).toFixed(1)}%` : "—");
+  const meetingReplies = replies["meeting"] ?? 0;
+  const body =
+    `Signal Pitcher — outreach scorecard, last 7 days\n\n` +
+    `Sent:        ${sent}\n` +
+    `Delivered:   ${ev["delivered"] ?? 0}\n` +
+    `Opened:      ${ev["opened"] ?? 0} (${pct(ev["opened"] ?? 0, sent)} of sent)\n` +
+    `Clicked:     ${ev["clicked"] ?? 0}\n` +
+    `Bounced:     ${bounced}\n\n` +
+    `Replies:     ${totalReplies} (${pct(totalReplies, sent)} reply rate)\n` +
+    `  meeting/positive: ${meetingReplies} (${pct(meetingReplies, sent)} of sent)\n` +
+    `  unsubscribe:      ${replies["unsubscribe"] ?? 0}\n` +
+    `  out-of-office:    ${replies["ooo"] ?? 0}\n` +
+    `  other:            ${replies["other"] ?? 0}\n\n` +
+    `Replies by step:\n` +
+    ((stepRs.results ?? []).length
+      ? (stepRs.results ?? []).map((s) => `  step ${s.step}: ${s.n}`).join("\n")
+      : `  (none)`) +
+    `\n\nNote: open/click counts are only populated if tracking is enabled on the Resend domain.`;
+
+  await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: `${env.SENDER_NAME} <${env.SENDER_EMAIL}>`,
+      to: "brandon@signaladvise.com",
+      subject: `[Signal Pitcher] Weekly outreach scorecard — ${totalReplies} replies / ${sent} sent`,
+      text: body,
+    }),
+  });
 }
 
 const KEY_LAST_RETENTION = "last_retention_ts";
