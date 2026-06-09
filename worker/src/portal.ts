@@ -1,7 +1,8 @@
 // Client portal: magic-link login, then a live read-only dashboard of the
 // client's contracts, invoices, and monthly spend. Mounted at /portal/* on
 // api.signaladvise.com. Auth is a stateless HMAC-signed token (keyed on
-// ADMIN_SECRET), so email link-scanners cannot consume a one-time login.
+// PORTAL_SIGNING_SECRET, falling back to ADMIN_SECRET until it is set),
+// so email link-scanners cannot consume a one-time login.
 import type { Env } from "./types";
 import { sendViaResend } from "./email";
 
@@ -28,6 +29,23 @@ export async function handlePortal(req: Request, env: Env): Promise<Response> {
 // ---------- auth ----------
 
 async function handleLogin(req: Request, env: Env): Promise<Response> {
+  const ip = req.headers.get("cf-connecting-ip") ?? "unknown";
+
+  // Throttle magic-link sending: max 5 attempts per IP in 15 minutes,
+  // so a known client email can't be used to flood inboxes.
+  const recent = await env.DB.prepare(
+    `SELECT COUNT(*) as n FROM login_attempts
+       WHERE ip = ?1 AND outcome = 'portal_login' AND attempted_at > unixepoch() - 900`,
+  )
+    .bind(ip)
+    .first<{ n: number }>();
+  if (recent && recent.n >= 5) {
+    return loginPage("Too many attempts. Wait 15 minutes and try again.");
+  }
+  await env.DB.prepare(`INSERT INTO login_attempts (ip, outcome) VALUES (?1, 'portal_login')`)
+    .bind(ip)
+    .run();
+
   const form = await req.formData();
   const email = String(form.get("email") ?? "").trim().toLowerCase();
   // Always respond the same way, whether or not the email matches a client.
@@ -103,8 +121,8 @@ async function handleSignup(req: Request, env: Env): Promise<Response> {
     clientId = existing.id;
   } else {
     const ins = await env.DB.prepare(
-      `INSERT INTO clients (company_legal_name, signatory_name, email, notes)
-         VALUES (?1, ?2, ?3, 'Self-service signup via portal')`,
+      `INSERT INTO clients (company_legal_name, signatory_name, email, status, notes)
+         VALUES (?1, ?2, ?3, 'prospect', 'Self-service signup via portal')`,
     )
       .bind(company, name, email)
       .run();
@@ -353,7 +371,7 @@ function html(s: string): Response {
 async function hmacHex(env: Env, msg: string): Promise<string> {
   const key = await crypto.subtle.importKey(
     "raw",
-    new TextEncoder().encode(env.ADMIN_SECRET),
+    new TextEncoder().encode(env.PORTAL_SIGNING_SECRET || env.ADMIN_SECRET),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign"],

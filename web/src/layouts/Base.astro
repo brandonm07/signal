@@ -50,7 +50,7 @@ const canonicalUrl = canonical ?? `${PROD_ORIGIN}${normalizedPath}`;
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content="https://signaladvise.com" />
+    <meta property="og:url" content={canonicalUrl} />
     <meta property="og:site_name" content="Signal Advisory" />
     <meta property="og:image" content="https://signaladvise.com/og-image.jpg" />
     <meta property="og:image:width" content="1200" />

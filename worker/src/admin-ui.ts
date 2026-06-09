@@ -48,6 +48,8 @@ export async function handleAdminUi(req: Request, env: Env): Promise<Response> {
   if (path === "/clients/new" && req.method === "POST") return await handleClientNewSubmit(req, env);
   const cliDetail = path.match(/^\/clients\/(\d+)$/);
   if (cliDetail) return await serveClientDetail(parseInt(cliDetail[1], 10), env);
+  const cliStatus = path.match(/^\/clients\/(\d+)\/status$/);
+  if (cliStatus && req.method === "POST") return await handleClientStatusToggle(parseInt(cliStatus[1], 10), req, env);
 
   if (path === "/contracts") return await serveContractList(env, url.searchParams.get("flash"));
   if (path === "/contracts/new" && req.method === "GET") return await serveContractNewForm(env, url.searchParams.get("err"));
@@ -179,6 +181,8 @@ function layout(title: string, body: string, opts: { flash?: string | null; acti
   .badge.sent{background:#fef3ef;color:#c9462c}
   .badge.paid{background:#e0eddb;color:#2f4a3c}
   .badge.void{background:#e3ddd0;color:#999;text-decoration:line-through}
+  .badge.active{background:#e0eddb;color:#2f4a3c}
+  .badge.prospect{background:#fef3ef;color:#c9462c}
   .actions{display:flex;gap:8px;flex-wrap:wrap}
   .btn{display:inline-block;padding:8px 16px;border-radius:4px;text-decoration:none;font-size:13px;font-weight:500;border:1px solid transparent;cursor:pointer;font-family:inherit}
   .btn.primary{background:#c9462c;color:#faf7f1}
@@ -534,10 +538,11 @@ async function handleInvoiceVoidSubmit(id: number, env: Env): Promise<Response> 
 async function serveClientList(env: Env): Promise<Response> {
   const rows = await env.DB.prepare(`SELECT * FROM clients ORDER BY company_legal_name ASC`).all<ClientRow>();
   const tableRows = rows.results.length === 0
-    ? `<tr><td colspan="4"><div class="empty">No clients yet. <a href="/admin/ui/clients/new">Add your first client</a>.</div></td></tr>`
+    ? `<tr><td colspan="5"><div class="empty">No clients yet. <a href="/admin/ui/clients/new">Add your first client</a>.</div></td></tr>`
     : rows.results.map((c) => `
         <tr>
           <td><a href="/admin/ui/clients/${c.id}">${esc(c.company_legal_name)}</a></td>
+          <td><span class="badge ${esc(c.status)}">${esc(c.status)}</span></td>
           <td>${esc(c.email)}</td>
           <td>${esc(c.city) || "—"}${c.state ? ", " + esc(c.state) : ""}</td>
           <td class="mono">${esc(c.stripe_customer_id) || "—"}</td>
@@ -549,7 +554,7 @@ async function serveClientList(env: Env): Promise<Response> {
       <a href="/admin/ui/clients/new" class="btn primary">+ New client</a>
     </div>
     <table>
-      <thead><tr><th>Company</th><th>Email</th><th>Location</th><th>Stripe Customer</th></tr></thead>
+      <thead><tr><th>Company</th><th>Status</th><th>Email</th><th>Location</th><th>Stripe Customer</th></tr></thead>
       <tbody>${tableRows}</tbody>
     </table>
   `;
@@ -577,6 +582,12 @@ async function serveClientDetail(clientId: number, env: Env): Promise<Response> 
     <div class="card">
       <p class="card-title">Contact</p>
       <div class="meta-grid">
+        <div class="label-cell">Status</div><div>
+          <span class="badge ${esc(client.status)}">${esc(client.status)}</span>
+          <form method="POST" action="/admin/ui/clients/${client.id}/status" style="display:inline;margin-left:8px">
+            <button class="btn secondary" style="padding:3px 10px;font-size:12px">Mark ${client.status === "prospect" ? "active" : "prospect"}</button>
+          </form>
+        </div>
         <div class="label-cell">Signatory</div><div>${esc(client.signatory_name) || "—"}${client.signatory_title ? ", " + esc(client.signatory_title) : ""}</div>
         <div class="label-cell">Email</div><div><a href="mailto:${esc(client.email)}">${esc(client.email)}</a></div>
         <div class="label-cell">Phone</div><div>${esc(client.phone) || "—"}</div>
@@ -593,6 +604,18 @@ async function serveClientDetail(clientId: number, env: Env): Promise<Response> 
     <div style="margin-top:16px"><a href="/admin/ui/invoices/new" class="btn primary">+ New invoice for ${esc(client.company_legal_name)}</a></div>
   `;
   return html(layout(client.company_legal_name, body, { activeNav: "clients" }));
+}
+
+async function handleClientStatusToggle(clientId: number, req: Request, env: Env): Promise<Response> {
+  await env.DB.prepare(
+    `UPDATE clients
+        SET status = CASE status WHEN 'prospect' THEN 'active' ELSE 'prospect' END,
+            updated_at = unixepoch()
+      WHERE id = ?1`,
+  )
+    .bind(clientId)
+    .run();
+  return Response.redirect(new URL(req.url).origin + `/admin/ui/clients/${clientId}`, 302);
 }
 
 async function serveClientNewForm(err: string | null): Promise<Response> {

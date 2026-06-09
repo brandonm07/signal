@@ -39,6 +39,7 @@ export interface ClientRow {
   msa_signed_at: number | null;
   msa_doc_url: string | null;
   notes: string | null;
+  status: string;
   created_at: number;
   updated_at: number;
 }

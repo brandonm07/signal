@@ -21,6 +21,9 @@ export interface Env {
   ANTHROPIC_API_KEY: string;
   DRAFT_MODE: string; // "1" = create drafts, "0" = auto-send
   ADMIN_SECRET: string;
+  // Dedicated HMAC key for portal sessions/magic links. Falls back to
+  // ADMIN_SECRET until set: wrangler secret put PORTAL_SIGNING_SECRET
+  PORTAL_SIGNING_SECRET?: string;
   RESEND_WEBHOOK_SECRET?: string;
   STRIPE_SECRET_KEY: string;
   STRIPE_WEBHOOK_SECRET: string;
