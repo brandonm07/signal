@@ -56,12 +56,6 @@ const steps = [
   { n: '03', t: 'You decide whether the savings justify next steps' },
 ];
 
-const proof = [
-  { metric: '$94,000', label: 'annual savings, year one' },
-  { metric: '6 → 1', label: 'vendor relationships consolidated' },
-  { metric: '23%', label: 'telecom spend reduction' },
-];
-
 const faqSchema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -71,7 +65,7 @@ const faqSchema = {
       name: 'What does an independent technology broker do?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'An independent technology broker represents the buyer in technology purchasing decisions. We inventory every contract a business has, including internet, phone, mobile, cloud, and security, then put providers in competition for the renewal. The result is lower cost, better contract terms, and fewer vendors to manage. We are carrier neutral by design rather than tied to any one provider, and we disclose how we are compensated in writing.',
+        text: 'An independent technology broker represents the buyer in technology purchasing decisions. We inventory every contract a business has, including internet, phone, mobile, cloud, and security, then put providers in competition for the renewal. The result is lower cost, better contract terms, and fewer vendors to manage. We are carrier neutral by design rather than tied to any one provider.',
       },
     },
     {
@@ -163,7 +157,6 @@ const jsonLd = [faqSchema, ...serviceSchema];
     </div>
     <p class="mt-10 text-sm text-stone leading-relaxed max-w-2xl">
       25+ years inside major U.S. technology providers. Carrier neutral by design.
-      <a href="/how-we-get-paid" class="underline hover:text-ink">See how we get paid.</a>
       Based in Kansas City, serving clients nationwide.
     </p>
   </section>
@@ -207,26 +200,6 @@ const jsonLd = [faqSchema, ...serviceSchema];
   </section>
 
   <!-- Proof -->
-  <section class="border-t border-ink/10 py-24">
-    <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Proof</p>
-      <h2 class="display mb-16 max-w-3xl text-3xl font-normal leading-tight md:text-4xl">
-        Numbers you can defend in a budget meeting.
-      </h2>
-      <div class="grid gap-8 md:grid-cols-3">
-        {proof.map((p) => (
-          <div class="border-t border-ink/10 pt-8">
-            <p class="display text-5xl font-medium text-signal mb-3">{p.metric}</p>
-            <p class="text-ink/70 text-sm leading-relaxed">{p.label}</p>
-          </div>
-        ))}
-      </div>
-      <p class="mt-12 text-sm text-stone italic">
-        Engagement profiles representative of mid-market work. References available on request.
-      </p>
-    </div>
-  </section>
-
   <!-- Final CTA -->
   <section id="contact" class="border-t border-ink/10 bg-ink py-24 text-paper">
     <div class="container mx-auto max-w-3xl px-6 text-center md:px-10">
@@ -247,18 +220,6 @@ const jsonLd = [faqSchema, ...serviceSchema];
       <p class="mt-6 text-sm text-paper/60">
         Or email <a href="mailto:info@signaladvise.com" class="underline text-paper/80">info@signaladvise.com</a> · 816.355.3350
       </p>
-    </div>
-  </section>
-
-  <!-- Trust bar -->
-  <section class="border-t border-ink/10 py-12">
-    <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <div class="grid gap-6 text-sm md:grid-cols-4">
-        <a href="/how-we-get-paid" class="border-t border-ink/10 pt-4 text-ink/75 hover:text-signal leading-relaxed">Carrier neutral, disclosed compensation</a>
-        <a href="/security" class="border-t border-ink/10 pt-4 text-ink/75 hover:text-signal leading-relaxed">Your data handled under NDA and documented security practices</a>
-        <a href="/services" class="border-t border-ink/10 pt-4 text-ink/75 hover:text-signal leading-relaxed">No long term lock-in on advisory work</a>
-        <a href="/services#guarantee" class="border-t border-ink/10 pt-4 text-ink/75 hover:text-signal leading-relaxed">If we can't find $250/month in savings, the review is free</a>
-      </div>
     </div>
   </section>
 

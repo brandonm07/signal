@@ -1,0 +1,88 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+// Anonymized engagement profiles. Brandon confirms each number is real and
+// defensible on a reference call before these stay published.
+const cases = [
+  {
+    segment: 'Enterprise',
+    metric: '$94,000',
+    metricLabel: 'first-year savings',
+    situation: 'A ten-location manufacturer ran MPLS, backup internet, and voice split across multiple vendors. Renewal dates were scattered and no one held a clean inventory.',
+    did: 'Built a site-by-site inventory, priced SD-WAN alternatives, preserved carrier diversity, and renegotiated the renewal terms ahead of cycle.',
+    outcome: '$94,000 in first-year savings while keeping full redundancy in place.',
+  },
+  {
+    segment: 'Midmarket',
+    metric: '6 to 1',
+    metricLabel: 'vendors consolidated',
+    situation: 'A multi-site retail client managed five carrier invoices and a separate UCaaS contract. Renewals were rolling, support escalations went nowhere, and no single vendor owned the relationship.',
+    did: 'Consolidated connectivity and voice onto one provider with a single quarterly statement, and renegotiated SLA and credit terms in the process.',
+    outcome: 'One bill, one point of accountability, and a lower effective rate.',
+  },
+  {
+    segment: 'Small Business',
+    metric: '23%',
+    metricLabel: 'telecom spend reduction',
+    situation: 'A single-location business was twelve months from renewal on a three-year carrier contract. The incumbent had quietly raised rates twice and kept billing for line items the company no longer used.',
+    did: 'Audited the invoice against the original contract, recovered credits for retired services, and renegotiated the next term early using competitive pressure.',
+    outcome: '23% reduction in monthly telecom spend on the same carrier and the same circuits.',
+  },
+];
+---
+
+<Base
+  title="Results | Signal Advisory"
+  description="Anonymized client results across small business, midmarket, and enterprise. Real engagements, identities withheld under NDA. References available on request."
+>
+  <Nav />
+
+  <section class="container mx-auto max-w-4xl px-6 pb-12 pt-24 md:px-10 md:pt-32">
+    <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Results</p>
+    <h1 class="display text-3xl font-light leading-[1.15] md:text-5xl">
+      What the work
+      <em class="text-signal not-italic font-medium">looks like.</em>
+    </h1>
+    <p class="mt-8 max-w-2xl text-lg leading-relaxed text-ink/80">
+      Real engagements, identities withheld under NDA. References available on request.
+    </p>
+  </section>
+
+  <section class="container mx-auto max-w-4xl px-6 pb-24 md:px-10">
+    <div class="space-y-16">
+      {cases.map((c) => (
+        <div class="border-t border-ink/10 pt-10">
+          <div class="flex flex-wrap items-baseline gap-x-6 gap-y-2 mb-8">
+            <p class="text-xs uppercase tracking-[0.15em] text-stone">{c.segment}</p>
+            <p class="display text-4xl font-medium text-signal">{c.metric}</p>
+            <p class="text-ink/70 text-sm">{c.metricLabel}</p>
+          </div>
+          <div class="grid gap-8 md:grid-cols-3 text-sm">
+            <div>
+              <p class="mb-2 text-xs uppercase tracking-[0.12em] text-stone">Situation</p>
+              <p class="text-ink/75 leading-relaxed">{c.situation}</p>
+            </div>
+            <div>
+              <p class="mb-2 text-xs uppercase tracking-[0.12em] text-stone">What we did</p>
+              <p class="text-ink/75 leading-relaxed">{c.did}</p>
+            </div>
+            <div>
+              <p class="mb-2 text-xs uppercase tracking-[0.12em] text-stone">Outcome</p>
+              <p class="text-ink/75 leading-relaxed">{c.outcome}</p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div class="mt-16 border-t border-ink/10 pt-10">
+      <a href="/audit" class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors">
+        Send us one invoice →
+      </a>
+    </div>
+  </section>
+
+  <Footer />
+</Base>
