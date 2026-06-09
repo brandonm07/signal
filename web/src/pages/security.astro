@@ -1,0 +1,52 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+// Lines gated on Brandon's confirmation are held out of `points` until verified:
+//  - encryption tooling specifics
+//  - E&O insurance certificate
+//  - SOC 2 (omitted entirely until an audit is actually engaged)
+const points = [
+  'All client work is covered by a mutual NDA, available before any document changes hands.',
+  'Client documents are stored in access-controlled systems, encrypted at rest and in transit.',
+  'We never sell, share, or use client data for any purpose other than the engagement.',
+  'Data is returned or destroyed at the end of an engagement on request.',
+];
+---
+
+<Base
+  title="Security and data handling | Signal Advisory LLC"
+  description="How Signal Advisory handles client invoices, contracts, and account data: mutual NDA, access-controlled and encrypted storage, and data returned or destroyed on request."
+>
+  <Nav />
+
+  <section class="container mx-auto max-w-3xl px-6 pb-12 pt-24 md:px-10 md:pt-32">
+    <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Trust</p>
+    <h1 class="display text-4xl font-light leading-[1.1] md:text-5xl">
+      Security and <em class="text-signal not-italic font-medium">data handling.</em>
+    </h1>
+    <p class="mt-8 text-lg leading-relaxed text-ink/80">
+      You are trusting us with invoices, contracts, and account data. Here is how we treat it.
+    </p>
+  </section>
+
+  <section class="container mx-auto max-w-3xl px-6 pb-24 md:px-10">
+    <ul class="space-y-5">
+      {points.map((p) => (
+        <li class="flex gap-3 border-t border-ink/10 pt-5 text-ink/80 leading-relaxed">
+          <span class="text-signal font-semibold">·</span>
+          <span>{p}</span>
+        </li>
+      ))}
+    </ul>
+
+    <div class="mt-14 border-t border-ink/10 pt-10">
+      <a href="/audit" class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors">
+        Send us one invoice →
+      </a>
+    </div>
+  </section>
+
+  <Footer />
+</Base>
