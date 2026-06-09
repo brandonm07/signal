@@ -12,6 +12,7 @@ import {
   handleStripeWebhook,
 } from "./invoices";
 import { handleAdminUi } from "./admin-ui";
+import { handlePortal } from "./portal";
 import { SEQUENCE_STEPS } from "./sequence";
 
 export default {
@@ -52,6 +53,10 @@ export default {
     }
     if (url.pathname === "/health") {
       return new Response("ok", { status: 200 });
+    }
+    // --- Client portal (magic-link auth, read-only dashboard) ---
+    if (url.pathname === "/portal" || url.pathname.startsWith("/portal/")) {
+      return handlePortal(req, env);
     }
     if (url.pathname === "/webhook/resend" && req.method === "POST") {
       return handleResendWebhook(req, env);

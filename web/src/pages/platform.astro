@@ -1,0 +1,75 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+const features = [
+  {
+    title: 'A live dashboard, not a quarterly PDF',
+    body: 'Every client gets a secure login. Sign in any time and see exactly what you pay for, what it costs, and what is coming up. No waiting on a review cycle.',
+  },
+  {
+    title: 'Contract inventory',
+    body: 'Every provider, every service, every monthly cost, and every renewal date in one view. Most teams cannot produce this in under an hour. Yours stays current.',
+  },
+  {
+    title: 'Renewal countdown',
+    body: 'See what is expiring and when, with a countdown on every contract. We start renewals six to nine months out, so the carrier never sets the terms by default.',
+  },
+  {
+    title: 'Invoices in one place',
+    body: 'Every invoice we handle, with status and amount, in a single list. No more digging through email to find what was billed.',
+  },
+  {
+    title: 'Monthly and annualized spend',
+    body: 'Know what you are paying at a glance, monthly and annualized, so the number is never a surprise in a budget meeting.',
+  },
+];
+---
+
+<Base
+  title="The Signal Advisory platform | Live client dashboard"
+  description="Every Signal Advisory engagement runs on a live client dashboard: contract inventory, renewal countdowns, invoices, and monthly spend in one secure login. Software underneath, advisors on top."
+>
+  <Nav />
+
+  <section class="container mx-auto max-w-4xl px-6 pb-12 pt-24 md:px-10 md:pt-32">
+    <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">The platform</p>
+    <h1 class="display text-3xl font-light leading-[1.15] md:text-5xl">
+      Software underneath.
+      <em class="text-signal not-italic font-medium">Advisors on top.</em>
+    </h1>
+    <p class="mt-8 max-w-2xl text-lg leading-relaxed text-ink/80">
+      Every engagement runs on a live client dashboard. You get a login, not a quarterly
+      report. The platform keeps your inventory current and your renewals on the calendar.
+      The advisor does the auditing, the disputes, and the negotiating.
+    </p>
+    <div class="mt-10">
+      <a href="https://api.signaladvise.com/portal" class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors">
+        Client sign in →
+      </a>
+    </div>
+  </section>
+
+  <section class="container mx-auto max-w-4xl px-6 pb-24 md:px-10">
+    <div class="space-y-10">
+      {features.map((f) => (
+        <div class="border-t border-ink/10 pt-8">
+          <h2 class="display text-2xl font-medium mb-3">{f.title}</h2>
+          <p class="text-ink/75 leading-relaxed">{f.body}</p>
+        </div>
+      ))}
+    </div>
+
+    <div class="mt-14 border-t border-ink/10 pt-10">
+      <p class="text-ink/70 leading-relaxed mb-6">
+        Not a client yet? Start with a free invoice review and we will build your inventory from the first bill.
+      </p>
+      <a href="/audit" class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors">
+        Send us one invoice →
+      </a>
+    </div>
+  </section>
+
+  <Footer />
+</Base>
