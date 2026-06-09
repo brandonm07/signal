@@ -16,6 +16,8 @@ export async function handlePortal(req: Request, env: Env): Promise<Response> {
 
   if (path === "/portal" && req.method === "GET") return loginPage(null);
   if (path === "/portal/login" && req.method === "POST") return handleLogin(req, env);
+  if (path === "/portal/signup" && req.method === "GET") return signupPage(null);
+  if (path === "/portal/signup" && req.method === "POST") return handleSignup(req, env);
   if (path === "/portal/auth" && req.method === "GET") return handleAuth(url, env);
   if (path === "/portal/logout") return logout();
   if (path === "/portal/dashboard" && req.method === "GET") return dashboard(req, env);
@@ -36,28 +38,96 @@ async function handleLogin(req: Request, env: Env): Promise<Response> {
       .bind(email)
       .first<{ id: number; company_legal_name: string }>();
     if (client) {
-      const token = await signToken(env, { cid: client.id, exp: nowSec() + MAGIC_TTL });
-      const link = `${HOST}/portal/auth?t=${encodeURIComponent(token)}`;
-      await sendViaResend(
-        {
-          from: `${env.SENDER_NAME} <${env.SENDER_EMAIL}>`,
-          to: email,
-          reply_to: env.REPLY_TO,
-          subject: "Your Signal Advisory dashboard link",
-          text:
-            `Here is your secure login link for the Signal Advisory client dashboard:\n\n${link}\n\n` +
-            `This link is good for 15 minutes. If you did not request it, ignore this email.`,
-          html:
-            `<p>Here is your secure login link for the Signal Advisory client dashboard:</p>` +
-            `<p><a href="${link}">Open my dashboard</a></p>` +
-            `<p style="color:#888;font-size:12px">This link is good for 15 minutes. If you did not request it, ignore this email.</p>`,
-          headers: {},
-        },
-        env.RESEND_API_KEY,
-      );
+      await sendMagicLink(env, client.id, email);
     }
   }
   return loginPage("If that email is on file, a login link is on its way. Check your inbox.");
+}
+
+async function sendMagicLink(env: Env, clientId: number, email: string): Promise<void> {
+  const token = await signToken(env, { cid: clientId, exp: nowSec() + MAGIC_TTL });
+  const link = `${HOST}/portal/auth?t=${encodeURIComponent(token)}`;
+  await sendViaResend(
+    {
+      from: `${env.SENDER_NAME} <${env.SENDER_EMAIL}>`,
+      to: email,
+      reply_to: env.REPLY_TO,
+      subject: "Your Signal Advisory dashboard link",
+      text:
+        `Here is your secure login link for the Signal Advisory client dashboard:\n\n${link}\n\n` +
+        `This link is good for 15 minutes. If you did not request it, ignore this email.`,
+      html:
+        `<p>Here is your secure login link for the Signal Advisory client dashboard:</p>` +
+        `<p><a href="${link}">Open my dashboard</a></p>` +
+        `<p style="color:#888;font-size:12px">This link is good for 15 minutes. If you did not request it, ignore this email.</p>`,
+      headers: {},
+    },
+    env.RESEND_API_KEY,
+  );
+}
+
+async function handleSignup(req: Request, env: Env): Promise<Response> {
+  const ip = req.headers.get("cf-connecting-ip") ?? "unknown";
+
+  // Open endpoint that creates rows and sends email: max 5 attempts per IP
+  // in 15 minutes, tracked in the same login_attempts table the admin uses.
+  const recent = await env.DB.prepare(
+    `SELECT COUNT(*) as n FROM login_attempts
+       WHERE ip = ?1 AND outcome = 'signup' AND attempted_at > unixepoch() - 900`,
+  )
+    .bind(ip)
+    .first<{ n: number }>();
+  if (recent && recent.n >= 5) {
+    return signupPage("Too many attempts. Wait 15 minutes and try again.");
+  }
+
+  const form = await req.formData();
+  const company = String(form.get("company") ?? "").trim().slice(0, 200);
+  const name = String(form.get("name") ?? "").trim().slice(0, 120);
+  const email = String(form.get("email") ?? "").trim().toLowerCase().slice(0, 254);
+  if (!company || !name || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    return signupPage("Please fill in your company, your name, and a valid email.");
+  }
+
+  await env.DB.prepare(`INSERT INTO login_attempts (ip, outcome) VALUES (?1, 'signup')`)
+    .bind(ip)
+    .run();
+
+  // If the email is already on file, send a login link instead of creating a
+  // duplicate. The response is identical either way (no account enumeration).
+  const existing = await env.DB.prepare(`SELECT id FROM clients WHERE lower(email) = ?1`)
+    .bind(email)
+    .first<{ id: number }>();
+  let clientId: number;
+  if (existing) {
+    clientId = existing.id;
+  } else {
+    const ins = await env.DB.prepare(
+      `INSERT INTO clients (company_legal_name, signatory_name, email, notes)
+         VALUES (?1, ?2, ?3, 'Self-service signup via portal')`,
+    )
+      .bind(company, name, email)
+      .run();
+    clientId = Number(ins.meta.last_row_id);
+    await sendViaResend(
+      {
+        from: `${env.SENDER_NAME} <${env.SENDER_EMAIL}>`,
+        to: "brandon@signaladvise.com",
+        reply_to: email,
+        subject: `New portal signup: ${company}`,
+        text:
+          `${name} (${email}) created a client account for ${company} via the portal signup page.\n\n` +
+          `Manage at ${HOST}/admin/ui/clients`,
+        html:
+          `<p>${esc(name)} (${esc(email)}) created a client account for <strong>${esc(company)}</strong> via the portal signup page.</p>` +
+          `<p><a href="${HOST}/admin/ui/clients">Open admin portal</a></p>`,
+        headers: {},
+      },
+      env.RESEND_API_KEY,
+    );
+  }
+  await sendMagicLink(env, clientId, email);
+  return signupPage("Check your inbox — your secure login link is on its way.");
 }
 
 async function handleAuth(url: URL, env: Env): Promise<Response> {
@@ -193,8 +263,28 @@ function loginPage(flash: string | null): Response {
         <input type="email" name="email" placeholder="you@company.com" required autofocus>
         <button type="submit">Send my login link</button>
       </form>
+      <p class="alt">New here? <a href="/portal/signup">Create your account</a></p>
     </div>`;
   return html(shell("Sign in", body));
+}
+
+function signupPage(flash: string | null): Response {
+  const msg = flash ? `<div class="flash">${esc(flash)}</div>` : "";
+  const body = `
+    <div class="login">
+      <div class="mark"></div>
+      <h1>Create your account</h1>
+      <p class="sub">Tell us who you are and we will email you a secure login link. No password needed.</p>
+      ${msg}
+      <form method="POST" action="/portal/signup">
+        <input type="text" name="company" placeholder="Company legal name" maxlength="200" required autofocus>
+        <input type="text" name="name" placeholder="Your name" maxlength="120" required>
+        <input type="email" name="email" placeholder="you@company.com" required>
+        <button type="submit">Create account</button>
+      </form>
+      <p class="alt">Already have an account? <a href="/portal">Sign in</a></p>
+    </div>`;
+  return html(shell("Create account", body));
 }
 
 function shell(title: string, body: string): string {
@@ -241,6 +331,8 @@ function shell(title: string, body: string): string {
   .login input:focus{outline:none;border-color:#c9462c}
   .login button{width:100%;padding:12px;background:#c9462c;color:#fff;border:0;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer}
   .login button:hover{background:#1a1f24}
+  .login .alt{font-size:13px;color:#7a7067;margin:16px 0 0;text-align:center}
+  .login .alt a{color:#c9462c}
   .flash{background:#e0eddb;border:1px solid #b5cba6;color:#2f4a3c;padding:11px 14px;border-radius:6px;margin-bottom:16px;font-size:14px}
 </style></head><body><div class="wrap">${body}</div></body></html>`;
 }
