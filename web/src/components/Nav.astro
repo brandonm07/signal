@@ -12,7 +12,17 @@
     </a>
 
     <!-- Desktop nav -->
-    <ul class="hidden gap-8 text-sm md:flex">
+    <ul class="hidden items-center gap-8 text-sm md:flex">
+      <li class="group relative">
+        <button class="hover:text-signal cursor-default">Who we serve</button>
+        <div class="invisible absolute left-0 top-full z-10 w-52 pt-3 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
+          <ul class="rounded-sm border border-ink/10 bg-paper py-2 shadow-lg">
+            <li><a href="/small-business" class="block px-4 py-2 hover:bg-ink/5 hover:text-signal">Small Business</a></li>
+            <li><a href="/midmarket" class="block px-4 py-2 hover:bg-ink/5 hover:text-signal">Midmarket</a></li>
+            <li><a href="/enterprise" class="block px-4 py-2 hover:bg-ink/5 hover:text-signal">Enterprise</a></li>
+          </ul>
+        </div>
+      </li>
       <li><a href="/services" class="hover:text-signal">Services</a></li>
       <li><a href="/blog" class="hover:text-signal">Insights</a></li>
       <li><a href="/tools" class="hover:text-signal">Tools</a></li>
@@ -41,7 +51,11 @@
   <!-- Mobile menu -->
   <div id="nav-mobile" class="md:hidden hidden mt-6 pb-4">
     <ul class="flex flex-col gap-5 text-base border-t border-ink/10 pt-5">
-      <li><a href="/services" class="block hover:text-signal">Services</a></li>
+      <li class="text-xs uppercase tracking-[0.15em] text-stone">Who we serve</li>
+      <li><a href="/small-business" class="block pl-3 hover:text-signal">Small Business</a></li>
+      <li><a href="/midmarket" class="block pl-3 hover:text-signal">Midmarket</a></li>
+      <li><a href="/enterprise" class="block pl-3 hover:text-signal">Enterprise</a></li>
+      <li class="border-t border-ink/10 pt-4"><a href="/services" class="block hover:text-signal">Services</a></li>
       <li><a href="/blog" class="block hover:text-signal">Insights</a></li>
       <li><a href="/tools" class="block hover:text-signal">Tools</a></li>
       <li><a href="/audit" class="block hover:text-signal">Free audit</a></li>

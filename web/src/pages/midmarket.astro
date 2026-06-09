@@ -1,0 +1,67 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Base
+  title="Midmarket vendor consolidation and telecom expense management | Signal Advisory"
+  description="Vendor consolidation and telecom expense management for midmarket companies, 50 to 1,000 employees and multiple locations. Monthly invoice auditing, renewal management, one point of accountability."
+>
+  <Nav />
+
+  <section class="container mx-auto max-w-4xl px-6 pb-12 pt-24 md:px-10 md:pt-32">
+    <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Midmarket · 50 to 1,000 employees</p>
+    <h1 class="display text-3xl font-light leading-[1.15] md:text-5xl">
+      Six vendors, one of you.
+      <em class="text-signal not-italic font-medium">Let's flip that ratio.</em>
+    </h1>
+  </section>
+
+  <section class="container mx-auto max-w-3xl px-6 pb-8 md:px-10">
+    <div class="space-y-10">
+      <div class="border-t border-ink/10 pt-8">
+        <h2 class="display text-2xl font-medium mb-3">Vendor consolidation</h2>
+        <p class="text-ink/75 leading-relaxed">
+          Most midmarket companies carry four to six providers across internet, phone, mobile, and cloud. The sprawl is expensive, slow, and obscures where the money actually goes. We consolidate where it pays and preserve separation where redundancy matters.
+        </p>
+        <p class="text-ink/75 leading-relaxed mt-4">
+          Every midmarket engagement starts with the single-page inventory: every provider, every monthly cost, every renewal date, every account contact. Most IT teams cannot produce this in under an hour. Ours updates itself monthly.
+        </p>
+      </div>
+      <div class="border-t border-ink/10 pt-8">
+        <h2 class="display text-2xl font-medium mb-3">Telecom expense management</h2>
+        <p class="text-ink/75 leading-relaxed">
+          Every invoice, audited against every contract, every month. Billing errors are disputed and tracked to credit. Unused services are retired. Renewals are run like a procurement department, started six to nine months out with a competitive baseline already built.
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-14 border-t border-ink/10 pt-10">
+      <p class="mb-6 text-xs uppercase tracking-[0.2em] text-stone">Pricing</p>
+      <div class="grid gap-6 md:grid-cols-2">
+        <div class="border-2 border-signal p-8">
+          <p class="font-mono text-xs text-stone mb-3">CONTRACT REVIEW</p>
+          <p class="display text-4xl font-medium text-ink mb-2">$2,500<span class="text-xl text-ink/60"> flat</span></p>
+          <p class="text-sm text-ink/60">One renewal, one decision, one defined deliverable. Invoice and contract audit, marked-up agreement with renegotiation targets, competitive baseline, and a strategy session before you sign.</p>
+        </div>
+        <div class="border border-ink/15 p-8">
+          <p class="font-mono text-xs text-stone mb-3">RETAINED</p>
+          <p class="display text-4xl font-medium text-ink mb-2">From $3k<span class="text-xl text-ink/60">/mo</span></p>
+          <p class="text-sm text-ink/60">Ongoing vendor management, multi-site oversight, monthly invoice auditing, renewal calendar management, and quarterly business reviews.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-12 flex flex-wrap gap-4">
+      <a href="https://calendly.com/signaladvise-info/30min" target="_blank" rel="noopener" class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors">
+        Schedule a 30-minute scoping call
+      </a>
+      <a href="/audit" class="inline-block rounded-sm border border-ink/30 px-8 py-4 text-sm font-semibold text-ink hover:bg-ink hover:text-paper transition-colors">
+        Send us one invoice →
+      </a>
+    </div>
+  </section>
+
+  <Footer />
+</Base>

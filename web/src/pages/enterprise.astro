@@ -1,0 +1,60 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+// HOLD UNTIL CERTIFIED: WBE / supplier-diversity line in "Procurement ready".
+// Do not publish until certification is issued.
+---
+
+<Base
+  title="Enterprise telecom expense management and technology sourcing | Signal Advisory"
+  description="Full lifecycle enterprise telecom expense management: inventory, invoice auditing, dispute recovery, sourcing events across 200+ suppliers, and reporting. Per-invoice, per-asset, or contingency pricing."
+>
+  <Nav />
+
+  <section class="container mx-auto max-w-4xl px-6 pb-12 pt-24 md:px-10 md:pt-32">
+    <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Enterprise · 1,000+ employees or 50+ locations</p>
+    <h1 class="display text-3xl font-light leading-[1.15] md:text-5xl">
+      Lifecycle TEM with an advisory layer
+      <em class="text-signal not-italic font-medium">the big platforms don't have.</em>
+    </h1>
+  </section>
+
+  <section class="container mx-auto max-w-3xl px-6 pb-8 md:px-10">
+    <div class="space-y-10">
+      <div class="border-t border-ink/10 pt-8">
+        <h2 class="display text-2xl font-medium mb-3">The model</h2>
+        <p class="text-ink/75 leading-relaxed">
+          We manage the full telecom and technology expense lifecycle: inventory, monthly invoice auditing against contract, dispute filing and recovery, optimization, sourcing events, and implementation oversight. When a sourcing event surfaces, an MPLS to SD-WAN migration, a POTS replacement program, a mobile fleet consolidation, we run the competitive process across 200+ suppliers and the winning supplier pays us, so your management fee stays lean.
+        </p>
+      </div>
+      <div class="border-t border-ink/10 pt-8">
+        <h2 class="display text-2xl font-medium mb-3">Pricing</h2>
+        <p class="text-ink/75 leading-relaxed">
+          Enterprise engagements are priced per invoice, per asset, or on contingency against recovered savings. We will propose the structure that aligns our incentive with your outcome. Contact us for a scoped proposal.
+        </p>
+      </div>
+      <div class="border-t border-ink/10 pt-8">
+        <h2 class="display text-2xl font-medium mb-3">Procurement ready</h2>
+        <p class="text-ink/75 leading-relaxed">
+          NDA, MSA, W-9, and certificate of insurance available on request. Documented data handling practices, detailed on our
+          <a href="/security" class="underline hover:text-ink">security page</a>.
+        </p>
+      </div>
+      <div class="border-t border-ink/10 pt-8">
+        <h2 class="display text-2xl font-medium mb-3">Where we're strongest</h2>
+        <p class="text-ink/75 leading-relaxed">
+          Multi-site distributed enterprises: manufacturing, retail and entertainment, insurance, food and consumer products. If you have 50 locations and 50 invoices, you are exactly who this was built for.
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-14 border-t border-ink/10 pt-10">
+      <a href="mailto:brandon@signaladvise.com?subject=Enterprise%20proposal%20request" class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors">
+        Request an enterprise proposal →
+      </a>
+    </div>
+  </section>
+
+  <Footer />
+</Base>

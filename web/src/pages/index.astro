@@ -26,26 +26,27 @@ const services = [
   },
 ];
 
-const helpWith = [
+const segments = [
   {
-    title: 'Vendor decisions',
-    body: 'Choose the right internet, phone, cloud, mobile, and carrier partners.',
+    name: 'Small Business',
+    size: 'Under 50 employees',
+    body: 'You do not have an IT department. We become the person who reads your telecom bills, kills the junk fees, and picks your vendors so you do not have to. Starts free. Most clients save before they ever pay us.',
+    cta: 'See how it works for small business',
+    href: '/small-business',
   },
   {
-    title: 'Contract negotiations',
-    body: 'Avoid bad renewals, hidden fees, and terms that limit your options.',
+    name: 'Midmarket',
+    size: '50 to 1,000 employees, multiple locations',
+    body: 'Four to six providers, renewals nobody is tracking, and bills nobody reconciles. We consolidate the vendors, audit every invoice monthly, and run your renewals like a procurement department.',
+    cta: 'See how it works for midmarket',
+    href: '/midmarket',
   },
   {
-    title: 'Cost reduction',
-    body: 'Find services you no longer need, pricing that is too high, and billing issues.',
-  },
-  {
-    title: 'Technology planning',
-    body: 'Help leadership and IT make informed decisions before changes are made.',
-  },
-  {
-    title: 'Vendor management',
-    body: 'Reduce confusion, finger-pointing, and unnecessary complexity.',
+    name: 'Enterprise',
+    size: '1,000+ employees or 50+ locations',
+    body: 'Full lifecycle telecom expense management: inventory, invoice auditing, dispute recovery, sourcing events, and reporting your finance team can log into. Contingency and per-asset pricing available.',
+    cta: 'See how it works for enterprise',
+    href: '/enterprise',
   },
 ];
 
@@ -129,51 +130,59 @@ const jsonLd = [faqSchema, ...serviceSchema];
 ---
 
 <Base
-  title="Signal Advisory LLC — Independent Telecom & Technology Cost Advisor, Kansas City"
-  description="Signal Advisory helps businesses pay less for the technology they already buy. We review your internet, phone, cloud, mobile, and carrier contracts and renegotiate the ones that need it."
+  title="Signal Advisory | Managed Technology Expense & Telecom Advisory for Small Business, Midmarket & Enterprise"
+  description="Carrier-neutral telecom expense management and sourcing. Free invoice audit for small business, monthly TEM for midmarket, full lifecycle expense management for enterprise."
   jsonLd={jsonLd}
 >
   <Nav />
 
   <!-- Hero -->
-  <section class="container mx-auto max-w-4xl px-6 pb-12 pt-24 md:px-10 md:pt-32 md:pb-20">
-    <h1 class="display text-3xl font-light leading-[1.15] md:text-5xl lg:text-[3.5rem]">
-      Signal Advisory helps businesses pay less for the
-      <em class="text-signal not-italic font-medium">technology they already buy.</em>
+  <section class="container mx-auto max-w-4xl px-6 pb-12 pt-24 md:px-10 md:pt-32 md:pb-16">
+    <h1 class="display text-3xl font-light leading-[1.15] md:text-5xl lg:text-[3.4rem]">
+      Your technology spend, managed like a Fortune 500 runs it.
+      <em class="text-signal not-italic font-medium">At any size.</em>
     </h1>
     <p class="mt-10 max-w-2xl text-lg leading-relaxed text-ink/80">
-      We review your internet, phone, cloud, mobile, and carrier contracts. We renegotiate
-      the ones that need it. We stay involved through implementation, billing disputes,
-      and the next renewal.
+      Signal Advisory brings 25+ years inside major U.S. carriers to the buyer's side of
+      your technology spend. We find the waste in your internet, phone, mobile, and cloud
+      spend, negotiate the contracts, and stay on the bill every month after.
     </p>
-    <div class="mt-10">
+    <div class="mt-10 flex flex-wrap gap-4">
       <a
         href="/audit"
         class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors"
       >
         Send us one invoice →
       </a>
+      <a
+        href="#who-we-serve"
+        class="inline-block rounded-sm border border-ink/20 px-8 py-4 text-sm font-medium hover:border-ink transition-colors"
+      >
+        Who we serve
+      </a>
     </div>
     <p class="mt-10 text-sm text-stone leading-relaxed max-w-2xl">
       25+ years inside major U.S. technology providers. Carrier neutral by design.
       <a href="/how-we-get-paid" class="underline hover:text-ink">See how we get paid.</a>
-      Based in Kansas City, serving clients across the United States.
+      Based in Kansas City, serving clients nationwide.
     </p>
   </section>
 
-  <!-- What we help with -->
-  <section class="border-t border-ink/10 py-24">
+  <!-- Who we serve -->
+  <section id="who-we-serve" class="border-t border-ink/10 py-24">
     <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">What we help with</p>
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Who we serve</p>
       <h2 class="display mb-16 max-w-3xl text-3xl font-normal leading-tight md:text-4xl">
-        Five categories of decisions.
+        One firm, three doors.
       </h2>
-      <div class="grid gap-x-12 gap-y-10 md:grid-cols-2">
-        {helpWith.map((h) => (
-          <div class="border-t border-ink/10 pt-6">
-            <h3 class="display mb-3 text-xl font-medium">{h.title}</h3>
-            <p class="text-ink/70 leading-relaxed text-[15px]">{h.body}</p>
-          </div>
+      <div class="grid gap-6 md:grid-cols-3">
+        {segments.map((s) => (
+          <a href={s.href} class="group flex flex-col border border-ink/10 p-8 hover:border-signal transition-colors">
+            <h3 class="display text-xl font-medium mb-1">{s.name}</h3>
+            <p class="text-xs uppercase tracking-[0.12em] text-stone mb-5">{s.size}</p>
+            <p class="text-ink/70 leading-relaxed text-[15px] flex-1">{s.body}</p>
+            <p class="mt-6 text-sm font-medium text-signal group-hover:underline">{s.cta} →</p>
+          </a>
         ))}
       </div>
     </div>
@@ -238,6 +247,18 @@ const jsonLd = [faqSchema, ...serviceSchema];
       <p class="mt-6 text-sm text-paper/60">
         Or email <a href="mailto:info@signaladvise.com" class="underline text-paper/80">info@signaladvise.com</a> · 816.355.3350
       </p>
+    </div>
+  </section>
+
+  <!-- Trust bar -->
+  <section class="border-t border-ink/10 py-12">
+    <div class="container mx-auto max-w-5xl px-6 md:px-10">
+      <div class="grid gap-6 text-sm md:grid-cols-4">
+        <a href="/how-we-get-paid" class="border-t border-ink/10 pt-4 text-ink/75 hover:text-signal leading-relaxed">Carrier neutral, disclosed compensation</a>
+        <a href="/security" class="border-t border-ink/10 pt-4 text-ink/75 hover:text-signal leading-relaxed">Your data handled under NDA and documented security practices</a>
+        <a href="/services" class="border-t border-ink/10 pt-4 text-ink/75 hover:text-signal leading-relaxed">No long term lock-in on advisory work</a>
+        <a href="/services#guarantee" class="border-t border-ink/10 pt-4 text-ink/75 hover:text-signal leading-relaxed">If we can't find $250/month in savings, the review is free</a>
+      </div>
     </div>
   </section>
 
