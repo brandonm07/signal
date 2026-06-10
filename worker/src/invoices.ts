@@ -9,9 +9,9 @@ import {
   createCustomer,
   createCheckoutSession,
   retrieveCheckoutSession,
-  retrievePaymentIntent,
   verifyStripeWebhook,
 } from "./stripe";
+import { escapeHtml, notifyOwner, randomHex, sendEmail } from "./shared";
 
 // Customer-facing invoice URLs go on api.signaladvise.com for now (where the
 // worker is bound). If we later add a Cloudflare route for signaladvise.com/i/*
@@ -78,12 +78,6 @@ export interface LineItemRow {
 
 // ---------- helpers ----------
 
-function randomHex(bytes: number): string {
-  const buf = new Uint8Array(bytes);
-  crypto.getRandomValues(buf);
-  return Array.from(buf, (b) => b.toString(16).padStart(2, "0")).join("");
-}
-
 function jsonResponse(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
     status,
@@ -91,20 +85,12 @@ function jsonResponse(data: unknown, status = 200): Response {
   });
 }
 
-function formatMoney(cents: number, currency = "usd"): string {
+export function formatMoney(cents: number, currency = "usd"): string {
   const sign = cents < 0 ? "-" : "";
   const abs = Math.abs(cents);
   const dollars = Math.floor(abs / 100);
   const remainder = abs % 100;
   return `${sign}$${dollars.toLocaleString("en-US")}.${remainder.toString().padStart(2, "0")} ${currency.toUpperCase()}`;
-}
-
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
 }
 
 async function nextInvoiceNumber(env: Env, year: number): Promise<string> {
@@ -321,12 +307,17 @@ export async function handleSendInvoice(invoiceId: number, env: Env): Promise<Re
   const html = invoiceEmailHtml(inv, client, viewUrl);
   const text = invoiceEmailText(inv, client, viewUrl);
 
-  await sendBrandedEmail(env, {
+  // Only mark the invoice 'sent' if the email actually went out — otherwise
+  // the books would say "sent" while the client never received anything.
+  const delivered = await sendEmail(env, {
     to: client.email,
     subject: `Invoice ${inv.invoice_number} from Signal Advisory · ${formatMoney(inv.total_cents)} due`,
     html,
     text,
   });
+  if (!delivered) {
+    return jsonResponse({ error: "email send failed — invoice NOT marked sent, retry" }, 502);
+  }
 
   await env.DB.batch([
     env.DB.prepare(
@@ -548,24 +539,24 @@ async function handleCheckoutSucceeded(
     .bind(inv.client_id)
     .first<ClientRow>();
   if (client) {
-    // Branded receipt to client
-    await sendBrandedEmail(env, {
+    // Receipt + owner notification are best-effort: the payment is already
+    // recorded, and failing the webhook would only make Stripe re-deliver an
+    // event we've marked processed.
+    await sendEmail(env, {
       to: client.email,
       subject: `Payment received — Invoice ${inv.invoice_number}`,
       text: receiptEmailText(inv, client),
       html: receiptEmailHtml(inv, client),
     });
-    // Notification to Brandon
-    await sendBrandedEmail(env, {
-      to: "brandon@signaladvise.com",
-      subject: `💰 Invoice ${inv.invoice_number} paid — ${formatMoney(inv.total_cents)}`,
-      text:
-        `Payment received.\n\n` +
+    await notifyOwner(
+      env,
+      `💰 Invoice ${inv.invoice_number} paid — ${formatMoney(inv.total_cents)}`,
+      `Payment received.\n\n` +
         `Invoice: ${inv.invoice_number}\n` +
         `Client: ${client.company_legal_name} (${client.email})\n` +
         `Amount: ${formatMoney(inv.total_cents)}\n` +
         `Stripe PI: ${paymentIntentId ?? "n/a"}\n`,
-    });
+    );
   }
 }
 
@@ -576,38 +567,14 @@ async function handleCheckoutFailed(
   const invoiceId = extractInvoiceId(evt);
   if (!invoiceId) return;
   // Notify Brandon. Don't change status; ACH failures may retry.
-  await sendBrandedEmail(env, {
-    to: "brandon@signaladvise.com",
-    subject: `⚠️  Invoice payment failed (invoice id ${invoiceId})`,
-    text: `Stripe reported a payment failure for invoice ${invoiceId}. Check the dashboard for details.`,
-  });
+  await notifyOwner(
+    env,
+    `⚠️  Invoice payment failed (invoice id ${invoiceId})`,
+    `Stripe reported a payment failure for invoice ${invoiceId}. Check the dashboard for details.`,
+  );
 }
 
 // ---------- email helpers ----------
-
-async function sendBrandedEmail(
-  env: Env,
-  msg: { to: string; subject: string; text: string; html?: string },
-): Promise<void> {
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${env.RESEND_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: `${env.SENDER_NAME} <${env.SENDER_EMAIL}>`,
-      to: msg.to,
-      reply_to: env.REPLY_TO,
-      subject: msg.subject,
-      text: msg.text,
-      html: msg.html,
-    }),
-  });
-  if (!res.ok) {
-    console.error("resend send failed", res.status, await res.text());
-  }
-}
 
 function invoiceEmailText(inv: InvoiceRow, client: ClientRow, url: string): string {
   return (

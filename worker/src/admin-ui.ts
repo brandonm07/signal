@@ -12,8 +12,10 @@ import {
   type InvoiceRow,
   type LineItemRow,
 } from "./invoices";
+import { escapeHtml as esc, nowSec, safeEqual, signToken, verifyToken } from "./shared";
 
 const COOKIE_NAME = "sa_admin";
+const SESSION_TTL_SECONDS = 86400; // 24h admin session
 
 // ---------- entry ----------
 
@@ -25,7 +27,7 @@ export async function handleAdminUi(req: Request, env: Env): Promise<Response> {
   if (path === "/login" && req.method === "POST") return await handleLogin(req, env);
   if (path === "/logout") return handleLogout();
 
-  if (!isAuthed(req, env)) {
+  if (!(await isAuthed(req, env))) {
     if (path === "/" || path === "/login") {
       return html(loginPageHtml(url.searchParams.get("err")), 200);
     }
@@ -62,15 +64,15 @@ export async function handleAdminUi(req: Request, env: Env): Promise<Response> {
 
 // ---------- auth ----------
 
-function isAuthed(req: Request, env: Env): boolean {
+// The cookie holds an HMAC-signed, expiring session token — never the admin
+// secret itself. A leaked cookie expires in 24h; the secret never leaves the
+// server side, and rotating ADMIN_SECRET invalidates every session.
+async function isAuthed(req: Request, env: Env): Promise<boolean> {
   const cookies = parseCookies(req.headers.get("cookie"));
-  const provided = cookies[COOKIE_NAME];
-  if (!provided || !env.ADMIN_SECRET) return false;
-  // Constant-time string compare
-  if (provided.length !== env.ADMIN_SECRET.length) return false;
-  let diff = 0;
-  for (let i = 0; i < provided.length; i++) diff |= provided.charCodeAt(i) ^ env.ADMIN_SECRET.charCodeAt(i);
-  return diff === 0;
+  const token = cookies[COOKIE_NAME];
+  if (!token || !env.ADMIN_SECRET) return false;
+  const payload = await verifyToken(env.ADMIN_SECRET, token);
+  return payload?.adm === true;
 }
 
 function parseCookies(header: string | null): Record<string, string> {
@@ -107,14 +109,7 @@ async function handleLogin(req: Request, env: Env): Promise<Response> {
   const provided = String(form.get("secret") ?? "");
 
   // Constant-time compare to avoid timing-based secret extraction.
-  let ok = false;
-  if (provided && env.ADMIN_SECRET && provided.length === env.ADMIN_SECRET.length) {
-    let diff = 0;
-    for (let i = 0; i < provided.length; i++) {
-      diff |= provided.charCodeAt(i) ^ env.ADMIN_SECRET.charCodeAt(i);
-    }
-    ok = diff === 0;
-  }
+  const ok = Boolean(provided && env.ADMIN_SECRET && safeEqual(provided, env.ADMIN_SECRET));
 
   await env.DB.prepare(
     `INSERT INTO login_attempts (ip, outcome) VALUES (?1, ?2)`,
@@ -125,7 +120,11 @@ async function handleLogin(req: Request, env: Env): Promise<Response> {
   if (!ok) {
     return Response.redirect(new URL(req.url).origin + "/admin/ui/?err=Invalid+secret", 302);
   }
-  const cookie = `${COOKIE_NAME}=${encodeURIComponent(provided)}; Path=/admin/ui; HttpOnly; Secure; SameSite=Strict; Max-Age=86400`;
+  const session = await signToken(env.ADMIN_SECRET, {
+    adm: true,
+    exp: nowSec() + SESSION_TTL_SECONDS,
+  });
+  const cookie = `${COOKIE_NAME}=${session}; Path=/admin/ui; HttpOnly; Secure; SameSite=Strict; Max-Age=${SESSION_TTL_SECONDS}`;
   return new Response(null, {
     status: 302,
     headers: {
@@ -247,15 +246,6 @@ function html(body: string, status = 200): Response {
       "cache-control": "no-store, max-age=0",
     },
   });
-}
-
-function esc(s: string | number | null | undefined): string {
-  if (s === null || s === undefined) return "";
-  return String(s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
 }
 
 function money(cents: number, currency = "usd"): string {
@@ -887,5 +877,11 @@ async function handleContractNewSubmit(req: Request, env: Env): Promise<Response
 
 async function handleContractDelete(id: number, env: Env): Promise<Response> {
   await env.DB.prepare(`DELETE FROM client_contracts WHERE id = ?1`).bind(id).run();
-  return Response.redirect("/admin/ui/contracts?flash=" + encodeURIComponent("Contract deleted."), 302);
+  // Response.redirect() requires an absolute URL in the Workers runtime —
+  // a relative path throws a TypeError at request time.
+  return Response.redirect(
+    "https://api.signaladvise.com/admin/ui/contracts?flash=" +
+      encodeURIComponent("Contract deleted."),
+    302,
+  );
 }

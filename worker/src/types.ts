@@ -51,6 +51,13 @@ export interface Lead {
   unsubscribe_token: string;
   resend_message_id: string | null;
   step: number;
+  // Overnight ICP scoring (migration 0009). Null until scored; -1 marks a
+  // scoring error so the nightly job doesn't retry the same bad row forever.
+  lead_score?: number | null;
+  lead_tier?: string | null;
+  score_reason?: string | null;
+  opening_angle?: string | null;
+  scored_at?: number | null;
   created_at: number;
   updated_at: number;
 }

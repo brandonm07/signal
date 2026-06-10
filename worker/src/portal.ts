@@ -4,12 +4,25 @@
 // PORTAL_SIGNING_SECRET, falling back to ADMIN_SECRET until it is set),
 // so email link-scanners cannot consume a one-time login.
 import type { Env } from "./types";
-import { sendViaResend } from "./email";
+import {
+  OWNER_EMAIL,
+  escapeHtml as esc,
+  nowSec,
+  sendEmail,
+  signToken,
+  verifyToken,
+} from "./shared";
 
 const HOST = "https://api.signaladvise.com";
 const COOKIE = "sa_portal";
 const MAGIC_TTL = 15 * 60; // seconds
 const SESSION_TTL = 7 * 24 * 60 * 60; // seconds
+
+// Dedicated HMAC key for portal sessions/magic links, falling back to
+// ADMIN_SECRET until PORTAL_SIGNING_SECRET is set.
+function portalSecret(env: Env): string {
+  return env.PORTAL_SIGNING_SECRET || env.ADMIN_SECRET;
+}
 
 export async function handlePortal(req: Request, env: Env): Promise<Response> {
   const url = new URL(req.url);
@@ -63,25 +76,22 @@ async function handleLogin(req: Request, env: Env): Promise<Response> {
 }
 
 async function sendMagicLink(env: Env, clientId: number, email: string): Promise<void> {
-  const token = await signToken(env, { cid: clientId, exp: nowSec() + MAGIC_TTL });
+  const token = await signToken(portalSecret(env), { cid: clientId, exp: nowSec() + MAGIC_TTL });
   const link = `${HOST}/portal/auth?t=${encodeURIComponent(token)}`;
-  await sendViaResend(
-    {
-      from: `${env.SENDER_NAME} <${env.SENDER_EMAIL}>`,
-      to: email,
-      reply_to: env.REPLY_TO,
-      subject: "Your Signal Advisory dashboard link",
-      text:
-        `Here is your secure login link for the Signal Advisory client dashboard:\n\n${link}\n\n` +
-        `This link is good for 15 minutes. If you did not request it, ignore this email.`,
-      html:
-        `<p>Here is your secure login link for the Signal Advisory client dashboard:</p>` +
-        `<p><a href="${link}">Open my dashboard</a></p>` +
-        `<p style="color:#888;font-size:12px">This link is good for 15 minutes. If you did not request it, ignore this email.</p>`,
-      headers: {},
-    },
-    env.RESEND_API_KEY,
-  );
+  // Best-effort: the login/signup responses are identical whether or not the
+  // email matched a client (no account enumeration), so a Resend failure must
+  // log rather than 500 and break that symmetry.
+  await sendEmail(env, {
+    to: email,
+    subject: "Your Signal Advisory dashboard link",
+    text:
+      `Here is your secure login link for the Signal Advisory client dashboard:\n\n${link}\n\n` +
+      `This link is good for 15 minutes. If you did not request it, ignore this email.`,
+    html:
+      `<p>Here is your secure login link for the Signal Advisory client dashboard:</p>` +
+      `<p><a href="${link}">Open my dashboard</a></p>` +
+      `<p style="color:#888;font-size:12px">This link is good for 15 minutes. If you did not request it, ignore this email.</p>`,
+  });
 }
 
 async function handleSignup(req: Request, env: Env): Promise<Response> {
@@ -127,22 +137,17 @@ async function handleSignup(req: Request, env: Env): Promise<Response> {
       .bind(company, name, email)
       .run();
     clientId = Number(ins.meta.last_row_id);
-    await sendViaResend(
-      {
-        from: `${env.SENDER_NAME} <${env.SENDER_EMAIL}>`,
-        to: "brandon@signaladvise.com",
-        reply_to: email,
-        subject: `New portal signup: ${company}`,
-        text:
-          `${name} (${email}) created a client account for ${company} via the portal signup page.\n\n` +
-          `Manage at ${HOST}/admin/ui/clients`,
-        html:
-          `<p>${esc(name)} (${esc(email)}) created a client account for <strong>${esc(company)}</strong> via the portal signup page.</p>` +
-          `<p><a href="${HOST}/admin/ui/clients">Open admin portal</a></p>`,
-        headers: {},
-      },
-      env.RESEND_API_KEY,
-    );
+    await sendEmail(env, {
+      to: OWNER_EMAIL,
+      replyTo: email,
+      subject: `New portal signup: ${company}`,
+      text:
+        `${name} (${email}) created a client account for ${company} via the portal signup page.\n\n` +
+        `Manage at ${HOST}/admin/ui/clients`,
+      html:
+        `<p>${esc(name)} (${esc(email)}) created a client account for <strong>${esc(company)}</strong> via the portal signup page.</p>` +
+        `<p><a href="${HOST}/admin/ui/clients">Open admin portal</a></p>`,
+    });
   }
   await sendMagicLink(env, clientId, email);
   return signupPage("Check your inbox — your secure login link is on its way.");
@@ -150,11 +155,11 @@ async function handleSignup(req: Request, env: Env): Promise<Response> {
 
 async function handleAuth(url: URL, env: Env): Promise<Response> {
   const token = url.searchParams.get("t") ?? "";
-  const payload = await verifyToken(env, token);
+  const payload = await verifyToken(portalSecret(env), token);
   if (!payload || typeof payload.cid !== "number") {
     return loginPage("That login link is invalid or has expired. Request a new one.");
   }
-  const session = await signToken(env, { cid: payload.cid, exp: nowSec() + SESSION_TTL });
+  const session = await signToken(portalSecret(env), { cid: payload.cid, exp: nowSec() + SESSION_TTL });
   return new Response(null, {
     status: 302,
     headers: {
@@ -178,7 +183,7 @@ async function sessionClientId(req: Request, env: Env): Promise<number | null> {
   const cookies = req.headers.get("cookie") ?? "";
   const m = cookies.match(/(?:^|;\s*)sa_portal=([^;]+)/);
   if (!m) return null;
-  const payload = await verifyToken(env, decodeURIComponent(m[1]));
+  const payload = await verifyToken(portalSecret(env), decodeURIComponent(m[1]));
   return payload && typeof payload.cid === "number" ? payload.cid : null;
 }
 
@@ -366,55 +371,8 @@ function html(s: string): Response {
   });
 }
 
-// ---------- token signing ----------
-
-async function hmacHex(env: Env, msg: string): Promise<string> {
-  const key = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(env.PORTAL_SIGNING_SECRET || env.ADMIN_SECRET),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(msg));
-  return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-async function signToken(env: Env, obj: Record<string, unknown>): Promise<string> {
-  const payload = b64url(JSON.stringify(obj));
-  return `${payload}.${await hmacHex(env, payload)}`;
-}
-
-async function verifyToken(env: Env, token: string): Promise<Record<string, unknown> | null> {
-  const dot = token.lastIndexOf(".");
-  if (dot < 0) return null;
-  const payload = token.slice(0, dot);
-  const sig = token.slice(dot + 1);
-  const expected = await hmacHex(env, payload);
-  if (sig.length !== expected.length) return null;
-  let diff = 0;
-  for (let i = 0; i < sig.length; i++) diff |= sig.charCodeAt(i) ^ expected.charCodeAt(i);
-  if (diff !== 0) return null;
-  try {
-    const obj = JSON.parse(b64urlDecode(payload)) as Record<string, unknown>;
-    if (typeof obj.exp === "number" && obj.exp < nowSec()) return null;
-    return obj;
-  } catch {
-    return null;
-  }
-}
-
 // ---------- small helpers ----------
 
-function nowSec(): number {
-  return Math.floor(Date.now() / 1000);
-}
-function b64url(s: string): string {
-  return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
-function b64urlDecode(s: string): string {
-  return atob(s.replace(/-/g, "+").replace(/_/g, "/"));
-}
 function money(cents: number, currency = "usd"): string {
   return (cents / 100).toLocaleString("en-US", {
     style: "currency",
@@ -425,12 +383,4 @@ function money(cents: number, currency = "usd"): string {
 function fmtDate(epoch: number | null): string {
   if (!epoch) return "-";
   return new Date(epoch * 1000).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
-}
-function esc(s: string | number | null | undefined): string {
-  return String(s ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
 }

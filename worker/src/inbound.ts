@@ -36,14 +36,15 @@ export async function pollInbound(env: Env): Promise<void> {
     }
 
     if (parsed.internalDate <= cursor) continue;
+
+    const lead = await findLeadByEmail(env, extractEmail(parsed.from));
+
     if (parsed.autoSubmitted && parsed.autoSubmitted !== "no") {
       // Likely an automated message. Still log as ooo for visibility.
-      await logReply(env, parsed, "ooo", 0.95, null);
+      await logReply(env, parsed, "ooo", 0.95, null, lead);
       newCursor = Math.max(newCursor, parsed.internalDate);
       continue;
     }
-
-    const lead = await findLeadByEmail(env, extractEmail(parsed.from));
 
     let intent: Intent;
     let confidence: number;
@@ -94,7 +95,7 @@ export async function pollInbound(env: Env): Promise<void> {
     }
     // ooo intent: leave status unchanged — system retries naturally.
 
-    await logReply(env, parsed, intent, confidence, draftId);
+    await logReply(env, parsed, intent, confidence, draftId, lead);
     newCursor = Math.max(newCursor, parsed.internalDate);
   }
 
@@ -160,8 +161,8 @@ async function logReply(
   intent: Intent,
   confidence: number,
   draftId: string | null,
+  lead: Lead | null,
 ): Promise<void> {
-  const lead = await findLeadByEmail(env, extractEmail(parsed.from));
   await env.DB.prepare(
     `INSERT INTO replies
        (lead_id, gmail_message_id, gmail_thread_id, from_email, subject,

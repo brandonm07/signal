@@ -6,6 +6,7 @@
 // duplicate objects.
 
 import type { Env } from "./types";
+import { safeEqual } from "./shared";
 
 const STRIPE_API = "https://api.stripe.com/v1";
 
@@ -82,14 +83,6 @@ export interface CheckoutSession {
   payment_intent: string | null;
 }
 
-export interface PaymentIntent {
-  id: string;
-  status: string;
-  amount: number;
-  amount_received: number;
-  customer: string | null;
-}
-
 export async function createCustomer(
   env: Env,
   args: {
@@ -159,13 +152,6 @@ export async function retrieveCheckoutSession(
   );
 }
 
-export async function retrievePaymentIntent(
-  env: Env,
-  piId: string,
-): Promise<PaymentIntent> {
-  return await stripeRequest<PaymentIntent>(env, "GET", `/payment_intents/${piId}`);
-}
-
 // --- Webhook signature verification (Stripe's variant of HMAC, not svix) ---
 //
 // Header format: `t=<timestamp>,v1=<sig>[,v0=<oldsig>,...]`
@@ -208,12 +194,6 @@ export async function verifyStripeWebhook(
   const expected = Array.from(new Uint8Array(sigBuf))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
-  // Timing-safe-ish compare. Worker's crypto.subtle.timingSafeEqual is not available,
-  // but constant-time comparison via xor accumulation is fine.
-  if (expected.length !== v1.length) return { valid: false, timestamp, reason: "sig length mismatch" };
-  let diff = 0;
-  for (let i = 0; i < expected.length; i++) {
-    diff |= expected.charCodeAt(i) ^ v1.charCodeAt(i);
-  }
-  return { valid: diff === 0, timestamp, reason: diff === 0 ? undefined : "signature mismatch" };
+  const valid = safeEqual(expected, v1);
+  return { valid, timestamp, reason: valid ? undefined : "signature mismatch" };
 }

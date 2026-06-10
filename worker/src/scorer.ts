@@ -2,7 +2,7 @@
 // Advisory ICP using Claude, writes scores back to D1, and emails Brandon a
 // top-N digest. Runs once per day inside the maintenance window.
 import type { Env, Lead } from "./types";
-import { sendViaResend } from "./email";
+import { OWNER_EMAIL, escapeHtml, getState, sendEmail, setState } from "./shared";
 
 const KEY_LAST_SCORE_RUN = "last_score_run_ts";
 const DAY_SECONDS = 24 * 60 * 60;
@@ -144,36 +144,11 @@ async function emailDigest(env: Env): Promise<void> {
   lines.push("Full pipeline: https://api.signaladvise.com/admin/ui/");
   const text = lines.join("\n");
 
-  await sendViaResend(
-    {
-      from: `${env.SENDER_NAME} <${env.SENDER_EMAIL}>`,
-      to: "brandon@signaladvise.com",
-      reply_to: "brandon@signaladvise.com",
-      subject: `Top prospects scored overnight (${top.length})`,
-      text,
-      html: `<pre style="font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.5">${escapeHtml(text)}</pre>`,
-      headers: {},
-    },
-    env.RESEND_API_KEY,
-  );
-}
-
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
-async function getState(env: Env, key: string): Promise<number | null> {
-  const row = await env.DB.prepare(`SELECT value FROM worker_state WHERE key = ?1`)
-    .bind(key)
-    .first<{ value: string }>();
-  return row ? parseInt(row.value, 10) : null;
-}
-
-async function setState(env: Env, key: string, value: number): Promise<void> {
-  await env.DB.prepare(
-    `INSERT INTO worker_state (key, value) VALUES (?1, ?2)
-       ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
-  )
-    .bind(key, String(value))
-    .run();
+  await sendEmail(env, {
+    to: OWNER_EMAIL,
+    replyTo: OWNER_EMAIL,
+    subject: `Top prospects scored overnight (${top.length})`,
+    text,
+    html: `<pre style="font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.5">${escapeHtml(text)}</pre>`,
+  });
 }

@@ -1,10 +1,20 @@
 import type { Lead, Env } from "./types";
 import { SEQUENCE_STEPS } from "./sequence";
+import { escapeHtml } from "./shared";
+
+// Fallbacks for merge tags when a lead row is missing data. Without these a
+// null first_name renders "Hi ," and a null company renders "Following up, "
+// — instant mass-mail tells that tank reply rates and invite spam folders.
+const TEMPLATE_FALLBACKS: Record<string, string> = {
+  first_name: "there",
+  company: "your team",
+};
 
 export function renderTemplate(tpl: string, lead: Lead): string {
   return tpl.replace(/\{\{\s*(\w+)\s*\}\}/g, (_m, key: string) => {
     const v = (lead as unknown as Record<string, unknown>)[key];
-    return v == null ? "" : String(v);
+    if (v != null && String(v).trim() !== "") return String(v);
+    return TEMPLATE_FALLBACKS[key] ?? "";
   });
 }
 
@@ -69,21 +79,39 @@ export function buildEmail(lead: Lead, env: Env): {
   };
 }
 
+// Thrown when Resend rejects a send; carries the HTTP status so callers can
+// distinguish permanent failures (4xx — don't retry) from transient ones
+// (5xx/429/network — safe to retry).
+export class ResendError extends Error {
+  constructor(
+    public status: number,
+    body: string,
+  ) {
+    super(`Resend ${status}: ${body}`);
+    this.name = "ResendError";
+  }
+}
+
 export async function sendViaResend(
   msg: ReturnType<typeof buildEmail>,
   apiKey: string,
+  idempotencyKey?: string,
 ): Promise<{ id: string }> {
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${apiKey}`,
+    "Content-Type": "application/json",
+  };
+  // Resend dedupes requests sharing an Idempotency-Key for 24h, so a queue
+  // retry after a mid-flight crash cannot deliver the same email twice.
+  if (idempotencyKey) headers["Idempotency-Key"] = idempotencyKey;
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
+    headers,
     body: JSON.stringify(msg),
   });
   if (!res.ok) {
     const body = await res.text();
-    throw new Error(`Resend ${res.status}: ${body}`);
+    throw new ResendError(res.status, body);
   }
   const json = (await res.json()) as { id: string };
   return json;
@@ -112,13 +140,4 @@ function sigHtml(): string {
     `<a href="https://signaladvise.com" style="color:#222">signaladvise.com</a>` +
     `</p>`
   );
-}
-
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
 }

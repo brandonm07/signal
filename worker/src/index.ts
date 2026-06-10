@@ -1,7 +1,16 @@
 import type { Env, Lead, QueueJob } from "./types";
-import { buildEmail, sendViaResend } from "./email";
+import { buildEmail, sendViaResend, ResendError } from "./email";
 import { pollInbound } from "./inbound";
 import { runPeriodicMaintenance } from "./health";
+import { nextSequenceState } from "./sequence";
+import {
+  escapeHtml,
+  notifyOwner,
+  randomHex,
+  safeEqual,
+  sendEmail,
+  verifySvix,
+} from "./shared";
 import {
   handleCreateClient,
   handleCreateInvoice,
@@ -13,7 +22,6 @@ import {
 } from "./invoices";
 import { handleAdminUi } from "./admin-ui";
 import { handlePortal } from "./portal";
-import { SEQUENCE_STEPS } from "./sequence";
 
 export default {
   async scheduled(_event: ScheduledController, env: Env, ctx: ExecutionContext) {
@@ -159,53 +167,86 @@ async function processSend(leadId: number, env: Env): Promise<void> {
     .bind(leadId)
     .first<Lead>();
   if (!lead) return;
-  if (lead.status === "unsubscribed") return;
+  // Send only if this lead still holds the claim tick() took ('sending').
+  // This single guard closes three races: a duplicate queue delivery after a
+  // successful send (status already advanced to 'queued'/'completed'), a
+  // retry after a permanent failure (status 'failed'), and an unsubscribe or
+  // bounce that landed between claim and delivery.
+  if (lead.status !== "sending") return;
 
+  const currentStep = lead.step ?? 1;
+
+  // Template assembly failures are permanent — retrying can't fix a missing
+  // template, and an endless retry loop would strand the lead.
+  let msg: ReturnType<typeof buildEmail>;
   try {
-    const msg = buildEmail(lead, env);
-    const resp = await sendViaResend(msg, env.RESEND_API_KEY);
+    msg = buildEmail(lead, env);
+  } catch (err) {
+    await markSendFailed(env, lead.id, err instanceof Error ? err.message : String(err));
+    return;
+  }
 
-    const today = todayInTz(env.SEND_WINDOW_TZ);
-    const currentStep = lead.step ?? 1;
-    const nextStep = currentStep + 1;
-    const nextTpl = SEQUENCE_STEPS[nextStep];
-    // Advance the sequence: if a next step exists, requeue with delay.
-    // If we just sent the final step (4), mark the lead 'completed'.
-    const nextStatus = nextTpl ? "queued" : "completed";
-    const nextScheduledFor = nextTpl
-      ? Math.floor(Date.now() / 1000) + nextTpl.delayDays * 86400
-      : null;
-    await env.DB.batch([
-      env.DB.prepare(
-        `UPDATE leads
-            SET status = ?2, sent_at = unixepoch(),
-                resend_message_id = ?3, step = ?4,
-                scheduled_for = ?5, updated_at = unixepoch()
-          WHERE id = ?1`,
-      ).bind(lead.id, nextStatus, resp.id, nextTpl ? nextStep : currentStep, nextScheduledFor),
-      env.DB.prepare(
-        `INSERT INTO send_log (lead_id, outcome, resend_message_id)
-           VALUES (?1, 'sent', ?2)`,
-      ).bind(lead.id, resp.id),
-      env.DB.prepare(
-        `INSERT INTO daily_counters (day, sent) VALUES (?1, 1)
-           ON CONFLICT(day) DO UPDATE SET sent = sent + 1`,
-      ).bind(today),
-    ]);
+  let resp: { id: string };
+  try {
+    // The idempotency key makes Resend dedupe any repeat of (lead, step) for
+    // 24h — at-most-once delivery even if we crash between send and DB write.
+    resp = await sendViaResend(msg, env.RESEND_API_KEY, `lead-${lead.id}-step-${currentStep}`);
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err);
-    await env.DB.batch([
-      env.DB.prepare(
-        `UPDATE leads
-            SET status = 'failed', error = ?2, updated_at = unixepoch()
-          WHERE id = ?1`,
-      ).bind(lead.id, errMsg),
-      env.DB.prepare(
+    const permanent =
+      err instanceof ResendError && err.status >= 400 && err.status < 500 && err.status !== 429;
+    if (permanent) {
+      // 4xx (bad recipient, invalid payload): retrying cannot succeed.
+      await markSendFailed(env, lead.id, errMsg);
+      return;
+    }
+    // Transient (5xx / 429 / network): log and rethrow so the queue retries.
+    // The lead stays in 'sending'; if retries exhaust into the DLQ, the
+    // maintenance sweeper returns it to 'queued' after an hour.
+    try {
+      await env.DB.prepare(
         `INSERT INTO send_log (lead_id, outcome, error) VALUES (?1, 'error', ?2)`,
-      ).bind(lead.id, errMsg),
-    ]);
+      ).bind(lead.id, errMsg).run();
+    } catch {
+      // Logging must not mask the original failure.
+    }
     throw err;
   }
+
+  const today = todayInTz(env.SEND_WINDOW_TZ);
+  const next = nextSequenceState(currentStep, Math.floor(Date.now() / 1000));
+  await env.DB.batch([
+    env.DB.prepare(
+      `UPDATE leads
+          SET status = ?2, sent_at = unixepoch(),
+              resend_message_id = ?3, step = ?4,
+              scheduled_for = ?5, updated_at = unixepoch()
+        WHERE id = ?1`,
+    ).bind(lead.id, next.status, resp.id, next.step, next.scheduledFor),
+    env.DB.prepare(
+      `INSERT INTO send_log (lead_id, outcome, resend_message_id)
+         VALUES (?1, 'sent', ?2)`,
+    ).bind(lead.id, resp.id),
+    env.DB.prepare(
+      `INSERT INTO daily_counters (day, sent) VALUES (?1, 1)
+         ON CONFLICT(day) DO UPDATE SET sent = sent + 1`,
+    ).bind(today),
+  ]);
+  // If the batch above throws, the queue retries: the lead is still 'sending'
+  // so the guard passes, and the idempotency key turns the repeat Resend call
+  // into a no-op that returns the same message id — the batch then completes.
+}
+
+async function markSendFailed(env: Env, leadId: number, errMsg: string): Promise<void> {
+  await env.DB.batch([
+    env.DB.prepare(
+      `UPDATE leads SET status = 'failed', error = ?2, updated_at = unixepoch()
+        WHERE id = ?1`,
+    ).bind(leadId, errMsg),
+    env.DB.prepare(
+      `INSERT INTO send_log (lead_id, outcome, error) VALUES (?1, 'error', ?2)`,
+    ).bind(leadId, errMsg),
+  ]);
 }
 
 function corsHeaders(): Record<string, string> {
@@ -218,6 +259,24 @@ function corsHeaders(): Record<string, string> {
 }
 
 async function handleAuditIntake(req: Request, env: Env): Promise<Response> {
+  // This endpoint is unauthenticated and triggers outbound email, so it gets
+  // the same IP throttle as the portal: 5 requests per IP per 15 minutes.
+  // Without it, a script could use our domain (and Resend reputation) to
+  // bomb arbitrary inboxes.
+  const ip = req.headers.get("cf-connecting-ip") ?? "unknown";
+  const recent = await env.DB.prepare(
+    `SELECT COUNT(*) as n FROM login_attempts
+       WHERE ip = ?1 AND outcome = 'audit_intake' AND attempted_at > unixepoch() - 900`,
+  )
+    .bind(ip)
+    .first<{ n: number }>();
+  if (recent && recent.n >= 5) {
+    return jsonResponse({ error: "too many requests — try again in 15 minutes" }, 429);
+  }
+  await env.DB.prepare(`INSERT INTO login_attempts (ip, outcome) VALUES (?1, 'audit_intake')`)
+    .bind(ip)
+    .run();
+
   let body: {
     first_name?: string;
     company?: string;
@@ -230,8 +289,12 @@ async function handleAuditIntake(req: Request, env: Env): Promise<Response> {
   } catch {
     return jsonResponse({ error: "bad json" }, 400);
   }
-  const { first_name = "", company = "", email = "", carrier = "", notes = "" } = body;
-  if (!email || !email.includes("@") || !first_name || !company) {
+  const first_name = String(body.first_name ?? "").trim().slice(0, 120);
+  const company = String(body.company ?? "").trim().slice(0, 200);
+  const email = String(body.email ?? "").trim().slice(0, 254);
+  const carrier = String(body.carrier ?? "").trim().slice(0, 200);
+  const notes = String(body.notes ?? "").trim().slice(0, 2000);
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || !first_name || !company) {
     return jsonResponse({ error: "missing required fields" }, 400);
   }
 
@@ -246,23 +309,9 @@ async function handleAuditIntake(req: Request, env: Env): Promise<Response> {
     .bind(first_name, company, email.toLowerCase(), carrier, notes, uploadToken)
     .run();
 
-  // Notify Brandon with the link he can forward.
-  await sendNotification(env, {
-    to: "brandon@signaladvise.com",
-    subject: `New audit request — ${company} (${first_name})`,
-    text:
-      `New invoice audit request from the website:\n\n` +
-      `Name: ${first_name}\n` +
-      `Company: ${company}\n` +
-      `Email: ${email}\n` +
-      `Primary carrier: ${carrier || "—"}\n` +
-      `Notes: ${notes || "—"}\n\n` +
-      `Their upload link (already sent to them automatically):\n${uploadUrl}\n\n` +
-      `You'll get a notification email when they upload.`,
-  });
-
-  // Confirmation to prospect, with the actual upload link.
-  await sendNotification(env, {
+  // Confirmation to prospect with the upload link. This one matters — if it
+  // fails, the prospect has no link, so surface the failure to the form.
+  const prospectOk = await sendEmail(env, {
     to: email,
     subject: `Your invoice audit — upload link inside`,
     text:
@@ -277,13 +326,25 @@ async function handleAuditIntake(req: Request, env: Env): Promise<Response> {
       `brandon@signaladvise.com · 816.355.3350`,
   });
 
-  return jsonResponse({ ok: true }, 200);
-}
+  // Notify Brandon with the link he can forward. Best-effort: the request
+  // already exists in audit_requests either way.
+  await notifyOwner(
+    env,
+    `New audit request — ${company} (${first_name})`,
+    `New invoice audit request from the website:\n\n` +
+      `Name: ${first_name}\n` +
+      `Company: ${company}\n` +
+      `Email: ${email}\n` +
+      `Primary carrier: ${carrier || "—"}\n` +
+      `Notes: ${notes || "—"}\n\n` +
+      `Their upload link${prospectOk ? " (already sent to them automatically)" : " (their copy FAILED to send — forward this manually)"}:\n${uploadUrl}\n\n` +
+      `You'll get a notification email when they upload.`,
+  );
 
-function randomHex(bytes: number): string {
-  const buf = new Uint8Array(bytes);
-  crypto.getRandomValues(buf);
-  return Array.from(buf, (b) => b.toString(16).padStart(2, "0")).join("");
+  if (!prospectOk) {
+    return jsonResponse({ error: "could not send the upload link email" }, 502);
+  }
+  return jsonResponse({ ok: true }, 200);
 }
 
 interface AuditRow {
@@ -304,14 +365,6 @@ async function lookupAudit(env: Env, token: string): Promise<AuditRow | null> {
   )
     .bind(token)
     .first<AuditRow>();
-}
-
-function escapeHtmlMini(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
 }
 
 function uploadPageHtml(opts: { token: string; firstName: string; expired?: boolean; alreadyUploaded?: boolean }): string {
@@ -344,7 +397,7 @@ function uploadPageHtml(opts: { token: string; firstName: string; expired?: bool
     return base + `<div class="done"><h1 style="color:#2f4a3c">✓ Already received</h1><p>Your invoice came through. I'll reply with the marked-up version within one business day.</p><p class="info">— Brandon, Signal Advisory</p></div>` + foot;
   }
   return base + `
-    <h1>Upload your invoice${opts.firstName ? ', ' + escapeHtmlMini(opts.firstName) : ''}</h1>
+    <h1>Upload your invoice${opts.firstName ? ', ' + escapeHtml(opts.firstName) : ''}</h1>
     <p class="sub">Drag in your most recent carrier invoice. PDF, image, CSV, or Excel — up to 20MB. Single-use, encrypted in transit. You'll get the marked-up version back within one business day.</p>
     <form id="f" enctype="multipart/form-data">
       <label class="drop" id="drop">
@@ -464,42 +517,21 @@ async function handleUploadSubmission(
 
   // Notify Brandon with a download link.
   const downloadUrl = `https://api.signaladvise.com/admin/audit/${row.id}/download`;
-  await sendNotification(env, {
-    to: "brandon@signaladvise.com",
-    subject: `Audit upload received — ${row.company} (${row.first_name})`,
-    text:
-      `New invoice uploaded for the audit request from ${row.first_name} at ${row.company}.\n\n` +
+  await notifyOwner(
+    env,
+    `Audit upload received — ${row.company} (${row.first_name})`,
+    `New invoice uploaded for the audit request from ${row.first_name} at ${row.company}.\n\n` +
       `Filename: ${file.name}\n` +
       `Size: ${Math.round(file.size / 1024)} KB\n` +
       `Type: ${file.type || "unknown"}\n\n` +
       `Download (requires admin secret):\n${downloadUrl}\n\n` +
       `Or download from R2 dashboard:\nBucket signal-audit-uploads · Key ${r2Key}\n\n` +
       `Reply to ${row.email} with the marked-up version within one business day.`,
-  });
+  );
 
   return new Response(JSON.stringify({ ok: true }), {
     status: 200,
     headers: { "content-type": "application/json" },
-  });
-}
-
-async function sendNotification(
-  env: Env,
-  msg: { to: string; subject: string; text: string },
-): Promise<void> {
-  await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${env.RESEND_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: `${env.SENDER_NAME} <${env.SENDER_EMAIL}>`,
-      to: msg.to,
-      reply_to: env.REPLY_TO,
-      subject: msg.subject,
-      text: msg.text,
-    }),
   });
 }
 
@@ -508,15 +540,6 @@ function jsonResponse(data: unknown, status: number): Response {
     status,
     headers: { "content-type": "application/json", ...corsHeaders() },
   });
-}
-
-// Constant-time string comparison so admin-secret checks don't leak length
-// or content through response timing.
-function safeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return diff === 0;
 }
 
 async function handleAdminDownload(auditId: number, env: Env): Promise<Response> {
@@ -548,7 +571,15 @@ async function handleResendWebhook(req: Request, env: Env): Promise<Response> {
     return new Response("webhook secret not configured", { status: 503 });
   }
   const body = await req.text();
-  const ok = await verifySvix(req, body, env.RESEND_WEBHOOK_SECRET);
+  const ok = await verifySvix(
+    {
+      id: req.headers.get("svix-id"),
+      timestamp: req.headers.get("svix-timestamp"),
+      signature: req.headers.get("svix-signature"),
+    },
+    body,
+    env.RESEND_WEBHOOK_SECRET,
+  );
   if (!ok) return new Response("invalid signature", { status: 401 });
   let evt: { type?: string; data?: { email_id?: string; to?: string[]; bounce?: { type?: string } } };
   try {
@@ -579,22 +610,6 @@ async function handleResendWebhook(req: Request, env: Env): Promise<Response> {
     ).bind(evt.data?.email_id ?? null, recipient, type.slice("email.".length)).run();
   }
   return new Response("ok", { status: 200 });
-}
-
-async function verifySvix(req: Request, body: string, secret: string): Promise<boolean> {
-  const id = req.headers.get("svix-id");
-  const ts = req.headers.get("svix-timestamp");
-  const sig = req.headers.get("svix-signature");
-  if (!id || !ts || !sig) return false;
-  const key = secret.startsWith("whsec_") ? secret.slice(6) : secret;
-  const keyBytes = Uint8Array.from(atob(key), (c) => c.charCodeAt(0));
-  const cryptoKey = await crypto.subtle.importKey(
-    "raw", keyBytes, { name: "HMAC", hash: "SHA-256" }, false, ["sign"],
-  );
-  const toSign = new TextEncoder().encode(`${id}.${ts}.${body}`);
-  const macBuf = await crypto.subtle.sign("HMAC", cryptoKey, toSign);
-  const expected = btoa(String.fromCharCode(...new Uint8Array(macBuf)));
-  return sig.split(" ").some((s) => s.split(",")[1] === expected);
 }
 
 async function handleUnsubscribe(url: URL, req: Request, env: Env): Promise<Response> {
