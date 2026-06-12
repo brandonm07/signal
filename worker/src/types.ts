@@ -5,6 +5,11 @@ export interface Env {
   RESEND_API_KEY: string;
   SENDER_EMAIL: string;
   SENDER_NAME: string;
+  // Cold-outreach sender identity. Falls back to SENDER_* when unset.
+  // Point OUTREACH_SENDER_EMAIL at a dedicated cold domain to protect the
+  // primary domain's transactional reputation.
+  OUTREACH_SENDER_NAME?: string;
+  OUTREACH_SENDER_EMAIL?: string;
   REPLY_TO: string;
   PHYSICAL_ADDRESS: string;
   UNSUBSCRIBE_BASE_URL: string;
@@ -21,6 +26,9 @@ export interface Env {
   ANTHROPIC_API_KEY: string;
   DRAFT_MODE: string; // "1" = create drafts, "0" = auto-send
   ADMIN_SECRET: string;
+  // Dedicated HMAC key for portal sessions/magic links. Falls back to
+  // ADMIN_SECRET until set: wrangler secret put PORTAL_SIGNING_SECRET
+  PORTAL_SIGNING_SECRET?: string;
   RESEND_WEBHOOK_SECRET?: string;
   STRIPE_SECRET_KEY: string;
   STRIPE_WEBHOOK_SECRET: string;
@@ -43,6 +51,13 @@ export interface Lead {
   unsubscribe_token: string;
   resend_message_id: string | null;
   step: number;
+  // Overnight ICP scoring (migration 0009). Null until scored; -1 marks a
+  // scoring error so the nightly job doesn't retry the same bad row forever.
+  lead_score?: number | null;
+  lead_tier?: string | null;
+  score_reason?: string | null;
+  opening_angle?: string | null;
+  scored_at?: number | null;
   created_at: number;
   updated_at: number;
 }

@@ -2,7 +2,7 @@
 // crossing the 180/90/30-day expiration thresholds. Idempotent — each
 // tier alerts at most once per contract, gated by alerted_*_at columns.
 import type { Env } from "./types";
-import { sendViaResend } from "./email";
+import { OWNER_EMAIL, escapeHtml, getState, sendEmail, setState } from "./shared";
 
 const KEY_LAST_RENEWAL_CHECK = "last_renewal_check_ts";
 const DAY_SECONDS = 24 * 60 * 60;
@@ -61,18 +61,13 @@ export async function maybeRunRenewalAlerts(env: Env): Promise<void> {
   const subject = `Renewal Defense: ${findings.length} contract${findings.length === 1 ? "" : "s"} need attention`;
   const text = buildDigestText(findings, now);
 
-  await sendViaResend(
-    {
-      from: `${env.SENDER_NAME} <${env.SENDER_EMAIL}>`,
-      to: "brandon@signaladvise.com",
-      reply_to: "brandon@signaladvise.com",
-      subject,
-      text,
-      html: `<pre style="font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.5">${escapeHtml(text)}</pre>`,
-      headers: {},
-    },
-    env.RESEND_API_KEY,
-  );
+  await sendEmail(env, {
+    to: OWNER_EMAIL,
+    replyTo: OWNER_EMAIL,
+    subject,
+    text,
+    html: `<pre style="font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.5">${escapeHtml(text)}</pre>`,
+  });
 
   // Stamp each row's tier column so we never re-alert this combination.
   for (const f of findings) {
@@ -120,29 +115,4 @@ function buildDigestText(rows: ContractRow[], now: number): string {
 
   lines.push("Manage at https://api.signaladvise.com/admin/ui/contracts");
   return lines.join("\n");
-}
-
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
-
-async function getState(env: Env, key: string): Promise<number | null> {
-  const row = await env.DB.prepare(
-    `SELECT value FROM worker_state WHERE key = ?1`,
-  )
-    .bind(key)
-    .first<{ value: string }>();
-  return row ? parseInt(row.value, 10) : null;
-}
-
-async function setState(env: Env, key: string, value: number): Promise<void> {
-  await env.DB.prepare(
-    `INSERT INTO worker_state (key, value) VALUES (?1, ?2)
-       ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
-  )
-    .bind(key, String(value))
-    .run();
 }

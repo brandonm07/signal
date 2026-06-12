@@ -157,7 +157,10 @@ function decodeBase64Url(s: string): string {
   const b64 = s.replace(/-/g, "+").replace(/_/g, "/");
   const padded = b64 + "=".repeat((4 - (b64.length % 4)) % 4);
   try {
-    return atob(padded);
+    // atob yields Latin-1 chars; decode the underlying bytes as UTF-8 so
+    // non-ASCII reply bodies don't reach the classifier as mojibake.
+    const bytes = Uint8Array.from(atob(padded), (c) => c.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
   } catch {
     return "";
   }

@@ -39,6 +39,12 @@ dead_letter_queue = "signal-pitcher-dlq"
 SENDER_EMAIL = "brandon@signaladvise.com"
 REPLY_TO = "brandon@signaladvise.com"
 SENDER_NAME = "Signal Advisory"
+# Cold-outreach identity (see email.ts). Set OUTREACH_SENDER_NAME to your full
+# name, and ideally move OUTREACH_SENDER_EMAIL to a dedicated cold domain
+# (e.g. brandon@trysignaladvise.com) to keep cold-email reputation off the
+# transactional domain. Falls back to SENDER_* if removed.
+OUTREACH_SENDER_NAME = "Brandon at Signal Advisory"
+OUTREACH_SENDER_EMAIL = "brandon@signaladvise.com"
 PHYSICAL_ADDRESS = "Signal Advisory LLC, Kansas City, MO"
 UNSUBSCRIBE_BASE_URL = "https://api.signaladvise.com/u"
 DAILY_CAP = "40"          # ramp: wk1=10, wk2=25, wk3=50, wk4=100, wk5+=200

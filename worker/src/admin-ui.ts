@@ -12,8 +12,10 @@ import {
   type InvoiceRow,
   type LineItemRow,
 } from "./invoices";
+import { escapeHtml as esc, nowSec, safeEqual, signToken, verifyToken } from "./shared";
 
 const COOKIE_NAME = "sa_admin";
+const SESSION_TTL_SECONDS = 86400; // 24h admin session
 
 // ---------- entry ----------
 
@@ -25,7 +27,7 @@ export async function handleAdminUi(req: Request, env: Env): Promise<Response> {
   if (path === "/login" && req.method === "POST") return await handleLogin(req, env);
   if (path === "/logout") return handleLogout();
 
-  if (!isAuthed(req, env)) {
+  if (!(await isAuthed(req, env))) {
     if (path === "/" || path === "/login") {
       return html(loginPageHtml(url.searchParams.get("err")), 200);
     }
@@ -48,6 +50,8 @@ export async function handleAdminUi(req: Request, env: Env): Promise<Response> {
   if (path === "/clients/new" && req.method === "POST") return await handleClientNewSubmit(req, env);
   const cliDetail = path.match(/^\/clients\/(\d+)$/);
   if (cliDetail) return await serveClientDetail(parseInt(cliDetail[1], 10), env);
+  const cliStatus = path.match(/^\/clients\/(\d+)\/status$/);
+  if (cliStatus && req.method === "POST") return await handleClientStatusToggle(parseInt(cliStatus[1], 10), req, env);
 
   if (path === "/contracts") return await serveContractList(env, url.searchParams.get("flash"));
   if (path === "/contracts/new" && req.method === "GET") return await serveContractNewForm(env, url.searchParams.get("err"));
@@ -60,15 +64,15 @@ export async function handleAdminUi(req: Request, env: Env): Promise<Response> {
 
 // ---------- auth ----------
 
-function isAuthed(req: Request, env: Env): boolean {
+// The cookie holds an HMAC-signed, expiring session token — never the admin
+// secret itself. A leaked cookie expires in 24h; the secret never leaves the
+// server side, and rotating ADMIN_SECRET invalidates every session.
+async function isAuthed(req: Request, env: Env): Promise<boolean> {
   const cookies = parseCookies(req.headers.get("cookie"));
-  const provided = cookies[COOKIE_NAME];
-  if (!provided || !env.ADMIN_SECRET) return false;
-  // Constant-time string compare
-  if (provided.length !== env.ADMIN_SECRET.length) return false;
-  let diff = 0;
-  for (let i = 0; i < provided.length; i++) diff |= provided.charCodeAt(i) ^ env.ADMIN_SECRET.charCodeAt(i);
-  return diff === 0;
+  const token = cookies[COOKIE_NAME];
+  if (!token || !env.ADMIN_SECRET) return false;
+  const payload = await verifyToken(env.ADMIN_SECRET, token);
+  return payload?.adm === true;
 }
 
 function parseCookies(header: string | null): Record<string, string> {
@@ -105,14 +109,7 @@ async function handleLogin(req: Request, env: Env): Promise<Response> {
   const provided = String(form.get("secret") ?? "");
 
   // Constant-time compare to avoid timing-based secret extraction.
-  let ok = false;
-  if (provided && env.ADMIN_SECRET && provided.length === env.ADMIN_SECRET.length) {
-    let diff = 0;
-    for (let i = 0; i < provided.length; i++) {
-      diff |= provided.charCodeAt(i) ^ env.ADMIN_SECRET.charCodeAt(i);
-    }
-    ok = diff === 0;
-  }
+  const ok = Boolean(provided && env.ADMIN_SECRET && safeEqual(provided, env.ADMIN_SECRET));
 
   await env.DB.prepare(
     `INSERT INTO login_attempts (ip, outcome) VALUES (?1, ?2)`,
@@ -123,7 +120,11 @@ async function handleLogin(req: Request, env: Env): Promise<Response> {
   if (!ok) {
     return Response.redirect(new URL(req.url).origin + "/admin/ui/?err=Invalid+secret", 302);
   }
-  const cookie = `${COOKIE_NAME}=${encodeURIComponent(provided)}; Path=/admin/ui; HttpOnly; Secure; SameSite=Strict; Max-Age=86400`;
+  const session = await signToken(env.ADMIN_SECRET, {
+    adm: true,
+    exp: nowSec() + SESSION_TTL_SECONDS,
+  });
+  const cookie = `${COOKIE_NAME}=${session}; Path=/admin/ui; HttpOnly; Secure; SameSite=Strict; Max-Age=${SESSION_TTL_SECONDS}`;
   return new Response(null, {
     status: 302,
     headers: {
@@ -179,6 +180,8 @@ function layout(title: string, body: string, opts: { flash?: string | null; acti
   .badge.sent{background:#fef3ef;color:#c9462c}
   .badge.paid{background:#e0eddb;color:#2f4a3c}
   .badge.void{background:#e3ddd0;color:#999;text-decoration:line-through}
+  .badge.active{background:#e0eddb;color:#2f4a3c}
+  .badge.prospect{background:#fef3ef;color:#c9462c}
   .actions{display:flex;gap:8px;flex-wrap:wrap}
   .btn{display:inline-block;padding:8px 16px;border-radius:4px;text-decoration:none;font-size:13px;font-weight:500;border:1px solid transparent;cursor:pointer;font-family:inherit}
   .btn.primary{background:#c9462c;color:#faf7f1}
@@ -243,15 +246,6 @@ function html(body: string, status = 200): Response {
       "cache-control": "no-store, max-age=0",
     },
   });
-}
-
-function esc(s: string | number | null | undefined): string {
-  if (s === null || s === undefined) return "";
-  return String(s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
 }
 
 function money(cents: number, currency = "usd"): string {
@@ -534,10 +528,11 @@ async function handleInvoiceVoidSubmit(id: number, env: Env): Promise<Response> 
 async function serveClientList(env: Env): Promise<Response> {
   const rows = await env.DB.prepare(`SELECT * FROM clients ORDER BY company_legal_name ASC`).all<ClientRow>();
   const tableRows = rows.results.length === 0
-    ? `<tr><td colspan="4"><div class="empty">No clients yet. <a href="/admin/ui/clients/new">Add your first client</a>.</div></td></tr>`
+    ? `<tr><td colspan="5"><div class="empty">No clients yet. <a href="/admin/ui/clients/new">Add your first client</a>.</div></td></tr>`
     : rows.results.map((c) => `
         <tr>
           <td><a href="/admin/ui/clients/${c.id}">${esc(c.company_legal_name)}</a></td>
+          <td><span class="badge ${esc(c.status)}">${esc(c.status)}</span></td>
           <td>${esc(c.email)}</td>
           <td>${esc(c.city) || "—"}${c.state ? ", " + esc(c.state) : ""}</td>
           <td class="mono">${esc(c.stripe_customer_id) || "—"}</td>
@@ -549,7 +544,7 @@ async function serveClientList(env: Env): Promise<Response> {
       <a href="/admin/ui/clients/new" class="btn primary">+ New client</a>
     </div>
     <table>
-      <thead><tr><th>Company</th><th>Email</th><th>Location</th><th>Stripe Customer</th></tr></thead>
+      <thead><tr><th>Company</th><th>Status</th><th>Email</th><th>Location</th><th>Stripe Customer</th></tr></thead>
       <tbody>${tableRows}</tbody>
     </table>
   `;
@@ -577,6 +572,12 @@ async function serveClientDetail(clientId: number, env: Env): Promise<Response> 
     <div class="card">
       <p class="card-title">Contact</p>
       <div class="meta-grid">
+        <div class="label-cell">Status</div><div>
+          <span class="badge ${esc(client.status)}">${esc(client.status)}</span>
+          <form method="POST" action="/admin/ui/clients/${client.id}/status" style="display:inline;margin-left:8px">
+            <button class="btn secondary" style="padding:3px 10px;font-size:12px">Mark ${client.status === "prospect" ? "active" : "prospect"}</button>
+          </form>
+        </div>
         <div class="label-cell">Signatory</div><div>${esc(client.signatory_name) || "—"}${client.signatory_title ? ", " + esc(client.signatory_title) : ""}</div>
         <div class="label-cell">Email</div><div><a href="mailto:${esc(client.email)}">${esc(client.email)}</a></div>
         <div class="label-cell">Phone</div><div>${esc(client.phone) || "—"}</div>
@@ -593,6 +594,18 @@ async function serveClientDetail(clientId: number, env: Env): Promise<Response> 
     <div style="margin-top:16px"><a href="/admin/ui/invoices/new" class="btn primary">+ New invoice for ${esc(client.company_legal_name)}</a></div>
   `;
   return html(layout(client.company_legal_name, body, { activeNav: "clients" }));
+}
+
+async function handleClientStatusToggle(clientId: number, req: Request, env: Env): Promise<Response> {
+  await env.DB.prepare(
+    `UPDATE clients
+        SET status = CASE status WHEN 'prospect' THEN 'active' ELSE 'prospect' END,
+            updated_at = unixepoch()
+      WHERE id = ?1`,
+  )
+    .bind(clientId)
+    .run();
+  return Response.redirect(new URL(req.url).origin + `/admin/ui/clients/${clientId}`, 302);
 }
 
 async function serveClientNewForm(err: string | null): Promise<Response> {
@@ -864,5 +877,11 @@ async function handleContractNewSubmit(req: Request, env: Env): Promise<Response
 
 async function handleContractDelete(id: number, env: Env): Promise<Response> {
   await env.DB.prepare(`DELETE FROM client_contracts WHERE id = ?1`).bind(id).run();
-  return Response.redirect("/admin/ui/contracts?flash=" + encodeURIComponent("Contract deleted."), 302);
+  // Response.redirect() requires an absolute URL in the Workers runtime —
+  // a relative path throws a TypeError at request time.
+  return Response.redirect(
+    "https://api.signaladvise.com/admin/ui/contracts?flash=" +
+      encodeURIComponent("Contract deleted."),
+    302,
+  );
 }

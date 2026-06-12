@@ -1,63 +1,62 @@
-# CLAUDE.md
+# CLAUDE.md — Signal Advisory
 
-Behavioral guidelines to reduce common LLM coding mistakes.
-Merge with project-specific instructions as needed.
+This repo contains a live, revenue-bearing system: `worker/` sends real cold
+email and collects real money. Use your judgment on how to get things done —
+these are objectives and invariants, not step-by-step procedures.
 
-**Tradeoff:** These guidelines bias toward caution over speed.
-For trivial tasks, use judgment.
+## How to work
 
-## 1. Think Before Coding
+- **Objectives over tasks.** Before coding, state what "done" looks like and
+  how you'll verify it. Then find the path yourself. If a request is
+  ambiguous, surface the interpretations instead of picking silently.
+- **Verify, don't assume.** Every change ends with the verification commands
+  below actually run, and their output reported honestly.
+- **Surgical changes.** Touch only what the objective requires. Match the
+  existing style (hand-rolled fetch clients, no SDKs, server-rendered HTML
+  strings, integer cents). Don't add dependencies, abstractions, or
+  configurability nobody asked for.
+- **The simplest correct version wins.** If 50 lines do it, don't write 200.
 
-**Don't assume. Don't hide confusion. Surface tradeoffs.**
+## Verification
 
-Before implementing:
-- State your assumptions explicitly. If uncertain, ask.
-- If multiple interpretations exist, present them. Don't pick silently.
-- If a simpler approach exists, say so. Push back when warranted.
-- If something is unclear, stop. Name what's confusing. Ask.
+```bash
+# worker (required for any worker/ change)
+cd worker && npx tsc --noEmit && npm test
 
-## 2. Simplicity First
+# remote DB state must be clean before any deploy
+npx wrangler d1 migrations list signaladvise --remote --config wrangler.toml
 
-**Minimum code that solves the problem. Nothing speculative.**
+# web (required for any web/ change)
+cd web && pnpm install --frozen-lockfile && pnpm build
+```
 
-- No features beyond what was asked.
-- No abstractions for single-use code.
-- No "flexibility" or "configurability" that wasn't requested.
-- No error handling for impossible scenarios.
-- If you write 200 lines and it could be 50, rewrite it.
+CI (`.github/workflows/ci.yml`) runs the same checks — a change that would
+fail CI is not done.
 
-Ask yourself: "Would a senior engineer say this is overcomplicated?"
-If yes, simplify.
+## Invariants — verify these survive any change you make
 
-## 3. Surgical Changes
-
-**Touch only what you must. Clean up only your own mess.**
-
-When editing existing code:
-- Don't "improve" adjacent code, comments, or formatting.
-- Don't refactor things that aren't broken.
-- Match existing style, even if you'd do it differently.
-- If you notice unrelated dead code, mention it. Don't delete it.
-
-When your changes create orphans:
-- Remove imports/variables/functions that YOUR changes made unused.
-- Don't remove pre-existing dead code unless asked.
-
-The test: every changed line should trace directly to the user's request.
-
-## 4. Goal-Driven Execution
-
-**Define success criteria. Loop until verified.**
-
-Transform tasks into verifiable goals:
-- "Add validation" → "Write tests for invalid inputs, then make them pass"
-- "Fix the bug" → "Write a test that reproduces it, then make it pass"
-- "Refactor X" → "Ensure tests pass before and after"
-
-For multi-step tasks, state a brief plan:
-1. [Step] → verify: [check]
-2. [Step] → verify: [check]
-3. [Step] → verify: [check]
-
-Strong success criteria let you loop independently.
-Weak criteria ("make it work") require constant clarification.
+- **At-most-once email per (lead, step).** The chain is: `tick()` claims via
+  `queued → sending`, `processSend()` refuses non-`sending` leads, and every
+  outreach send carries Resend `Idempotency-Key: lead-{id}-step-{step}`.
+  Done = a queue retry or duplicate delivery cannot produce a second email.
+- **Suppression is sacred.** Unsubscribed/bounced/replied leads never get
+  another sequence email, under any code path.
+- **Security helpers have exactly one definition** — `worker/src/shared.ts`
+  (`escapeHtml`, `safeEqual`, token signing, svix verify). Never re-implement
+  one locally; never bypass escaping when interpolating into HTML.
+- **Money is integer cents** end to end. No floats, ever.
+- **Webhooks verify signatures before any state change**, with timestamp
+  tolerance against replay (both Stripe and Resend).
+- **Open endpoints are IP-throttled** via `login_attempts` (`/audit`,
+  `/portal/login`, `/portal/signup`, admin login).
+- **Secrets only via `wrangler secret put`** — never in `[vars]`, code, or
+  test fixtures.
+- **Schema changes only via `worker/migrations/`** + wrangler. Out-of-band
+  console edits caused real drift once (migration 0009). The backup derives
+  its table list from the live schema, so new tables are covered
+  automatically.
+- **Deliverability gates stay intact:** send window, `DAILY_CAP`, jitter,
+  List-Unsubscribe headers, plain-text-first content. Template changes must
+  keep the sequence content tests green (length, no spam-bait formatting,
+  only `{{first_name}}`/`{{company}}` merge tags) — and warrant a seed-inbox
+  test before volume resumes (see README deliverability runbook).

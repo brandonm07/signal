@@ -1,8 +1,10 @@
 name = "signal"
 compatibility_date = "2025-01-01"
 
+# pnpm matches web/pnpm-lock.yaml — bun ignored the lockfile, so deploys
+# could resolve different dependency versions than local dev.
 [build]
-command = "cd web && bun install && bun run build"
+command = "cd web && pnpm install --frozen-lockfile && pnpm run build"
 
 [assets]
 directory = "./web/dist"

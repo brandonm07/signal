@@ -9,6 +9,28 @@ export interface SequenceStep {
   delayDays: number; // days from the previous step's send_at
 }
 
+// Pure sequence state machine: given the step just sent, decide the lead's
+// next status, step, and schedule. Kept free of I/O so it can be unit-tested.
+export interface NextSequenceState {
+  status: "queued" | "completed";
+  step: number;
+  scheduledFor: number | null;
+}
+
+export function nextSequenceState(currentStep: number, nowEpochSec: number): NextSequenceState {
+  const nextStep = currentStep + 1;
+  const tpl = SEQUENCE_STEPS[nextStep];
+  if (!tpl) {
+    // Just sent the final step — sequence is done.
+    return { status: "completed", step: currentStep, scheduledFor: null };
+  }
+  return {
+    status: "queued",
+    step: nextStep,
+    scheduledFor: nowEpochSec + tpl.delayDays * 86400,
+  };
+}
+
 // Step 1 is intentionally absent here — its body is stored per-lead in
 // leads.body_template (each row has a role-specific opener baked in).
 export const SEQUENCE_STEPS: Record<number, SequenceStep> = {

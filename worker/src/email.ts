@@ -1,10 +1,20 @@
 import type { Lead, Env } from "./types";
 import { SEQUENCE_STEPS } from "./sequence";
+import { escapeHtml } from "./shared";
+
+// Fallbacks for merge tags when a lead row is missing data. Without these a
+// null first_name renders "Hi ," and a null company renders "Following up, "
+// — instant mass-mail tells that tank reply rates and invite spam folders.
+const TEMPLATE_FALLBACKS: Record<string, string> = {
+  first_name: "there",
+  company: "your team",
+};
 
 export function renderTemplate(tpl: string, lead: Lead): string {
   return tpl.replace(/\{\{\s*(\w+)\s*\}\}/g, (_m, key: string) => {
     const v = (lead as unknown as Record<string, unknown>)[key];
-    return v == null ? "" : String(v);
+    if (v != null && String(v).trim() !== "") return String(v);
+    return TEMPLATE_FALLBACKS[key] ?? "";
   });
 }
 
@@ -36,7 +46,6 @@ export function buildEmail(lead: Lead, env: Env): {
     `Brandon\n` +
     `Principal Advisor, Signal Advisory\n` +
     `brandon@signaladvise.com · 816.355.3350\n` +
-    `linkedin.com/company/signal-advisory-llc\n` +
     `signaladvise.com`;
 
   // Option 2 formatting: keep List-Unsubscribe headers (Gmail/Yahoo native button +
@@ -54,7 +63,10 @@ export function buildEmail(lead: Lead, env: Env): {
     `</div>`;
 
   return {
-    from: `${env.SENDER_NAME} <${env.SENDER_EMAIL}>`,
+    // Cold outreach goes from a person-forward identity (and, once set, a
+    // dedicated cold domain) so it lands like a 1:1 email and keeps spam
+    // complaints off the primary signaladvise.com transactional reputation.
+    from: `${env.OUTREACH_SENDER_NAME || env.SENDER_NAME} <${env.OUTREACH_SENDER_EMAIL || env.SENDER_EMAIL}>`,
     to: lead.email,
     reply_to: env.REPLY_TO,
     subject,
@@ -67,21 +79,39 @@ export function buildEmail(lead: Lead, env: Env): {
   };
 }
 
+// Thrown when Resend rejects a send; carries the HTTP status so callers can
+// distinguish permanent failures (4xx — don't retry) from transient ones
+// (5xx/429/network — safe to retry).
+export class ResendError extends Error {
+  constructor(
+    public status: number,
+    body: string,
+  ) {
+    super(`Resend ${status}: ${body}`);
+    this.name = "ResendError";
+  }
+}
+
 export async function sendViaResend(
   msg: ReturnType<typeof buildEmail>,
   apiKey: string,
+  idempotencyKey?: string,
 ): Promise<{ id: string }> {
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${apiKey}`,
+    "Content-Type": "application/json",
+  };
+  // Resend dedupes requests sharing an Idempotency-Key for 24h, so a queue
+  // retry after a mid-flight crash cannot deliver the same email twice.
+  if (idempotencyKey) headers["Idempotency-Key"] = idempotencyKey;
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
+    headers,
     body: JSON.stringify(msg),
   });
   if (!res.ok) {
     const body = await res.text();
-    throw new Error(`Resend ${res.status}: ${body}`);
+    throw new ResendError(res.status, body);
   }
   const json = (await res.json()) as { id: string };
   return json;
@@ -98,29 +128,16 @@ function blockToHtml(block: string): string {
   return `<p>${escapeHtml(block).replace(/\n/g, "<br>")}</p>`;
 }
 
+// Plain, text-style signature for cold outreach: no image, single link.
+// Designed HTML/images on a first cold touch are a Promotions/spam signal,
+// and the text and HTML signatures are kept in sync to avoid mismatch flags.
 function sigHtml(): string {
   return (
-    `<table cellpadding="0" cellspacing="0" border="0" style="margin-top:8px;border-collapse:collapse;font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#222">` +
-    `<tr>` +
-    `<td style="vertical-align:middle;padding-right:14px">` +
-    `<img src="https://signaladvise.com/email-icon.png" width="44" height="44" alt="Signal Advisory" style="display:block;border-radius:6px">` +
-    `</td>` +
-    `<td style="vertical-align:middle;line-height:1.45">` +
-    `<div style="font-weight:bold;color:#1a1f24;font-size:14px">Brandon</div>` +
-    `<div style="color:#7a7067;font-size:12px">Principal Advisor, Signal Advisory</div>` +
-    `<div><a href="mailto:brandon@signaladvise.com" style="color:#222;text-decoration:none">brandon@signaladvise.com</a> · 816.355.3350</div>` +
-    `<div><a href="https://www.linkedin.com/company/signal-advisory-llc" style="color:#c9462c;text-decoration:none">linkedin.com/company/signal-advisory-llc</a> · <a href="https://signaladvise.com" style="color:#c9462c;text-decoration:none">signaladvise.com</a></div>` +
-    `</td>` +
-    `</tr>` +
-    `</table>`
+    `<p style="margin:1em 0 0">` +
+    `Brandon<br>` +
+    `Principal Advisor, Signal Advisory<br>` +
+    `brandon@signaladvise.com · 816.355.3350<br>` +
+    `<a href="https://signaladvise.com" style="color:#222">signaladvise.com</a>` +
+    `</p>`
   );
-}
-
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
 }

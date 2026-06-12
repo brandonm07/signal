@@ -1,14 +1,28 @@
 // Client portal: magic-link login, then a live read-only dashboard of the
 // client's contracts, invoices, and monthly spend. Mounted at /portal/* on
 // api.signaladvise.com. Auth is a stateless HMAC-signed token (keyed on
-// ADMIN_SECRET), so email link-scanners cannot consume a one-time login.
+// PORTAL_SIGNING_SECRET, falling back to ADMIN_SECRET until it is set),
+// so email link-scanners cannot consume a one-time login.
 import type { Env } from "./types";
-import { sendViaResend } from "./email";
+import {
+  OWNER_EMAIL,
+  escapeHtml as esc,
+  nowSec,
+  sendEmail,
+  signToken,
+  verifyToken,
+} from "./shared";
 
 const HOST = "https://api.signaladvise.com";
 const COOKIE = "sa_portal";
 const MAGIC_TTL = 15 * 60; // seconds
 const SESSION_TTL = 7 * 24 * 60 * 60; // seconds
+
+// Dedicated HMAC key for portal sessions/magic links, falling back to
+// ADMIN_SECRET until PORTAL_SIGNING_SECRET is set.
+function portalSecret(env: Env): string {
+  return env.PORTAL_SIGNING_SECRET || env.ADMIN_SECRET;
+}
 
 export async function handlePortal(req: Request, env: Env): Promise<Response> {
   const url = new URL(req.url);
@@ -16,6 +30,8 @@ export async function handlePortal(req: Request, env: Env): Promise<Response> {
 
   if (path === "/portal" && req.method === "GET") return loginPage(null);
   if (path === "/portal/login" && req.method === "POST") return handleLogin(req, env);
+  if (path === "/portal/signup" && req.method === "GET") return signupPage(null);
+  if (path === "/portal/signup" && req.method === "POST") return handleSignup(req, env);
   if (path === "/portal/auth" && req.method === "GET") return handleAuth(url, env);
   if (path === "/portal/logout") return logout();
   if (path === "/portal/dashboard" && req.method === "GET") return dashboard(req, env);
@@ -26,6 +42,23 @@ export async function handlePortal(req: Request, env: Env): Promise<Response> {
 // ---------- auth ----------
 
 async function handleLogin(req: Request, env: Env): Promise<Response> {
+  const ip = req.headers.get("cf-connecting-ip") ?? "unknown";
+
+  // Throttle magic-link sending: max 5 attempts per IP in 15 minutes,
+  // so a known client email can't be used to flood inboxes.
+  const recent = await env.DB.prepare(
+    `SELECT COUNT(*) as n FROM login_attempts
+       WHERE ip = ?1 AND outcome = 'portal_login' AND attempted_at > unixepoch() - 900`,
+  )
+    .bind(ip)
+    .first<{ n: number }>();
+  if (recent && recent.n >= 5) {
+    return loginPage("Too many attempts. Wait 15 minutes and try again.");
+  }
+  await env.DB.prepare(`INSERT INTO login_attempts (ip, outcome) VALUES (?1, 'portal_login')`)
+    .bind(ip)
+    .run();
+
   const form = await req.formData();
   const email = String(form.get("email") ?? "").trim().toLowerCase();
   // Always respond the same way, whether or not the email matches a client.
@@ -36,37 +69,97 @@ async function handleLogin(req: Request, env: Env): Promise<Response> {
       .bind(email)
       .first<{ id: number; company_legal_name: string }>();
     if (client) {
-      const token = await signToken(env, { cid: client.id, exp: nowSec() + MAGIC_TTL });
-      const link = `${HOST}/portal/auth?t=${encodeURIComponent(token)}`;
-      await sendViaResend(
-        {
-          from: `${env.SENDER_NAME} <${env.SENDER_EMAIL}>`,
-          to: email,
-          reply_to: env.REPLY_TO,
-          subject: "Your Signal Advisory dashboard link",
-          text:
-            `Here is your secure login link for the Signal Advisory client dashboard:\n\n${link}\n\n` +
-            `This link is good for 15 minutes. If you did not request it, ignore this email.`,
-          html:
-            `<p>Here is your secure login link for the Signal Advisory client dashboard:</p>` +
-            `<p><a href="${link}">Open my dashboard</a></p>` +
-            `<p style="color:#888;font-size:12px">This link is good for 15 minutes. If you did not request it, ignore this email.</p>`,
-          headers: {},
-        },
-        env.RESEND_API_KEY,
-      );
+      await sendMagicLink(env, client.id, email);
     }
   }
   return loginPage("If that email is on file, a login link is on its way. Check your inbox.");
 }
 
+async function sendMagicLink(env: Env, clientId: number, email: string): Promise<void> {
+  const token = await signToken(portalSecret(env), { cid: clientId, exp: nowSec() + MAGIC_TTL });
+  const link = `${HOST}/portal/auth?t=${encodeURIComponent(token)}`;
+  // Best-effort: the login/signup responses are identical whether or not the
+  // email matched a client (no account enumeration), so a Resend failure must
+  // log rather than 500 and break that symmetry.
+  await sendEmail(env, {
+    to: email,
+    subject: "Your Signal Advisory dashboard link",
+    text:
+      `Here is your secure login link for the Signal Advisory client dashboard:\n\n${link}\n\n` +
+      `This link is good for 15 minutes. If you did not request it, ignore this email.`,
+    html:
+      `<p>Here is your secure login link for the Signal Advisory client dashboard:</p>` +
+      `<p><a href="${link}">Open my dashboard</a></p>` +
+      `<p style="color:#888;font-size:12px">This link is good for 15 minutes. If you did not request it, ignore this email.</p>`,
+  });
+}
+
+async function handleSignup(req: Request, env: Env): Promise<Response> {
+  const ip = req.headers.get("cf-connecting-ip") ?? "unknown";
+
+  // Open endpoint that creates rows and sends email: max 5 attempts per IP
+  // in 15 minutes, tracked in the same login_attempts table the admin uses.
+  const recent = await env.DB.prepare(
+    `SELECT COUNT(*) as n FROM login_attempts
+       WHERE ip = ?1 AND outcome = 'signup' AND attempted_at > unixepoch() - 900`,
+  )
+    .bind(ip)
+    .first<{ n: number }>();
+  if (recent && recent.n >= 5) {
+    return signupPage("Too many attempts. Wait 15 minutes and try again.");
+  }
+
+  const form = await req.formData();
+  const company = String(form.get("company") ?? "").trim().slice(0, 200);
+  const name = String(form.get("name") ?? "").trim().slice(0, 120);
+  const email = String(form.get("email") ?? "").trim().toLowerCase().slice(0, 254);
+  if (!company || !name || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    return signupPage("Please fill in your company, your name, and a valid email.");
+  }
+
+  await env.DB.prepare(`INSERT INTO login_attempts (ip, outcome) VALUES (?1, 'signup')`)
+    .bind(ip)
+    .run();
+
+  // If the email is already on file, send a login link instead of creating a
+  // duplicate. The response is identical either way (no account enumeration).
+  const existing = await env.DB.prepare(`SELECT id FROM clients WHERE lower(email) = ?1`)
+    .bind(email)
+    .first<{ id: number }>();
+  let clientId: number;
+  if (existing) {
+    clientId = existing.id;
+  } else {
+    const ins = await env.DB.prepare(
+      `INSERT INTO clients (company_legal_name, signatory_name, email, status, notes)
+         VALUES (?1, ?2, ?3, 'prospect', 'Self-service signup via portal')`,
+    )
+      .bind(company, name, email)
+      .run();
+    clientId = Number(ins.meta.last_row_id);
+    await sendEmail(env, {
+      to: OWNER_EMAIL,
+      replyTo: email,
+      subject: `New portal signup: ${company}`,
+      text:
+        `${name} (${email}) created a client account for ${company} via the portal signup page.\n\n` +
+        `Manage at ${HOST}/admin/ui/clients`,
+      html:
+        `<p>${esc(name)} (${esc(email)}) created a client account for <strong>${esc(company)}</strong> via the portal signup page.</p>` +
+        `<p><a href="${HOST}/admin/ui/clients">Open admin portal</a></p>`,
+    });
+  }
+  await sendMagicLink(env, clientId, email);
+  return signupPage("Check your inbox — your secure login link is on its way.");
+}
+
 async function handleAuth(url: URL, env: Env): Promise<Response> {
   const token = url.searchParams.get("t") ?? "";
-  const payload = await verifyToken(env, token);
+  const payload = await verifyToken(portalSecret(env), token);
   if (!payload || typeof payload.cid !== "number") {
     return loginPage("That login link is invalid or has expired. Request a new one.");
   }
-  const session = await signToken(env, { cid: payload.cid, exp: nowSec() + SESSION_TTL });
+  const session = await signToken(portalSecret(env), { cid: payload.cid, exp: nowSec() + SESSION_TTL });
   return new Response(null, {
     status: 302,
     headers: {
@@ -90,7 +183,7 @@ async function sessionClientId(req: Request, env: Env): Promise<number | null> {
   const cookies = req.headers.get("cookie") ?? "";
   const m = cookies.match(/(?:^|;\s*)sa_portal=([^;]+)/);
   if (!m) return null;
-  const payload = await verifyToken(env, decodeURIComponent(m[1]));
+  const payload = await verifyToken(portalSecret(env), decodeURIComponent(m[1]));
   return payload && typeof payload.cid === "number" ? payload.cid : null;
 }
 
@@ -193,8 +286,28 @@ function loginPage(flash: string | null): Response {
         <input type="email" name="email" placeholder="you@company.com" required autofocus>
         <button type="submit">Send my login link</button>
       </form>
+      <p class="alt">New here? <a href="/portal/signup">Create your account</a></p>
     </div>`;
   return html(shell("Sign in", body));
+}
+
+function signupPage(flash: string | null): Response {
+  const msg = flash ? `<div class="flash">${esc(flash)}</div>` : "";
+  const body = `
+    <div class="login">
+      <div class="mark"></div>
+      <h1>Create your account</h1>
+      <p class="sub">Tell us who you are and we will email you a secure login link. No password needed.</p>
+      ${msg}
+      <form method="POST" action="/portal/signup">
+        <input type="text" name="company" placeholder="Company legal name" maxlength="200" required autofocus>
+        <input type="text" name="name" placeholder="Your name" maxlength="120" required>
+        <input type="email" name="email" placeholder="you@company.com" required>
+        <button type="submit">Create account</button>
+      </form>
+      <p class="alt">Already have an account? <a href="/portal">Sign in</a></p>
+    </div>`;
+  return html(shell("Create account", body));
 }
 
 function shell(title: string, body: string): string {
@@ -241,6 +354,8 @@ function shell(title: string, body: string): string {
   .login input:focus{outline:none;border-color:#c9462c}
   .login button{width:100%;padding:12px;background:#c9462c;color:#fff;border:0;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer}
   .login button:hover{background:#1a1f24}
+  .login .alt{font-size:13px;color:#7a7067;margin:16px 0 0;text-align:center}
+  .login .alt a{color:#c9462c}
   .flash{background:#e0eddb;border:1px solid #b5cba6;color:#2f4a3c;padding:11px 14px;border-radius:6px;margin-bottom:16px;font-size:14px}
 </style></head><body><div class="wrap">${body}</div></body></html>`;
 }
@@ -256,55 +371,8 @@ function html(s: string): Response {
   });
 }
 
-// ---------- token signing ----------
-
-async function hmacHex(env: Env, msg: string): Promise<string> {
-  const key = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(env.ADMIN_SECRET),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(msg));
-  return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-async function signToken(env: Env, obj: Record<string, unknown>): Promise<string> {
-  const payload = b64url(JSON.stringify(obj));
-  return `${payload}.${await hmacHex(env, payload)}`;
-}
-
-async function verifyToken(env: Env, token: string): Promise<Record<string, unknown> | null> {
-  const dot = token.lastIndexOf(".");
-  if (dot < 0) return null;
-  const payload = token.slice(0, dot);
-  const sig = token.slice(dot + 1);
-  const expected = await hmacHex(env, payload);
-  if (sig.length !== expected.length) return null;
-  let diff = 0;
-  for (let i = 0; i < sig.length; i++) diff |= sig.charCodeAt(i) ^ expected.charCodeAt(i);
-  if (diff !== 0) return null;
-  try {
-    const obj = JSON.parse(b64urlDecode(payload)) as Record<string, unknown>;
-    if (typeof obj.exp === "number" && obj.exp < nowSec()) return null;
-    return obj;
-  } catch {
-    return null;
-  }
-}
-
 // ---------- small helpers ----------
 
-function nowSec(): number {
-  return Math.floor(Date.now() / 1000);
-}
-function b64url(s: string): string {
-  return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
-function b64urlDecode(s: string): string {
-  return atob(s.replace(/-/g, "+").replace(/_/g, "/"));
-}
 function money(cents: number, currency = "usd"): string {
   return (cents / 100).toLocaleString("en-US", {
     style: "currency",
@@ -315,12 +383,4 @@ function money(cents: number, currency = "usd"): string {
 function fmtDate(epoch: number | null): string {
   if (!epoch) return "-";
   return new Date(epoch * 1000).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
-}
-function esc(s: string | number | null | undefined): string {
-  return String(s ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
 }
