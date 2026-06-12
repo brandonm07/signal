@@ -55,11 +55,21 @@ export function buildEmail(lead: Lead, env: Env): {
     `${bodyText}\n${sigText}\n\n` +
     `${env.PHYSICAL_ADDRESS}\n`;
 
+  // First-party open pixel, gated by OPEN_TRACKING. A 1x1 image fetched from
+  // our own worker writes an 'opened' event keyed on the lead's unsubscribe
+  // token. Tradeoff: any tracking pixel is a mild deliverability signal, so
+  // this is controllable and off-able without a code change.
+  const openPixel =
+    env.OPEN_TRACKING === "1"
+      ? `<img src="https://api.signaladvise.com/o/${lead.unsubscribe_token}.gif" width="1" height="1" alt="" style="display:none;border:0">`
+      : "";
+
   const html =
     `<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;color:#222">` +
     bodyText.split(/\n\n+/).map(blockToHtml).join("") +
     sigHtml() +
     `<p style="font-size:10px;color:#bbb;margin-top:18px">${escapeHtml(env.PHYSICAL_ADDRESS)}</p>` +
+    openPixel +
     `</div>`;
 
   return {

@@ -4,6 +4,7 @@
 import type { Env } from "./types";
 import { maybeRunRenewalAlerts } from "./contracts";
 import { maybeScoreLeads } from "./scorer";
+import { maybeDailyCallBrief } from "./callbrief";
 import { getState, notifyOwner, setState } from "./shared";
 
 const KEY_LAST_HEALTHCHECK = "last_healthcheck_ts";
@@ -35,6 +36,7 @@ export async function runPeriodicMaintenance(env: Env): Promise<void> {
   await maybeRunRenewalAlerts(env);
   await maybeRunOutreachReport(env);
   await maybeScoreLeads(env);
+  await maybeDailyCallBrief(env);
 }
 
 const KEY_LAST_OUTREACH_REPORT = "last_outreach_report_ts";

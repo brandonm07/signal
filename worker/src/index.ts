@@ -22,6 +22,7 @@ import {
 } from "./invoices";
 import { handleAdminUi } from "./admin-ui";
 import { handlePortal } from "./portal";
+import { runCallBrief } from "./callbrief";
 
 export default {
   async scheduled(_event: ScheduledController, env: Env, ctx: ExecutionContext) {
@@ -58,6 +59,10 @@ export default {
     }
     if (url.pathname === "/u" || url.pathname === "/u/") {
       return handleUnsubscribe(url, req, env);
+    }
+    const openMatch = url.pathname.match(/^\/o\/([a-f0-9]{32})\.gif$/);
+    if (openMatch) {
+      return handleOpenPixel(openMatch[1], env);
     }
     if (url.pathname === "/health") {
       return new Response("ok", { status: 200 });
@@ -106,6 +111,10 @@ export default {
       if (url.pathname === "/admin/poll") {
         ctx.waitUntil(pollInbound(env));
         return new Response("poll triggered", { status: 202 });
+      }
+      if (url.pathname === "/admin/brief") {
+        ctx.waitUntil(runCallBrief(env));
+        return new Response("call brief triggered", { status: 202 });
       }
       const dlMatch = url.pathname.match(/^\/admin\/audit\/(\d+)\/download$/);
       if (dlMatch) {
@@ -703,4 +712,47 @@ async function getSentToday(env: Env, day: string): Promise<number> {
     .bind(day)
     .first<{ sent: number }>();
   return row?.sent ?? 0;
+}
+
+// First-party open tracking. A 1x1 transparent GIF fetched by the recipient's
+// mail client writes an 'opened' event keyed on the lead (via unsubscribe
+// token). Always returns the pixel, even on error, so a tracking miss never
+// surfaces to the recipient. Per-hour dedup blunts Apple/Gmail prefetch
+// inflation. No auth: it is a public image by design.
+async function handleOpenPixel(token: string, env: Env): Promise<Response> {
+  const gif = Uint8Array.from(
+    atob("R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"),
+    (c) => c.charCodeAt(0),
+  );
+  const headers = {
+    "content-type": "image/gif",
+    "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+    "pragma": "no-cache",
+  };
+  try {
+    const lead = await env.DB.prepare(
+      `SELECT email FROM leads WHERE unsubscribe_token = ?1`,
+    )
+      .bind(token)
+      .first<{ email: string }>();
+    if (lead?.email) {
+      const recent = await env.DB.prepare(
+        `SELECT 1 FROM email_events
+           WHERE recipient = ?1 AND event_type = 'opened'
+             AND created_at > unixepoch() - 3600 LIMIT 1`,
+      )
+        .bind(lead.email)
+        .first();
+      if (!recent) {
+        await env.DB.prepare(
+          `INSERT INTO email_events (recipient, event_type) VALUES (?1, 'opened')`,
+        )
+          .bind(lead.email)
+          .run();
+      }
+    }
+  } catch {
+    // never block the pixel on a DB hiccup
+  }
+  return new Response(gif, { headers });
 }

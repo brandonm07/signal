@@ -24,7 +24,8 @@ export interface Env {
   GMAIL_CLIENT_SECRET: string;
   GMAIL_REFRESH_TOKEN: string;
   ANTHROPIC_API_KEY: string;
-  DRAFT_MODE: string; // "1" = create drafts, "0" = auto-send
+  DRAFT_MODE: string;
+  OPEN_TRACKING?: string; // "1" = embed first-party open pixel, else off
   ADMIN_SECRET: string;
   // Dedicated HMAC key for portal sessions/magic links. Falls back to
   // ADMIN_SECRET until set: wrangler secret put PORTAL_SIGNING_SECRET

@@ -48,6 +48,7 @@ OUTREACH_SENDER_EMAIL = "brandon@signaladvise.com"
 PHYSICAL_ADDRESS = "Signal Advisory LLC, Kansas City, MO"
 UNSUBSCRIBE_BASE_URL = "https://api.signaladvise.com/u"
 DAILY_CAP = "40"          # ramp: wk1=10, wk2=25, wk3=50, wk4=100, wk5+=200
+OPEN_TRACKING = "1"       # first-party open pixel; set "0" to disable
 SEND_WINDOW_TZ = "America/Chicago"
 SEND_WINDOW_START_HOUR = "9"
 SEND_WINDOW_END_HOUR = "17"
