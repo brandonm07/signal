@@ -12,7 +12,9 @@ import {
   type InvoiceRow,
   type LineItemRow,
 } from "./invoices";
-import { escapeHtml as esc, nowSec, safeEqual, signToken, verifyToken } from "./shared";
+import { escapeHtml as esc, getState, nowSec, safeEqual, signToken, verifyToken } from "./shared";
+import { runCallBrief } from "./callbrief";
+import { pollInbound } from "./inbound";
 
 const COOKIE_NAME = "sa_admin";
 const SESSION_TTL_SECONDS = 86400; // 24h admin session
@@ -35,7 +37,16 @@ export async function handleAdminUi(req: Request, env: Env): Promise<Response> {
   }
 
   // Authed routes
-  if (path === "/" || path === "/invoices") return await serveInvoiceList(env, url);
+  if (path === "/") return await serveControlCenter(env, url.searchParams.get("flash"));
+  if (path === "/run/brief" && req.method === "POST") {
+    await runCallBrief(env);
+    return Response.redirect(`${url.origin}/admin/ui/?flash=${encodeURIComponent("Call brief generated and emailed.")}`, 302);
+  }
+  if (path === "/run/poll" && req.method === "POST") {
+    await pollInbound(env);
+    return Response.redirect(`${url.origin}/admin/ui/?flash=${encodeURIComponent("Inbound poll complete.")}`, 302);
+  }
+  if (path === "/invoices") return await serveInvoiceList(env, url);
   if (path === "/invoices/new" && req.method === "GET") return await serveInvoiceNewForm(env, url.searchParams.get("err"));
   if (path === "/invoices/new" && req.method === "POST") return await handleInvoiceNewSubmit(req, env);
   const invDetail = path.match(/^\/invoices\/(\d+)$/);
@@ -128,7 +139,7 @@ async function handleLogin(req: Request, env: Env): Promise<Response> {
   return new Response(null, {
     status: 302,
     headers: {
-      Location: new URL(req.url).origin + "/admin/ui/invoices",
+      Location: new URL(req.url).origin + "/admin/ui/",
       "Set-Cookie": cookie,
     },
   });
@@ -216,6 +227,7 @@ function layout(title: string, body: string, opts: { flash?: string | null; acti
 <header class="topbar">
   <span class="brand">Signal Advisory</span>
   <nav>
+    ${nav("Command", "/admin/ui/")}
     ${nav("Invoices", "/admin/ui/invoices")}
     ${nav("Clients", "/admin/ui/clients")}
     ${nav("Contracts", "/admin/ui/contracts")}
@@ -884,4 +896,215 @@ async function handleContractDelete(id: number, env: Env): Promise<Response> {
       encodeURIComponent("Contract deleted."),
     302,
   );
+}
+
+// ---------- control center (landing dashboard) ----------
+
+// Aggregates the whole operation onto one page: live ops health, pipeline,
+// client/revenue, and system controls. Read-mostly; the only writes are the
+// two safe action buttons (call brief, inbound poll) which call exported
+// functions directly. Never touches the send pipeline's internals.
+async function serveControlCenter(env: Env, flash: string | null): Promise<Response> {
+  const day = 86400;
+  const today = todayInTzCC(env.SEND_WINDOW_TZ);
+  const cap = parseInt(env.DAILY_CAP || "0", 10);
+
+  // --- run a batch of independent aggregates ---
+  const one = async <T>(sql: string, ...binds: unknown[]) =>
+    (await env.DB.prepare(sql).bind(...binds).first<T>()) ?? null;
+  const many = async <T>(sql: string, ...binds: unknown[]) =>
+    (await env.DB.prepare(sql).bind(...binds).all<T>()).results ?? [];
+
+  const sentToday = (await one<{ n: number }>(
+    `SELECT sent n FROM daily_counters WHERE day = ?1`, today))?.n ?? 0;
+  const lastSend = (await one<{ t: number }>(
+    `SELECT MAX(attempted_at) t FROM send_log WHERE outcome='sent'`))?.t ?? null;
+
+  const leadStatus = await many<{ status: string; n: number }>(
+    `SELECT status, COUNT(*) n FROM leads GROUP BY status`);
+  const ls: Record<string, number> = {};
+  for (const r of leadStatus) ls[r.status] = r.n;
+
+  const scoredCounts = (await one<{ scored: number; unscored: number }>(
+    `SELECT
+        SUM(CASE WHEN lead_score IS NOT NULL AND lead_score >= 0 THEN 1 ELSE 0 END) scored,
+        SUM(CASE WHEN lead_score IS NULL THEN 1 ELSE 0 END) unscored
+      FROM leads`)) ?? { scored: 0, unscored: 0 };
+
+  // 7-day funnel
+  const wk = 7 * day;
+  const sent7 = (await one<{ n: number }>(
+    `SELECT COUNT(*) n FROM send_log WHERE outcome='sent' AND attempted_at > unixepoch()-?1`, wk))?.n ?? 0;
+  const ev7 = await many<{ event_type: string; n: number }>(
+    `SELECT event_type, COUNT(DISTINCT recipient) n FROM email_events WHERE created_at > unixepoch()-?1 GROUP BY event_type`, wk);
+  const ev: Record<string, number> = {};
+  for (const r of ev7) ev[r.event_type] = r.n;
+  const replies7 = await many<{ intent: string; n: number }>(
+    `SELECT intent, COUNT(*) n FROM replies WHERE received_at > unixepoch()-?1 GROUP BY intent`, wk);
+  const rep: Record<string, number> = {};
+  let totalReplies7 = 0;
+  for (const r of replies7) { rep[r.intent] = r.n; totalReplies7 += r.n; }
+
+  // last-run timestamps from worker_state
+  const lastRun = async (k: string) => await getState(env, k);
+  const [lastHealth, lastBackup, lastScore, lastBrief, lastRenewal] = await Promise.all([
+    lastRun("last_healthcheck_ts"), lastRun("last_backup_ts"), lastRun("last_score_run_ts"),
+    lastRun("last_call_brief_ts"), lastRun("last_renewal_check_ts"),
+  ]);
+
+  // top warm leads (opens then score)
+  const warm = await many<{ first_name: string; company: string; email: string; lead_score: number; lead_tier: string; opens: number; opening_angle: string }>(
+    `SELECT l.first_name, l.company, l.email, l.lead_score, l.lead_tier, l.opening_angle,
+            COALESCE(e.opens,0) opens
+       FROM leads l
+       LEFT JOIN (SELECT recipient, COUNT(*) opens FROM email_events WHERE event_type='opened' GROUP BY recipient) e
+         ON e.recipient = l.email
+      WHERE l.sent_at IS NOT NULL AND l.status NOT IN ('unsubscribed','bounced')
+      ORDER BY opens DESC, l.lead_score DESC NULLS LAST LIMIT 6`);
+
+  // clients + revenue
+  const clientCounts = await many<{ status: string; n: number }>(
+    `SELECT status, COUNT(*) n FROM clients GROUP BY status`);
+  const cc: Record<string, number> = {};
+  for (const r of clientCounts) cc[r.status] = r.n;
+  const contractAgg = (await one<{ n: number; spend: number }>(
+    `SELECT COUNT(*) n, COALESCE(SUM(monthly_spend_cents),0) spend FROM client_contracts`)) ?? { n: 0, spend: 0 };
+  const invByStatus = await many<{ status: string; n: number; total: number }>(
+    `SELECT status, COUNT(*) n, COALESCE(SUM(total_cents),0) total FROM invoices GROUP BY status`);
+  const invMap: Record<string, { n: number; total: number }> = {};
+  let invoicedTotal = 0, paidTotal = 0;
+  for (const r of invByStatus) {
+    invMap[r.status] = { n: r.n, total: r.total };
+    invoicedTotal += r.total;
+    if (r.status === "paid") paidTotal += r.total;
+  }
+  const recentSignups = await many<{ company_legal_name: string; email: string; created_at: number }>(
+    `SELECT company_legal_name, email, created_at FROM clients WHERE status='prospect' ORDER BY created_at DESC LIMIT 5`);
+
+  // failures
+  const failed = (await one<{ n: number }>(`SELECT COUNT(*) n FROM leads WHERE status='failed'`))?.n ?? 0;
+  const recentErrors = await many<{ error: string; attempted_at: number }>(
+    `SELECT error, attempted_at FROM send_log WHERE outcome='error' AND attempted_at > unixepoch()-?1 ORDER BY attempted_at DESC LIMIT 5`, wk);
+
+  // --- render ---
+  const ago = (t: number | null) => {
+    if (!t) return `<span style="color:#c9462c">never</span>`;
+    const s = nowSec() - t;
+    if (s < 3600) return `${Math.round(s / 60)}m ago`;
+    if (s < day) return `${Math.round(s / 3600)}h ago`;
+    return `${Math.round(s / day)}d ago`;
+  };
+  const stale = (t: number | null, maxHours: number) => t && (nowSec() - t) > maxHours * 3600;
+  const sendDotOk = sentToday >= cap && cap > 0;
+  const pct = (a: number, b: number) => (b > 0 ? `${Math.round((a / b) * 100)}%` : "—");
+
+  const kpi = (num: string, label: string, color = "#1a1f24") =>
+    `<div class="card" style="margin:0"><div style="font-family:Georgia,serif;font-size:30px;font-weight:500;color:${color}">${num}</div><div class="card-title" style="margin:6px 0 0">${esc(label)}</div></div>`;
+
+  const warmRows = warm.length
+    ? warm.map((w) => {
+        const heat = w.opens >= 2 ? `<span class="badge sent">HOT ${w.opens}x</span>` :
+          w.opens === 1 ? `<span class="badge draft">opened</span>` : `<span class="badge void">cold</span>`;
+        return `<tr><td>${esc(w.first_name || "")} · ${esc(w.company || "?")}</td>` +
+          `<td class="mono">${esc(w.email)}</td>` +
+          `<td>${w.lead_score ?? "—"} ${esc(w.lead_tier || "")}</td><td>${heat}</td></tr>`;
+      }).join("")
+    : `<tr><td colspan="4" class="empty" style="border:0">No contacted leads yet.</td></tr>`;
+
+  const signupRows = recentSignups.length
+    ? recentSignups.map((s) => `<tr><td>${esc(s.company_legal_name)}</td><td class="mono">${esc(s.email)}</td><td>${fmtDate(s.created_at)}</td></tr>`).join("")
+    : `<tr><td colspan="3" class="empty" style="border:0">No portal signups yet.</td></tr>`;
+
+  const errorRows = recentErrors.length
+    ? recentErrors.map((e) => `<tr><td>${fmtDate(e.attempted_at)}</td><td class="mono" style="color:#c9462c">${esc((e.error || "").slice(0, 120))}</td></tr>`).join("")
+    : `<tr><td colspan="2" class="empty" style="border:0">No send errors in the last 7 days.</td></tr>`;
+
+  const body = `
+  <h1>Command center</h1>
+
+  <h2>Today</h2>
+  <div class="grid" style="grid-template-columns:repeat(4,1fr)">
+    ${kpi(`${sentToday} / ${cap}`, "emails sent today", sendDotOk ? "#2f4a3c" : "#c9462c")}
+    ${kpi(ago(lastSend), "last send")}
+    ${kpi(`${ls["queued"] ?? 0}`, "leads queued")}
+    ${kpi(`${scoredCounts.unscored ?? 0}`, "leads unscored")}
+  </div>
+
+  <h2>Automation health</h2>
+  <table>
+    <thead><tr><th>Job</th><th>Last run</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Daily send (cron + safety net)</td><td>${ago(lastSend)}</td><td>${sendDotOk ? `<span class="badge paid">cap met</span>` : `<span class="badge sent">${sentToday}/${cap} today</span>`}</td></tr>
+      <tr><td>Lead scoring</td><td>${ago(lastScore)}</td><td>${stale(lastScore, 36) ? `<span class="badge sent">stale</span>` : `<span class="badge paid">ok</span>`}</td></tr>
+      <tr><td>Call brief</td><td>${ago(lastBrief)}</td><td>${stale(lastBrief, 36) ? `<span class="badge sent">stale</span>` : `<span class="badge paid">ok</span>`}</td></tr>
+      <tr><td>Renewal defense</td><td>${ago(lastRenewal)}</td><td>${stale(lastRenewal, 36) ? `<span class="badge draft">idle</span>` : `<span class="badge paid">ok</span>`}</td></tr>
+      <tr><td>Healthcheck</td><td>${ago(lastHealth)}</td><td>${stale(lastHealth, 36) ? `<span class="badge sent">stale</span>` : `<span class="badge paid">ok</span>`}</td></tr>
+      <tr><td>Weekly backup</td><td>${ago(lastBackup)}</td><td>${stale(lastBackup, 8 * 24) ? `<span class="badge sent">stale</span>` : `<span class="badge paid">ok</span>`}</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Outreach, last 7 days</h2>
+  <div class="grid" style="grid-template-columns:repeat(5,1fr)">
+    ${kpi(`${sent7}`, "sent")}
+    ${kpi(`${ev["delivered"] ?? 0}`, "delivered")}
+    ${kpi(`${ev["opened"] ?? 0}`, `opened (${pct(ev["opened"] ?? 0, sent7)})`)}
+    ${kpi(`${totalReplies7}`, `replies (${pct(totalReplies7, sent7)})`, totalReplies7 > 0 ? "#2f4a3c" : "#1a1f24")}
+    ${kpi(`${rep["meeting"] ?? 0}`, "meeting / positive", (rep["meeting"] ?? 0) > 0 ? "#2f4a3c" : "#1a1f24")}
+  </div>
+
+  <h2>Warmest prospects</h2>
+  <table>
+    <thead><tr><th>Who</th><th>Email</th><th>Score</th><th>Engagement</th></tr></thead>
+    <tbody>${warmRows}</tbody>
+  </table>
+
+  <h2>Clients &amp; revenue</h2>
+  <div class="grid" style="grid-template-columns:repeat(4,1fr)">
+    ${kpi(`${(cc["active"] ?? 0)}`, "active clients")}
+    ${kpi(`${(cc["prospect"] ?? 0)}`, "portal prospects")}
+    ${kpi(money(invoicedTotal), "total invoiced")}
+    ${kpi(money(paidTotal), "collected", "#2f4a3c")}
+  </div>
+  <div class="grid" style="grid-template-columns:repeat(3,1fr);margin-top:16px">
+    ${kpi(`${contractAgg.n}`, "contracts tracked")}
+    ${kpi(money(contractAgg.spend), "client monthly spend")}
+    ${kpi(`${(invMap["sent"]?.n ?? 0)}`, "invoices awaiting payment")}
+  </div>
+  <h2 style="font-size:16px">Recent portal signups</h2>
+  <table><thead><tr><th>Company</th><th>Email</th><th>When</th></tr></thead><tbody>${signupRows}</tbody></table>
+
+  <h2>System controls</h2>
+  <div class="card">
+    <div class="card-title">Live settings</div>
+    <div class="meta-grid">
+      <div class="label-cell">Daily cap</div><div>${esc(env.DAILY_CAP)}</div>
+      <div class="label-cell">Open tracking</div><div>${env.OPEN_TRACKING === "1" ? "on" : "off"}</div>
+      <div class="label-cell">Reply mode</div><div>${env.DRAFT_MODE === "1" ? "draft (human review)" : "auto-send"}</div>
+      <div class="label-cell">Send window</div><div>${esc(env.SEND_WINDOW_START_HOUR)}:00 to ${esc(env.SEND_WINDOW_END_HOUR)}:00 ${esc(env.SEND_WINDOW_TZ)}</div>
+    </div>
+    <p style="font-size:12px;color:#7a7067;margin:14px 0 0">Settings change via <span class="mono">wrangler.toml</span> + deploy. To send a batch on demand, the safety-net routine and <span class="mono">/admin/tick</span> are the supported paths.</p>
+    <div class="actions" style="margin-top:16px">
+      <form method="POST" action="/admin/ui/run/brief" style="display:inline"><button class="btn primary" type="submit">Generate call brief now</button></form>
+      <form method="POST" action="/admin/ui/run/poll" style="display:inline"><button class="btn secondary" type="submit">Poll inbound now</button></form>
+      <a class="btn secondary" href="/admin/ui/contracts">Renewal radar</a>
+      <a class="btn secondary" href="/admin/ui/invoices/new">New invoice</a>
+    </div>
+  </div>
+
+  <h2 style="font-size:16px">Failures</h2>
+  <p style="font-size:13px;color:${failed > 0 ? "#c9462c" : "#7a7067"};margin:0 0 10px">${failed} lead(s) in failed state.</p>
+  <table><thead><tr><th>When</th><th>Last send errors (7d)</th></tr></thead><tbody>${errorRows}</tbody></table>
+  `;
+  return html(layout("Command center", body, { flash, activeNav: "command" }));
+}
+
+// Local TZ-day helper (admin-ui has no import of the index.ts version).
+function todayInTzCC(tz: string): string {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit",
+  }).formatToParts(new Date());
+  const y = parts.find((p) => p.type === "year")?.value;
+  const m = parts.find((p) => p.type === "month")?.value;
+  const d = parts.find((p) => p.type === "day")?.value;
+  return `${y}-${m}-${d}`;
 }
