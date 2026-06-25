@@ -138,16 +138,23 @@ function blockToHtml(block: string): string {
   return `<p>${escapeHtml(block).replace(/\n/g, "<br>")}</p>`;
 }
 
-// Plain, text-style signature for cold outreach: no image, single link.
-// Designed HTML/images on a first cold touch are a Promotions/spam signal,
-// and the text and HTML signatures are kept in sync to avoid mismatch flags.
+// Formatted HTML signature: a left accent bar, bold name, muted title, and
+// clickable email/phone/site. Deliberately image-free — an image on a first
+// cold touch is a Promotions/spam signal — so it stays lightweight while
+// reading as a real signature. The plain-text part keeps the same details.
 function sigHtml(): string {
   return (
-    `<p style="margin:1em 0 0">` +
-    `Brandon<br>` +
-    `Principal Advisor, Signal Advisory<br>` +
-    `brandon@signaladvise.com · 816.355.3350<br>` +
-    `<a href="https://signaladvise.com" style="color:#222">signaladvise.com</a>` +
-    `</p>`
+    `<table cellpadding="0" cellspacing="0" border="0" style="margin-top:18px;border-collapse:collapse;font-family:Helvetica,Arial,sans-serif">` +
+    `<tr><td style="border-left:3px solid #c9462c;padding-left:12px;line-height:1.5">` +
+    `<div style="font-weight:bold;font-size:15px;color:#1a1f24">Brandon</div>` +
+    `<div style="font-size:13px;color:#7a7067">Principal Advisor · Signal Advisory</div>` +
+    `<div style="font-size:13px;color:#222;margin-top:4px">` +
+    `<a href="mailto:brandon@signaladvise.com" style="color:#222;text-decoration:none">brandon@signaladvise.com</a>` +
+    ` &nbsp;·&nbsp; <a href="tel:+18163553350" style="color:#222;text-decoration:none">816.355.3350</a>` +
+    `</div>` +
+    `<div style="font-size:13px;margin-top:2px">` +
+    `<a href="https://signaladvise.com" style="color:#c9462c;text-decoration:none;font-weight:600">signaladvise.com</a>` +
+    `</div>` +
+    `</td></tr></table>`
   );
 }
