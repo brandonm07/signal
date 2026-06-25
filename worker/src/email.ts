@@ -138,14 +138,18 @@ function blockToHtml(block: string): string {
   return `<p>${escapeHtml(block).replace(/\n/g, "<br>")}</p>`;
 }
 
-// Formatted HTML signature: a left accent bar, bold name, muted title, and
-// clickable email/phone/site. Deliberately image-free — an image on a first
-// cold touch is a Promotions/spam signal — so it stays lightweight while
-// reading as a real signature. The plain-text part keeps the same details.
+// Formatted HTML signature: logo, then a left accent bar, bold name, muted
+// title, and clickable email/phone/site. The logo is one small image — a mild
+// deliverability tradeoff on a cold first touch, but requested for brand. The
+// plain-text part keeps the same details for clients that strip HTML.
 function sigHtml(): string {
   return (
     `<table cellpadding="0" cellspacing="0" border="0" style="margin-top:18px;border-collapse:collapse;font-family:Helvetica,Arial,sans-serif">` +
-    `<tr><td style="border-left:3px solid #c9462c;padding-left:12px;line-height:1.5">` +
+    `<tr>` +
+    `<td style="vertical-align:top;padding-right:14px">` +
+    `<img src="https://signaladvise.com/email-icon.png" width="46" height="46" alt="Signal Advisory" style="display:block;border-radius:8px">` +
+    `</td>` +
+    `<td style="vertical-align:top;border-left:3px solid #c9462c;padding-left:12px;line-height:1.5">` +
     `<div style="font-weight:bold;font-size:15px;color:#1a1f24">Brandon</div>` +
     `<div style="font-size:13px;color:#7a7067">Principal Advisor · Signal Advisory</div>` +
     `<div style="font-size:13px;color:#222;margin-top:4px">` +

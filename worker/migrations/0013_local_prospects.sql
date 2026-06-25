@@ -5,8 +5,10 @@
 -- steps 2-4 reuse SEQUENCE_STEPS. Cold framing (recipients were NOT met).
 --
 -- Each opener leads with a current dynamic in the recipient's industry, names
--- the concrete telecom leak it creates, and earns the reply with Brandon's
--- 25-years-inside-the-carriers credibility + a low-effort payoff (one invoice).
+-- the concrete telecom leak it creates (wireline-led, wireless alongside), and
+-- earns the reply with Brandon's 25-years-inside-the-carriers credibility.
+-- CTA is a 15-minute session to review the invoices TOGETHER (no "send a
+-- stranger your bill").
 --
 -- SAFETY: inserted as status='paused' so they do NOT send when this migration
 -- is applied. Release with one statement when ready:
@@ -21,21 +23,21 @@ VALUES
 -- 1. Manning GC — exterior general contractor
 ('Braxton@ManningGC.com','Braxton','Vardys','Manning GC','Project Manager',
  'More phone lines than people?',
- '{{first_name}} — most contractors I look at are paying for 20-30% more active wireless lines than they have people in the field. Crews scale up for a busy stretch, lines get added, and nobody closes them out when a job wraps or a hire leaves.
+ '{{first_name}} — most contractors I look at are paying for 20-30% more active wireless lines than they have people in the field. Crews scale up for a busy stretch, lines get added, and nobody closes them out when a job wraps or a hire leaves. Same story on the wireline side — the office internet and phone lines nobody renegotiates.
 
 I spent 25 years inside the big carriers, so I know exactly where that waste hides — and I find and renegotiate it without you switching anything.
 
-Forward me one recent Verizon or AT&T invoice and I''ll tell you how many lines you''re actually paying for versus how many you use. Want me to take a look?',
+Worth 15 minutes to walk through your wireline and wireless invoices together? Nothing to send over — we pull them up live and I''ll flag what I''d go after.',
  'paused','local-2026',lower(hex(randomblob(16)))),
 
 -- 2. Hoffmann Brothers — home services (HVAC/plumbing/electrical)
 ('adam.brooks@hoffmannbros.com','Adam','Brooks','Hoffmann Brothers','Director of Fleet',
  'The carrier mess after a roll-up',
- '{{first_name}} — home-services groups are growing and acquiring faster than ever right now, and the wireless and connectivity contracts almost never get merged in. You end up carrying each shop''s old carrier account, its own rate plan, and lines for trucks that left the fleet years ago.
+ '{{first_name}} — home-services groups are growing and acquiring faster than ever right now, and the telecom contracts almost never get merged in. You end up carrying each shop''s old carrier account, its own rate plan, lines for trucks that left the fleet years ago, and a different internet and phone deal at every location.
 
 I spent 25 years inside the carriers — consolidating that mess and repricing it is exactly what I do, independent and with no switching.
 
-Send me your current wireless invoices and I''ll map every account, plan, and dead line onto a single page. Worth 15 minutes?',
+Let''s spend 15 minutes going through your wireline and wireless invoices together — I''ll map the accounts and dead lines with you on the call, nothing to email over. Worth a look?',
  'paused','local-2026',lower(hex(randomblob(16)))),
 
 -- 3. Bothwell Regional Health Center — Materials Management (buyer)
@@ -45,7 +47,7 @@ Send me your current wireless invoices and I''ll map every account, plan, and de
 
 I spent 25 years inside those carriers. I find every one of those lines, cut the ones you no longer need, and renegotiate the rest, independent of any vendor.
 
-Worth 15 minutes to get ahead of it before the next repricing letter? I can start from a single invoice.',
+Worth 15 minutes to walk your wireline and wireless invoices together before the next repricing letter? We just look at them on the call — nothing to send ahead.',
  'paused','local-2026',lower(hex(randomblob(16)))),
 
 -- 4. Bothwell — LAN/WAN (pre-cloud circuits angle)
@@ -55,7 +57,7 @@ Worth 15 minutes to get ahead of it before the next repricing letter? I can star
 
 I spent 25 years inside the carriers — I read those circuit contracts for a living and know what they''ll actually concede.
 
-Not your architecture, just the commercials. Point me at one circuit invoice and I''ll tell you whether you''re still on legacy rates. Worth a quick look?',
+No need to hand anything over — let''s spend 15 minutes on your circuit and wireless invoices together and I''ll tell you whether you''re on legacy rates. Worth a quick look?',
  'paused','local-2026',lower(hex(randomblob(16)))),
 
 -- 5. Bothwell — LAN/WAN (right-size angle)
@@ -65,67 +67,67 @@ Not your architecture, just the commercials. Point me at one circuit invoice and
 
 I spent 25 years inside those carriers, so I know which charges are real and which are slack.
 
-Send me a recent circuit bill and I''ll flag what you''re overpaying for — no commitment. Worth 15 minutes?',
+Worth 15 minutes to go through a couple circuit bills together? I''ll flag what looks like slack live on the call — nothing to send me.',
  'paused','local-2026',lower(hex(randomblob(16)))),
 
 -- 6. P1 Service — multi-branch mechanical service
 ('pwinter@p1-service.com','Peter','Winter','P1 Service, LLC','IT Technician',
  'Every P1 branch on a different rate',
- '{{first_name}} — in multi-branch shops like P1, each location usually signed its own internet and phone contract with whatever local rep showed up, years apart, at wildly different rates. Nobody has ever put them side by side.
+ '{{first_name}} — in multi-branch shops like P1, each location usually signed its own internet, phone, and wireless contracts with whatever local rep showed up, years apart, at wildly different rates. Nobody has ever put them side by side.
 
 I spent 25 years inside the carriers — benchmarking and consolidating exactly that is what I do, independent and with no switching.
 
-If keeping those branches online is half your job, let me take the cost side off your plate. Point me at a couple of invoices and I''ll show you the spread. Worth 15 minutes?',
+Let''s put 15 minutes on the calendar and compare your branch internet, phone, and wireless invoices together — I''ll show you the spread on the call. Worth it?',
  'paused','local-2026',lower(hex(randomblob(16)))),
 
 -- 7. Epic Landscape Productions — commercial landscaping
 ('tyconstant@epicland.net','Ty','Constant','Epic Landscape Productions','',
  'What winter costs on your wireless bill',
- '{{first_name}} — commercial landscapers staff way up for the season, add a phone or tablet for every crew, then carry those wireless lines straight through winter when half the crews are gone. The bill never scales back down.
+ '{{first_name}} — commercial landscapers staff way up for the season, add a phone or tablet for every crew, then carry those wireless lines straight through winter when half the crews are gone. The bill never scales back down — and the office internet and phone lines rarely get a second look either.
 
 I spent 25 years inside the carriers and know how to suspend, pool, and reprice those lines so you''re paying for the season you''re actually in.
 
-Forward me a recent wireless invoice and I''ll show you what winter is costing you. Worth 15 minutes?',
+Worth 15 minutes to walk your wireless and wireline invoices together? Nothing to send — we just look at them live.',
  'paused','local-2026',lower(hex(randomblob(16)))),
 
 -- 8. Tempcon — Operations (machine + mobile SIM angle)
 ('don@tempcon.net','Don','Winders','Tempcon','Operations Manager',
  'How many of your SIMs are dormant?',
- '{{first_name}} — refrigeration and HVAC service runs on cellular now: monitoring units phoning home over their own SIMs, a tablet in every truck, techs on the road all day. Those machine and mobile lines multiply quietly, and carriers are happy to keep billing the dormant ones.
+ '{{first_name}} — refrigeration and HVAC service runs on cellular now: monitoring units phoning home over their own SIMs, a tablet in every truck, techs on the road all day. Those machine and mobile lines multiply quietly, and carriers are happy to keep billing the dormant ones — same as the wireline at each shop nobody revisits.
 
 I spent 25 years inside the carriers — finding and repricing exactly those lines is what I do.
 
-Send me a recent wireless invoice and I''ll tell you how many lines are live, dormant, or overpaying. Worth 15 minutes?',
+Let''s spend 15 minutes going through your wireless and wireline invoices together — I''ll point out the live, dormant, and overpriced lines on the call. Worth a look?',
  'paused','local-2026',lower(hex(randomblob(16)))),
 
 -- 9. Tempcon — Purchasing (never-RFP''d vendor spend angle)
 ('kmendoza@tempcon.net','Katrina','Mendoza','Tempcon','Purchasing Agent',
  'The vendor spend that never gets RFP''d',
- '{{first_name}} — telecom and wireless are usually the one recurring vendor spend that never runs through purchasing the way equipment and materials do. It just auto-renews, year after year, at whatever rate someone set once.
+ '{{first_name}} — telecom is usually the one recurring vendor spend that never runs through purchasing the way equipment and materials do. Wireless and wireline both just auto-renew, year after year, at whatever rate someone set once.
 
 I spent 25 years inside the carriers, so I know the real floor on those contracts and negotiate down to it — independent and carrier-neutral.
 
-Send me a current invoice and I''ll show you where it sits against the market. Worth 15 minutes to put it under the same scrutiny as your other vendors?',
+Worth 15 minutes to put your telecom invoices under the same scrutiny as your other vendors — together on a call? Nothing to send ahead.',
  'paused','local-2026',lower(hex(randomblob(16)))),
 
 -- 10. Tompkins Industries — fluid power manufacturer-distributor
 ('cjackson@tompkinsind.com','Chris','Jackson','Tompkins Industries, Inc.','Chief Operating Officer',
  'SG&A you can cut without touching ops',
- '{{first_name}} — with distribution margins as tight as they are right now, telecom and connectivity are some of the only SG&A lines you can cut without touching headcount or service. The multi-site circuits, the fleet, the phone system — all of it rarely gets benchmarked.
+ '{{first_name}} — with distribution margins as tight as they are right now, telecom is one of the only SG&A lines you can cut without touching headcount or service. The multi-site circuits, the phone system, the fleet wireless — all of it rarely gets benchmarked.
 
 I spent 25 years inside the carriers, so I know exactly where the margin is buried and how to get it back, independent of any vendor.
 
-Send me one recent invoice and I''ll show you the room before we even talk. Worth 15 minutes?',
+Worth 15 minutes to walk the circuits, phone system, and wireless invoices together? I''ll show you the room on the call, before any commitment.',
  'paused','local-2026',lower(hex(randomblob(16)))),
 
 -- 11. Cobb Refrigeration (a Temp-Con company) — President
 ('luke@tempcon.net','Luke','Chambers','Cobb Refrigeration','President',
  'Cobb''s connectivity is bigger than it looks',
- '{{first_name}} — as Cobb and Temp-Con have grown, so has the connectivity footprint underneath: monitoring SIMs in equipment, a line in every truck, internet at each location. It compounds quietly, and it drops straight to the bottom line the moment it''s cleaned up.
+ '{{first_name}} — as Cobb and Temp-Con have grown, so has the connectivity footprint underneath: monitoring SIMs in equipment, a line in every truck, internet and phone at each location. It compounds quietly, and it drops straight to the bottom line the moment it''s cleaned up.
 
-I spent 25 years inside the carriers. I find the waste and renegotiate the rest — independent, carrier-neutral, no cost to look.
+I spent 25 years inside the carriers. I find the waste and renegotiate the rest — independent, carrier-neutral, no switching.
 
-Worth 15 minutes, or send me a recent invoice and I''ll show you where I''d start?',
+Worth 15 minutes to go through the wireline and wireless invoices together, and I''ll show you where I''d start?',
  'paused','local-2026',lower(hex(randomblob(16)))),
 
 -- 12. RadSource Imaging Technologies — medical imaging tech/service
@@ -135,5 +137,5 @@ Worth 15 minutes, or send me a recent invoice and I''ll show you where I''d star
 
 I spent 25 years inside the carriers — I read those circuit and wireless contracts for a living and know what they''ll concede.
 
-Point me at a recent invoice and I''ll tell you where RadSource is overpaying. Worth 15 minutes?',
+Worth 15 minutes to walk your circuit and wireless invoices together? I''ll tell you where it looks like legacy pricing, live on the call.',
  'paused','local-2026',lower(hex(randomblob(16))));
