@@ -78,7 +78,7 @@ export function buildEmail(lead: Lead, env: Env): {
     // complaints off the primary signaladvise.com transactional reputation.
     from: `${env.OUTREACH_SENDER_NAME || env.SENDER_NAME} <${env.OUTREACH_SENDER_EMAIL || env.SENDER_EMAIL}>`,
     to: lead.email,
-    reply_to: env.REPLY_TO,
+    reply_to: replyToWithLeadTag(env.REPLY_TO, lead.id),
     subject,
     text,
     html,
@@ -87,6 +87,16 @@ export function buildEmail(lead: Lead, env: Env): {
       "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
     },
   };
+}
+
+// Reply-To carries the lead id (brandon+lead42@...) so a reply from ANY
+// address — not just the one we emailed — can be tied back to its lead by
+// the inbound poller. Gmail delivers plus-addressed mail to the base
+// mailbox unchanged, and reply clients address the Reply-To verbatim.
+export function replyToWithLeadTag(replyTo: string, leadId: number): string {
+  const at = replyTo.indexOf("@");
+  if (at <= 0) return replyTo;
+  return `${replyTo.slice(0, at)}+lead${leadId}@${replyTo.slice(at + 1)}`;
 }
 
 // Thrown when Resend rejects a send; carries the HTTP status so callers can

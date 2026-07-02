@@ -40,7 +40,10 @@ fail CI is not done.
   outreach send carries Resend `Idempotency-Key: lead-{id}-step-{step}`.
   Done = a queue retry or duplicate delivery cannot produce a second email.
 - **Suppression is sacred.** Unsubscribed/bounced/replied leads never get
-  another sequence email, under any code path.
+  another sequence email, under any code path. The `suppressions` table is
+  the durable do-not-email list: it outlives lead rows, every opt-out path
+  (List-Unsubscribe, complaint, hard bounce, reply-based unsubscribe) writes
+  to it, and `processSend()` checks it at the moment of send.
 - **Security helpers have exactly one definition** — `worker/src/shared.ts`
   (`escapeHtml`, `safeEqual`, token signing, svix verify). Never re-implement
   one locally; never bypass escaping when interpolating into HTML.

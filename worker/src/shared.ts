@@ -190,3 +190,33 @@ export async function sendEmail(
 export async function notifyOwner(env: Env, subject: string, text: string): Promise<boolean> {
   return sendEmail(env, { to: OWNER_EMAIL, subject, text });
 }
+
+// ---------- suppression ----------
+// The durable do-not-email list (suppressions table). Rows outlive leads:
+// deleting or re-importing a lead never clears its suppression, because
+// processSend() calls isSuppressed() at the moment of send.
+
+export async function isSuppressed(env: Env, email: string): Promise<boolean> {
+  const addr = email.trim().toLowerCase();
+  if (!addr) return false;
+  const row = await env.DB.prepare(`SELECT 1 AS x FROM suppressions WHERE email = ?1`)
+    .bind(addr)
+    .first();
+  return row !== null;
+}
+
+export async function addSuppression(
+  env: Env,
+  email: string,
+  reason: string,
+  source: string,
+): Promise<void> {
+  const addr = email.trim().toLowerCase();
+  if (!addr || !addr.includes("@")) return;
+  await env.DB.prepare(
+    `INSERT INTO suppressions (email, reason, source) VALUES (?1, ?2, ?3)
+       ON CONFLICT(email) DO NOTHING`,
+  )
+    .bind(addr, reason, source)
+    .run();
+}

@@ -3,6 +3,7 @@
 import type { Env, Intent, Lead } from "./types";
 import { classifyReply } from "./classify";
 import { createDraftReply, getMessage, listInboxMessages } from "./gmail";
+import { addSuppression } from "./shared";
 
 const STATE_KEY_LAST_TS = "gmail_last_internal_ts";
 
@@ -37,7 +38,7 @@ export async function pollInbound(env: Env): Promise<void> {
 
     if (parsed.internalDate <= cursor) continue;
 
-    const lead = await findLeadByEmail(env, extractEmail(parsed.from));
+    const lead = await findLead(env, parsed);
 
     if (parsed.autoSubmitted && parsed.autoSubmitted !== "no") {
       // Likely an automated message. Still log as ooo for visibility.
@@ -73,13 +74,23 @@ export async function pollInbound(env: Env): Promise<void> {
       }
     }
 
-    if (intent === "unsubscribe" && lead) {
-      await env.DB.prepare(
-        `UPDATE leads SET status = 'unsubscribed', updated_at = unixepoch() WHERE id = ?1`,
-      )
-        .bind(lead.id)
-        .run();
+    if (intent === "unsubscribe") {
+      // Durable suppression for both the address that spoke and the address
+      // we emailed — and even when no lead matched at all (e.g. a reply to
+      // manual outreach), the opt-out still sticks.
+      await addSuppression(env, extractEmail(parsed.from), "unsubscribed", "inbound reply");
+      if (lead) {
+        await addSuppression(env, lead.email, "unsubscribed", "inbound reply");
+        await env.DB.prepare(
+          `UPDATE leads SET status = 'unsubscribed', updated_at = unixepoch() WHERE id = ?1`,
+        )
+          .bind(lead.id)
+          .run();
+      }
     } else if (intent === "bounce" && lead) {
+      // Suppress the lead's address, not the sender — bounces come from
+      // mailer-daemon/postmaster, never the dead mailbox itself.
+      await addSuppression(env, lead.email, "bounced", "inbound bounce");
       await env.DB.prepare(
         `UPDATE leads SET status = 'bounced', updated_at = unixepoch() WHERE id = ?1`,
       )
@@ -102,6 +113,30 @@ export async function pollInbound(env: Env): Promise<void> {
   if (newCursor > cursor) {
     await setCursor(env, newCursor);
   }
+}
+
+// Matches the +lead<N> tag that outreach Reply-To addresses embed (see
+// replyToWithLeadTag in email.ts). Exported for tests.
+export function leadIdFromRecipients(toHeader: string): number | null {
+  const m = toHeader.match(/\+lead(\d+)@/i);
+  return m ? parseInt(m[1], 10) : null;
+}
+
+async function findLead(
+  env: Env,
+  parsed: { to: string; from: string },
+): Promise<Lead | null> {
+  // 1. Reply-To tag: definitive, and survives the reply coming from a
+  //    different address than the one we emailed.
+  const tagged = leadIdFromRecipients(parsed.to ?? "");
+  if (tagged !== null) {
+    const byId = await env.DB.prepare(`SELECT * FROM leads WHERE id = ?1`)
+      .bind(tagged)
+      .first<Lead>();
+    if (byId) return byId;
+  }
+  // 2. Fallback: exact match on the sender's address.
+  return await findLeadByEmail(env, extractEmail(parsed.from));
 }
 
 async function findLeadByEmail(env: Env, email: string): Promise<Lead | null> {
