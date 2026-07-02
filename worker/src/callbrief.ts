@@ -3,10 +3,12 @@
 // ICP score. Each entry carries a call opener and a 20-second voicemail
 // script so the only remaining work is dialing.
 //
-// Also accelerates engaged leads: anyone with 2+ opens whose next sequence
-// touch is scheduled in the future gets pulled up to "now". This only
-// reschedules an existing queued step, so the at-most-once and suppression
-// invariants are untouched.
+// Opens rank the call sheet but must never drive automated sends: pixel
+// "opens" include mail-client image-proxy prefetches (Apple Mail, Outlook),
+// so an open is not proof a human read anything. An earlier version
+// auto-accelerated 2+-open leads' next sequence step to "now" every day,
+// which collapsed the 4/6/7-day cadence into consecutive daily emails for
+// any lead whose client prefetched images. Do not reintroduce that.
 import type { Env } from "./types";
 import { OWNER_EMAIL, escapeHtml, getState, sendEmail, setState } from "./shared";
 
@@ -42,20 +44,8 @@ export async function maybeDailyCallBrief(env: Env): Promise<void> {
 export async function runCallBrief(env: Env): Promise<void> {
   const now = Math.floor(Date.now() / 1000);
 
-  // 1. Accelerate engaged leads: 2+ opens and a future-scheduled next touch.
-  await env.DB.prepare(
-    `UPDATE leads SET scheduled_for = unixepoch(), updated_at = unixepoch()
-      WHERE status = 'queued'
-        AND scheduled_for > unixepoch()
-        AND email IN (
-          SELECT recipient FROM email_events
-           WHERE event_type = 'opened'
-           GROUP BY recipient HAVING COUNT(*) >= 2
-        )`,
-  ).run();
-
-  // 2. Pick the call sheet: contacted leads (step 1 sent), not suppressed,
-  //    not briefed this week, ranked by opens then score.
+  // Pick the call sheet: contacted leads (step 1 sent), not suppressed,
+  // not briefed this week, ranked by opens then score.
   const rs = await env.DB.prepare(
     `SELECT l.id, l.email, l.first_name, l.last_name, l.company, l.title,
             l.lead_score, l.lead_tier, l.opening_angle, l.step,
@@ -86,7 +76,7 @@ export async function runCallBrief(env: Env): Promise<void> {
     html: `<pre style="font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.5">${escapeHtml(text)}</pre>`,
   });
 
-  // 3. Stamp so they don't reappear tomorrow.
+  // Stamp so they don't reappear tomorrow.
   for (const r of rows) {
     await env.DB.prepare(
       `UPDATE leads SET briefed_at = unixepoch() WHERE id = ?1`,
