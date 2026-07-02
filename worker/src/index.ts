@@ -4,7 +4,9 @@ import { pollInbound } from "./inbound";
 import { runPeriodicMaintenance } from "./health";
 import { nextSequenceState } from "./sequence";
 import {
+  addSuppression,
   escapeHtml,
+  isSuppressed,
   notifyOwner,
   randomHex,
   safeEqual,
@@ -182,6 +184,20 @@ async function processSend(leadId: number, env: Env): Promise<void> {
   // retry after a permanent failure (status 'failed'), and an unsubscribe or
   // bounce that landed between claim and delivery.
   if (lead.status !== "sending") return;
+
+  // The durable do-not-email list is checked at the moment of send, so no
+  // code path — a re-imported list, a manual re-queue, a resurrected lead
+  // row — can ever email a suppressed address.
+  if (await isSuppressed(env, lead.email)) {
+    await env.DB.prepare(
+      `UPDATE leads SET status = 'unsubscribed',
+              error = 'on suppression list; send blocked', updated_at = unixepoch()
+        WHERE id = ?1`,
+    )
+      .bind(lead.id)
+      .run();
+    return;
+  }
 
   const currentStep = lead.step ?? 1;
 
@@ -603,12 +619,14 @@ async function handleResendWebhook(req: Request, env: Env): Promise<Response> {
   if (type === "email.bounced") {
     const isHard = (evt.data?.bounce?.type ?? "").toLowerCase() !== "transient";
     if (isHard) {
+      await addSuppression(env, recipient, "bounced", "resend webhook");
       await env.DB.prepare(
         `UPDATE leads SET status='bounced', error='hard bounce (resend webhook)', updated_at=unixepoch()
            WHERE email = ?1 AND status NOT IN ('unsubscribed','bounced')`,
       ).bind(recipient).run();
     }
   } else if (type === "email.complained") {
+    await addSuppression(env, recipient, "complaint", "resend webhook");
     await env.DB.prepare(
       `UPDATE leads SET status='unsubscribed', error='spam complaint (resend webhook)', updated_at=unixepoch()
          WHERE email = ?1 AND status != 'unsubscribed'`,
@@ -642,6 +660,17 @@ async function handleUnsubscribe(url: URL, req: Request, env: Env): Promise<Resp
         `<button type="submit" style="padding:12px 24px;background:#c9462c;color:#fff;border:0;border-radius:6px;font-size:15px;cursor:pointer">Confirm unsubscribe</button>` +
         `</form>`,
     );
+  }
+
+  // Durable suppression first, regardless of the lead's current status —
+  // an opt-out must stick even if the row is later deleted or re-imported.
+  const optOut = await env.DB.prepare(
+    `SELECT email FROM leads WHERE unsubscribe_token = ?1`,
+  )
+    .bind(token)
+    .first<{ email: string }>();
+  if (optOut) {
+    await addSuppression(env, optOut.email, "unsubscribed", "list-unsubscribe");
   }
 
   const result = await env.DB.prepare(
