@@ -5,34 +5,34 @@ import Footer from '../components/Footer.astro';
 ---
 
 <Base
-  title="Free Carrier Invoice Audit — Signal Advisory"
-  description="Send us your last telecom invoice. We mark up where we'd renegotiate, surface hidden charges, and tell you what your contract is worth. No obligation."
+  title="Free Bill Review for Your Business | Signal Advisory"
+  description="Send one internet, phone, or cell bill. Within 24 hours we send it back marked up with every junk fee, overpriced line, and the rate we would negotiate. No obligation. No savings, no fee."
 >
   <Nav />
 
   <section class="container mx-auto max-w-3xl px-6 py-20 md:px-10 md:py-28">
-    <p class="mb-5 text-xs uppercase tracking-[0.2em] text-stone">No-cost audit · 24-hour turnaround</p>
+    <p class="mb-5 text-xs uppercase tracking-[0.2em] text-stone">Free bill review · back within 24 hours</p>
     <h1 class="display text-5xl font-light leading-[0.95] md:text-6xl">
-      We'll mark up your<br />
-      <em class="text-signal not-italic font-medium">last carrier invoice.</em>
+      Send one bill.<br />
+      <em class="text-signal not-italic font-medium">We'll show you what you're overpaying.</em>
     </h1>
     <p class="mt-8 text-lg leading-relaxed text-ink/75">
-      Send one recent invoice from any of your carriers, internet providers, or UCaaS
-      providers. Within 24 business hours we send back the same PDF with three things flagged:
+      Any recent invoice from your internet, phone, or cell provider. Within 24 business
+      hours you get the same PDF back with three things flagged:
     </p>
     <ul class="mt-6 space-y-3 text-ink/80 text-lg">
-      <li class="flex gap-3"><span class="text-signal font-semibold">·</span>Line items we'd renegotiate, with the rate we'd target</li>
-      <li class="flex gap-3"><span class="text-signal font-semibold">·</span>Hidden recovery fees and surcharges (typically 8–12% of invoice)</li>
-      <li class="flex gap-3"><span class="text-signal font-semibold">·</span>Contract clauses worth a closer look before your next renewal</li>
+      <li class="flex gap-3"><span class="text-signal font-semibold">·</span>Charges we would fight, and the rate we would push for</li>
+      <li class="flex gap-3"><span class="text-signal font-semibold">·</span>Hidden fees and surcharges that are not actually taxes (often 8 to 12% of the bill)</li>
+      <li class="flex gap-3"><span class="text-signal font-semibold">·</span>Contract terms worth knowing before your next renewal</li>
     </ul>
     <p class="mt-8 text-ink/75">
-      Zero obligation to engage further. If we don't find anything material, you get an honest
-      "looks tight" — and the time we spent reviewing is on us.
+      No obligation. If the bill looks tight, we tell you that and the review is on us.
+      If you want us to negotiate, it is no savings, no fee.
     </p>
 
     <!-- Form -->
     <form id="audit-form" class="mt-16 grid gap-5 border-t border-ink/10 pt-12">
-      <p class="mb-2 text-xs uppercase tracking-[0.2em] text-stone">Request the audit</p>
+      <p class="mb-2 text-xs uppercase tracking-[0.2em] text-stone">Request your free review</p>
 
       <div class="grid gap-5 md:grid-cols-2">
         <div>
@@ -51,7 +51,7 @@ import Footer from '../components/Footer.astro';
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-ink mb-2" for="carrier">Primary carrier (optional)</label>
+        <label class="block text-sm font-medium text-ink mb-2" for="carrier">Who is your provider? (optional)</label>
         <input id="carrier" name="carrier" type="text" placeholder="e.g. Spectrum Business, AT&T, Lumen" class="w-full border border-ink/20 px-4 py-3 focus:border-signal outline-none" />
       </div>
 
@@ -61,15 +61,15 @@ import Footer from '../components/Footer.astro';
       </div>
 
       <p class="text-sm text-stone">
-        Submit this form and we'll email you a secure one-time upload link for the invoice
-        within minutes — keeping it out of email attachments. By submitting, you agree to
+        Submit this form and we'll email you a secure one-time upload link for the bill
+        within minutes, so it never travels as an email attachment. By submitting, you agree to
         our <a href="/privacy" class="text-signal underline">privacy policy</a>. We use
-        your invoice solely to provide the audit you requested and retain uploaded files
+        your bill solely to provide the review you requested and keep uploaded files
         no longer than 90 days.
       </p>
 
       <button type="submit" class="mt-2 inline-block w-full rounded-sm bg-signal px-6 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors">
-        Request secure invoice upload link
+        Send me the secure upload link
       </button>
 
       <div id="audit-status" class="hidden text-sm"></div>
@@ -110,7 +110,7 @@ import Footer from '../components/Footer.astro';
         status.classList.remove('hidden');
       } finally {
         btn.disabled = false;
-        btn.textContent = 'Request secure invoice upload link';
+        btn.textContent = 'Send me the secure upload link';
       }
     });
   }
