@@ -43,7 +43,7 @@ const canonicalUrl = canonical ?? `${PROD_ORIGIN}${normalizedPath}`;
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=Manrope:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <!-- Open Graph -->
@@ -142,7 +142,7 @@ const canonicalUrl = canonical ?? `${PROD_ORIGIN}${normalizedPath}`;
       },
       "founder": {
         "@type": "Person",
-        "name": "Brandon Murphy",
+        "name": "Brandon",
         "jobTitle": "Principal Advisor",
         "worksFor": { "@id": "https://signaladvise.com/#org" }
       },
@@ -165,5 +165,17 @@ const canonicalUrl = canonical ?? `${PROD_ORIGIN}${normalizedPath}`;
   </head>
   <body>
     <slot />
+    <script is:inline>
+      // Scroll reveal. Progressive: without JS everything is visible; with JS,
+      // .reveal elements fade up as they enter. Reduced-motion users get no
+      // motion via the CSS media query.
+      document.documentElement.classList.add('js');
+      const io = new IntersectionObserver((entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+        }
+      }, { rootMargin: '0px 0px -8% 0px', threshold: 0.1 });
+      document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+    </script>
   </body>
 </html>
