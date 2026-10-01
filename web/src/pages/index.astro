@@ -101,7 +101,7 @@ const icons: Record<string, string> = {
   <Nav />
 
   <!-- Hero -->
-  <section class="hero-bg hero-grid relative overflow-hidden text-white">
+  <section class="hero-bg on-dark relative overflow-hidden">
     <div class="container relative mx-auto max-w-6xl px-6 pb-20 pt-16 md:px-10 md:pb-28 md:pt-24">
       <div class="grid items-center gap-14 lg:grid-cols-12">
         <div class="min-w-0 lg:col-span-6">
@@ -109,7 +109,7 @@ const icons: Record<string, string> = {
             <span class="h-1.5 w-1.5 rounded-full bg-glow"></span>
             Kansas City · Small business
           </span>
-          <h1 class="display mt-6 text-4xl font-bold leading-[1.05] md:text-5xl lg:text-[3.6rem]">
+          <h1 class="display mt-6 text-4xl font-medium leading-[1.05] md:text-5xl lg:text-[3.6rem]">
             Your internet, phone, and cell bills are too high.
             <span class="grad-text">We make them smaller.</span>
           </h1>
@@ -184,15 +184,15 @@ const icons: Record<string, string> = {
     <div class="container mx-auto max-w-6xl px-6 md:px-10">
       <div class="grid divide-y divide-ink/10 md:grid-cols-3 md:divide-x md:divide-y-0">
         <div class="py-8 md:pr-10">
-          <p class="display text-3xl font-bold">25+ years</p>
+          <p class="display text-3xl font-semibold">25+ years</p>
           <p class="mt-1 text-sm text-stone">inside the major carriers, now on your side</p>
         </div>
         <div class="py-8 md:px-10">
-          <p class="display text-3xl font-bold">24 hours</p>
+          <p class="display text-3xl font-semibold">24 hours</p>
           <p class="mt-1 text-sm text-stone">from your bill to a marked-up answer</p>
         </div>
         <div class="py-8 md:pl-10">
-          <p class="display text-3xl font-bold">$0</p>
+          <p class="display text-3xl font-semibold">$0</p>
           <p class="mt-1 text-sm text-stone">unless we actually save you money</p>
         </div>
       </div>
@@ -204,7 +204,7 @@ const icons: Record<string, string> = {
     <div class="container mx-auto max-w-6xl px-6 md:px-10">
       <div class="reveal max-w-2xl">
         <span class="pill pill-light">What we actually do</span>
-        <h2 class="display mt-5 text-3xl font-bold leading-tight md:text-5xl">
+        <h2 class="display mt-5 text-3xl font-medium leading-tight md:text-5xl">
           Three bills. One job: make them smaller.
         </h2>
         <p class="mt-5 text-lg text-ink/70 leading-relaxed">
@@ -231,14 +231,14 @@ const icons: Record<string, string> = {
     <div class="container mx-auto max-w-6xl px-6 md:px-10">
       <div class="reveal max-w-2xl">
         <span class="pill pill-light">How it works</span>
-        <h2 class="display mt-5 text-3xl font-bold leading-tight md:text-5xl">
+        <h2 class="display mt-5 text-3xl font-medium leading-tight md:text-5xl">
           Three steps. Nothing to install, nothing to switch.
         </h2>
       </div>
       <div class="mt-14 grid gap-8 md:grid-cols-3">
         {steps.map((s, i) => (
           <div class="reveal relative" style={`transition-delay:${i * 90}ms`}>
-            <p class="display grad-text text-5xl font-bold">{s.n}</p>
+            <p class="display grad-text text-5xl font-medium">{s.n}</p>
             <h3 class="display mt-4 text-xl font-semibold leading-snug">{s.title}</h3>
             <p class="mt-3 text-ink/70 leading-relaxed text-[15px]">{s.body}</p>
           </div>
@@ -256,10 +256,10 @@ const icons: Record<string, string> = {
   <!-- Why Brandon -->
   <section id="why" class="py-24 md:py-28">
     <div class="container mx-auto max-w-6xl px-6 md:px-10">
-      <div class="tile-dark reveal grid gap-10 p-8 md:grid-cols-5 md:p-14">
+      <div class="tile-dark on-dark reveal grid gap-10 p-8 md:grid-cols-5 md:p-14">
         <div class="md:col-span-3">
           <span class="pill pill-dark">Why it works</span>
-          <h2 class="display mt-5 text-3xl font-bold leading-tight md:text-4xl">
+          <h2 class="display mt-5 text-3xl font-medium leading-tight md:text-4xl">
             25 years on the other side of the table.
           </h2>
           <p class="mt-6 text-white/75 leading-relaxed">
@@ -272,7 +272,7 @@ const icons: Record<string, string> = {
             Signal Advisory is independent. We are not tied to any provider, we do not sell
             carriers, and we do not get paid by you unless your bill goes down.
           </p>
-          <a href="/results" class="mt-8 inline-flex items-center gap-2 font-semibold text-glow hover:underline">
+          <a href="/results" class="mt-8 inline-flex items-center gap-2 font-semibold grad-text hover:underline">
             See what the work looks like
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
           </a>
@@ -297,7 +297,7 @@ const icons: Record<string, string> = {
     <div class="container mx-auto max-w-6xl px-6 md:px-10 grid items-center gap-12 md:grid-cols-2">
       <div class="reveal">
         <span class="pill pill-light">What it costs</span>
-        <h2 class="display mt-5 text-3xl font-bold leading-tight md:text-5xl">
+        <h2 class="display mt-5 text-3xl font-medium leading-tight md:text-5xl">
           The review is free. Negotiation is no savings, no fee.
         </h2>
         <p class="mt-6 text-lg text-ink/70 leading-relaxed">
@@ -309,7 +309,7 @@ const icons: Record<string, string> = {
         </p>
       </div>
       <div class="reveal tile flex flex-col items-start" style="transition-delay:120ms">
-        <p class="display grad-text text-7xl font-bold leading-none">$0</p>
+        <p class="display grad-text text-7xl font-semibold leading-none">$0</p>
         <p class="display mt-3 text-xl font-semibold">unless we save you money</p>
         <ul class="mt-6 space-y-3 text-[15px] text-ink/75">
           <li class="flex gap-3"><span class="mt-1 text-signal">✓</span>Free 24-hour bill review, every time</li>
@@ -327,7 +327,7 @@ const icons: Record<string, string> = {
     <div class="container mx-auto max-w-3xl px-6 md:px-10">
       <div class="reveal">
         <span class="pill pill-light">Common questions</span>
-        <h2 class="display mt-5 text-3xl font-bold leading-tight md:text-5xl">
+        <h2 class="display mt-5 text-3xl font-medium leading-tight md:text-5xl">
           The things owners ask before they send a bill.
         </h2>
       </div>
@@ -351,9 +351,9 @@ const icons: Record<string, string> = {
   </section>
 
   <!-- Final CTA -->
-  <section id="contact" class="hero-bg relative overflow-hidden text-white">
+  <section id="contact" class="hero-bg on-dark relative overflow-hidden">
     <div class="container relative mx-auto max-w-4xl px-6 py-24 text-center md:px-10 md:py-32">
-      <h2 class="display reveal text-4xl font-bold leading-tight md:text-6xl">
+      <h2 class="display reveal text-4xl font-medium leading-tight md:text-6xl">
         Send one bill.<br />
         <span class="grad-text">Know where you stand in 24 hours.</span>
       </h2>

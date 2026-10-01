@@ -2,17 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Brand tokens. Modern-tech system: deep ink, cool off-white paper, an
-   electric signal accent used boldly, and a warm glow for gradients. */
+/* Brand tokens. Graphite + ice: restrained, monochrome-first, one cool accent.
+   The accent has two surfaces: ice (--glow) on dark sections, steel (--signal)
+   on light sections, so contrast holds everywhere. */
 :root {
-  --ink: #0a0e14;
-  --ink-2: #111827;
-  --paper: #f7f8fa;
-  --signal: #e2502f;
-  --glow: #ff8a3d;
+  --ink: #0b0d10;
+  --ink-2: #14181d;
+  --paper: #f6f7f9;
+  --signal: #2b6cb0;   /* steel blue: accent on light surfaces */
+  --glow: #bfe3ff;     /* ice blue: accent on dark surfaces */
   --moss: #2f6b4f;
   --stone: #6b7280;
-  --line: rgb(10 14 20 / 0.08);
+  --line: rgb(11 13 16 / 0.08);
 }
 
 html {
@@ -27,92 +28,85 @@ html {
 }
 
 .display {
-  font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-  letter-spacing: -0.025em;
+  font-family: 'Inter', system-ui, sans-serif;
+  letter-spacing: -0.035em;
 }
+
+/* ---------- surfaces ---------- */
+
+.on-dark { color: #fff; }
+.hero-bg {
+  background: linear-gradient(160deg, #171b21 0%, #0b0d10 55%, #0b0d10 100%);
+}
+
+/* Accent text: steel on light, ice on dark */
+.grad-text { color: var(--signal); }
+.on-dark .grad-text { color: var(--glow); }
 
 /* ---------- components ---------- */
 
-/* Gradient text for the hero emphasis */
-.grad-text {
-  background: linear-gradient(92deg, var(--signal) 0%, var(--glow) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* Primary button: gradient fill with a soft glow on hover */
 .btn-primary {
-  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  border-radius: 0.75rem;
+  border-radius: 6px;
   padding: 0.95rem 1.5rem;
   font-weight: 600;
   font-size: 0.95rem;
   color: #fff;
-  background: linear-gradient(135deg, var(--signal), var(--glow));
-  box-shadow: 0 8px 24px -8px rgb(226 80 47 / 0.55);
-  transition: transform 160ms ease, box-shadow 160ms ease;
+  background: var(--ink);
+  transition: opacity 160ms ease, transform 160ms ease;
 }
-.btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 34px -10px rgb(226 80 47 / 0.7);
-}
+.btn-primary:hover { opacity: 0.88; }
+.on-dark .btn-primary { background: #fff; color: var(--ink); }
+
 .btn-ghost {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  border-radius: 0.75rem;
+  border-radius: 6px;
   padding: 0.95rem 1.5rem;
   font-weight: 600;
   font-size: 0.95rem;
-  border: 1px solid rgb(255 255 255 / 0.18);
+  border: 1px solid rgb(255 255 255 / 0.3);
   color: #fff;
-  background: rgb(255 255 255 / 0.04);
-  transition: background 160ms ease, border-color 160ms ease;
+  background: transparent;
+  transition: border-color 160ms ease, background 160ms ease;
 }
-.btn-ghost:hover {
-  background: rgb(255 255 255 / 0.09);
-  border-color: rgb(255 255 255 / 0.32);
-}
+.btn-ghost:hover { border-color: rgb(255 255 255 / 0.6); background: rgb(255 255 255 / 0.05); }
+
 .btn-ghost-dark {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  border-radius: 0.75rem;
+  border-radius: 6px;
   padding: 0.95rem 1.5rem;
   font-weight: 600;
   font-size: 0.95rem;
-  border: 1px solid var(--line);
+  border: 1px solid rgb(11 13 16 / 0.2);
   color: var(--ink);
   background: #fff;
-  transition: border-color 160ms ease, transform 160ms ease;
+  transition: border-color 160ms ease;
 }
-.btn-ghost-dark:hover {
-  border-color: rgb(10 14 20 / 0.35);
-  transform: translateY(-1px);
-}
+.btn-ghost-dark:hover { border-color: rgb(11 13 16 / 0.5); }
 
-/* Card tile (bento) */
+/* Card tile */
 .tile {
   background: #fff;
   border: 1px solid var(--line);
-  border-radius: 1.25rem;
+  border-radius: 12px;
   padding: 1.75rem;
-  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  transition: transform 180ms ease, box-shadow 180ms ease;
 }
 .tile:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 20px 40px -24px rgb(10 14 20 / 0.35);
-  border-color: rgb(10 14 20 / 0.16);
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px -28px rgb(11 13 16 / 0.35);
 }
 .tile-dark {
   background: var(--ink);
   color: #fff;
   border: 1px solid rgb(255 255 255 / 0.08);
-  border-radius: 1.5rem;
+  border-radius: 14px;
 }
 
 /* Icon badge */
@@ -122,69 +116,38 @@ html {
   justify-content: center;
   width: 2.75rem;
   height: 2.75rem;
-  border-radius: 0.9rem;
-  background: linear-gradient(135deg, rgb(226 80 47 / 0.14), rgb(255 138 61 / 0.14));
+  border-radius: 8px;
+  background: rgb(43 108 176 / 0.1);
   color: var(--signal);
 }
 
-/* Eyebrow pill */
+/* Eyebrow: plain tracked caps, no chrome */
 .pill {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  border-radius: 999px;
-  padding: 0.35rem 0.85rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
 }
-.pill-dark {
-  background: rgb(255 255 255 / 0.07);
-  border: 1px solid rgb(255 255 255 / 0.14);
-  color: rgb(255 255 255 / 0.85);
-}
-.pill-light {
-  background: rgb(226 80 47 / 0.1);
-  border: 1px solid rgb(226 80 47 / 0.25);
-  color: var(--signal);
-}
-
-/* Hero glow backdrop */
-.hero-bg {
-  background:
-    radial-gradient(900px 520px at 85% 10%, rgb(255 138 61 / 0.28), transparent 60%),
-    radial-gradient(700px 480px at 10% 90%, rgb(226 80 47 / 0.18), transparent 60%),
-    var(--ink);
-}
-.hero-grid::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgb(255 255 255 / 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(255 255 255 / 0.045) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
-  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
-  pointer-events: none;
-}
+.pill span { display: none; }
+.pill-dark { color: rgb(255 255 255 / 0.55); }
+.pill-light { color: var(--stone); }
 
 /* Sticky glass nav */
 .glass {
-  background: rgb(247 248 250 / 0.82);
+  background: rgb(246 247 249 / 0.84);
   backdrop-filter: saturate(160%) blur(12px);
   -webkit-backdrop-filter: saturate(160%) blur(12px);
 }
 
-/* ---------- the bill markup (hero visual) ---------- */
+/* ---------- the bill markup (hero visual, dark card) ---------- */
 .bill {
-  background: #fff;
-  color: var(--ink);
-  border-radius: 1.25rem;
-  box-shadow:
-    0 40px 80px -30px rgb(0 0 0 / 0.6),
-    0 0 0 1px rgb(255 255 255 / 0.08);
+  background: #13171c;
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 40px 80px -30px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.08);
   overflow: hidden;
   font-size: 0.9rem;
 }
@@ -193,30 +156,26 @@ html {
   align-items: center;
   justify-content: space-between;
   padding: 0.9rem 1.25rem;
-  border-bottom: 1px solid var(--line);
-  background: #fbfbfc;
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  background: #181d23;
 }
-/* On narrow screens the badge hangs over the header; give the header room. */
-@media (max-width: 1023px) {
-  .bill-head { padding-top: 1.9rem; }
-  .bill-badge { font-size: 0.85rem; padding: 0.6rem 0.85rem; }
-}
+.bill .text-stone { color: rgb(255 255 255 / 0.5); }
 .bill-row {
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: 0.75rem;
   padding: 0.7rem 1.25rem;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
 }
 .bill-row.flag .bill-name {
   text-decoration: line-through;
-  text-decoration-color: var(--signal);
+  text-decoration-color: var(--glow);
   text-decoration-thickness: 2px;
-  color: rgb(10 14 20 / 0.55);
+  color: rgb(255 255 255 / 0.4);
 }
 .bill-row.flag .bill-amt {
-  color: rgb(10 14 20 / 0.45);
+  color: rgb(255 255 255 / 0.4);
   text-decoration: line-through;
 }
 .bill-chip {
@@ -224,15 +183,15 @@ html {
   margin-left: 0.5rem;
   padding: 0.15rem 0.5rem;
   border-radius: 999px;
-  background: rgb(226 80 47 / 0.12);
-  color: var(--signal);
+  border: 1px solid rgb(191 227 255 / 0.4);
+  color: var(--glow);
   font-size: 0.7rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
 .bill-save {
-  color: var(--signal);
+  color: var(--glow);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
@@ -241,19 +200,23 @@ html {
   justify-content: space-between;
   align-items: baseline;
   padding: 0.9rem 1.25rem;
-  background: #fbfbfc;
+  background: #181d23;
 }
+.bill-total .line-through { color: rgb(255 255 255 / 0.4); }
 .bill-badge {
   position: absolute;
-  right: 0.9rem;
-  top: -0.9rem;
-  transform: rotate(-3deg);
-  background: linear-gradient(135deg, var(--signal), var(--glow));
-  color: #fff;
-  border-radius: 0.9rem;
-  padding: 0.7rem 1rem;
-  font-weight: 700;
-  box-shadow: 0 16px 36px -12px rgb(226 80 47 / 0.8);
+  right: 1rem;
+  top: -1rem;
+  background: var(--glow);
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+  font-weight: 600;
+}
+/* On narrow screens the badge hangs over the header; give the header room. */
+@media (max-width: 1023px) {
+  .bill-head { padding-top: 1.9rem; }
+  .bill-badge { font-size: 0.85rem; padding: 0.5rem 0.8rem; }
 }
 
 /* staggered entrance for the bill */
@@ -262,9 +225,9 @@ html {
   to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes pop {
-  0%   { opacity: 0; transform: rotate(-3deg) scale(0.7); }
-  70%  { opacity: 1; transform: rotate(-3deg) scale(1.08); }
-  100% { opacity: 1; transform: rotate(-3deg) scale(1); }
+  0%   { opacity: 0; transform: scale(0.8); }
+  70%  { opacity: 1; transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
 }
 .bill-row, .bill-total { animation: rise 500ms ease both; }
 .bill-row:nth-child(2) { animation-delay: 150ms; }
@@ -275,18 +238,15 @@ html {
 .bill-row:nth-child(7) { animation-delay: 900ms; }
 .bill-total { animation-delay: 1050ms; }
 .bill-chip { animation: rise 400ms ease both; animation-delay: 1300ms; }
-.bill-badge { animation: pop 600ms cubic-bezier(.2,.9,.3,1.3) both; animation-delay: 1600ms; }
+.bill-badge { animation: pop 500ms cubic-bezier(.2,.9,.3,1.2) both; animation-delay: 1600ms; }
 
 /* ---------- scroll reveal ---------- */
 html.js .reveal {
   opacity: 0;
-  transform: translateY(16px);
+  transform: translateY(14px);
   transition: opacity 600ms ease, transform 600ms ease;
 }
-html.js .reveal.in {
-  opacity: 1;
-  transform: none;
-}
+html.js .reveal.in { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
@@ -306,10 +266,7 @@ details.faq > summary {
   gap: 1rem;
 }
 details.faq > summary::-webkit-details-marker { display: none; }
-details.faq > summary .chev {
-  flex: none;
-  transition: transform 200ms ease;
-}
+details.faq > summary .chev { flex: none; transition: transform 200ms ease; }
 details.faq[open] > summary .chev { transform: rotate(45deg); }
 
 /* ---------- forms ---------- */
@@ -317,14 +274,14 @@ details.faq[open] > summary .chev { transform: rotate(45deg); }
   width: 100%;
   border: 1px solid var(--line);
   background: #fff;
-  border-radius: 0.75rem;
+  border-radius: 6px;
   padding: 0.85rem 1rem;
   outline: none;
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 .field:focus {
   border-color: var(--signal);
-  box-shadow: 0 0 0 4px rgb(226 80 47 / 0.14);
+  box-shadow: 0 0 0 4px rgb(43 108 176 / 0.14);
 }
 
 /* Long-form article typography (blog) */
@@ -332,21 +289,19 @@ details.faq[open] > summary .chev { transform: rotate(45deg); }
 .prose-lg {
   font-size: 1.0625rem;
   line-height: 1.75;
-  color: rgb(10 14 20 / 0.86);
+  color: rgb(11 13 16 / 0.86);
 }
 .prose p { margin: 1.4em 0; }
 .prose p:first-child { margin-top: 0; }
 .prose h2 {
-  font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   font-size: 1.75rem;
   font-weight: 600;
   line-height: 1.25;
   margin: 3em 0 0.85em;
 }
 .prose h3 {
-  font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.02em;
   font-size: 1.35rem;
   font-weight: 600;
   line-height: 1.3;
@@ -367,6 +322,6 @@ details.faq[open] > summary .chev { transform: rotate(45deg); }
   margin: 2em 0;
   padding: 0.4em 1.2em;
   font-style: italic;
-  color: rgb(10 14 20 / 0.7);
+  color: rgb(11 13 16 / 0.7);
 }
 .prose hr { border: 0; border-top: 1px solid var(--line); margin: 3em 0; }
