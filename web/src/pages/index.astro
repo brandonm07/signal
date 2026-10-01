@@ -3,220 +3,261 @@ import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 
-const services = [
+const bills = [
   {
-    tag: '01',
-    title: 'Provider negotiation',
-    body: 'We negotiate directly with every major U.S. provider on your behalf. Rate is one variable. Term length, exit rights, redundancy, and rate-protection clauses move more money over the life of a contract.',
+    title: 'Internet and phone lines',
+    body: 'Your office internet, your phone system, and the old lines nobody remembers signing up for: alarm, fax, elevator. We check every line item against what you actually use and what the market charges today.',
   },
   {
-    tag: '02',
-    title: 'Vendor consolidation',
-    body: 'Mid-market companies typically pay four to six providers for services that should sit with one or two. We inventory every contract, renewal date, and monthly cost, then make the consolidation decisions straightforward.',
+    title: 'Cell phones and tablets',
+    body: 'The wireless bill for your crew, your trucks, and your office. Dead lines, overage charges, and plans that never got updated. This is where most small businesses leak the most money.',
   },
   {
-    tag: '03',
-    title: 'Telecom expense management',
-    body: 'Every invoice, audited against every contract, every month. On a typical mid-market footprint this work recovers three to six percent of annual telecom spend.',
-  },
-  {
-    tag: '04',
-    title: 'Ongoing advisory',
-    body: 'Hourly or monthly retainer covering the technology decisions your team makes between major engagements.',
-  },
-];
-
-const segments = [
-  {
-    name: 'Small Business',
-    size: 'Under 50 employees',
-    body: 'You do not have an IT department. We become the person who reads your telecom bills, kills the junk fees, and picks your vendors so you do not have to. Starts free. Most clients save before they ever pay us.',
-    cta: 'See how it works for small business',
-    href: '/small-business',
-  },
-  {
-    name: 'Midmarket',
-    size: '50 to 1,000 employees, multiple locations',
-    body: 'Four to six providers, renewals nobody is tracking, and bills nobody reconciles. We consolidate the vendors, audit every invoice monthly, and run your renewals like a procurement department.',
-    cta: 'See how it works for midmarket',
-    href: '/midmarket',
-  },
-  {
-    name: 'Enterprise',
-    size: '1,000+ employees or 50+ locations',
-    body: 'Full lifecycle telecom expense management: inventory, invoice auditing, dispute recovery, sourcing events, and reporting your finance team can log into. Contingency and per-asset pricing available.',
-    cta: 'See how it works for enterprise',
-    href: '/enterprise',
+    title: 'Renewals and contracts',
+    body: 'Carriers auto-renew you at a higher rate and count on you not noticing. We track your renewal dates and negotiate before they hit, so you never sign another bad deal by accident.',
   },
 ];
 
 const steps = [
-  { n: '01', t: 'Send one invoice or contract' },
-  { n: '02', t: 'We mark up what we would challenge' },
-  { n: '03', t: 'You decide whether the savings justify next steps' },
+  {
+    n: '1',
+    title: 'Send one bill. It takes two minutes.',
+    body: 'Any recent internet, phone, or wireless invoice. We email you a secure upload link so nothing travels as an attachment.',
+  },
+  {
+    n: '2',
+    title: 'Get it back marked up within 24 hours.',
+    body: 'We flag what is junk, what is overpriced, and exactly what we would negotiate. If the bill is clean, we tell you that too.',
+  },
+  {
+    n: '3',
+    title: 'You decide.',
+    body: 'Fix it yourself with our markup, or let Brandon negotiate it with the carrier. You keep your providers. If we do not save you money, you pay nothing.',
+  },
+];
+
+const faqs = [
+  {
+    q: 'Do I have to switch providers?',
+    a: 'No. Most of the time you stay with the exact providers you have now, at a better rate and better terms. The leverage is in being willing to switch, not in actually switching.',
+  },
+  {
+    q: 'I am locked into a contract. Is it too late?',
+    a: 'Under contract is the best time to start. We find the fees and services you are being charged for that were never in the contract, and we get ahead of the renewal so the next one is on your terms instead of the carrier\'s.',
+  },
+  {
+    q: 'My IT person already handles our phones and internet.',
+    a: 'Your IT person keeps things running, which is a full-time job. Fighting the bill is a different job, and it is the one the carrier is betting nobody at your company has time for. We work alongside IT, not around them.',
+  },
+  {
+    q: 'Is this a sales pitch for a carrier?',
+    a: 'No. We are independent. We do not work for any carrier and we never sell you one. We work for you, and our only job is to make your bills smaller.',
+  },
+  {
+    q: 'How is this free? What is the catch?',
+    a: 'The review is free, every time, with no obligation. If you want us to negotiate, it is no savings, no fee: if we cannot lower your bill, you owe nothing. There is no catch, because we only get paid when you save.',
+  },
 ];
 
 const faqSchema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
-  mainEntity: [
-    {
-      '@type': 'Question',
-      name: 'What does an independent technology broker do?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'An independent technology broker represents the buyer in technology purchasing decisions. We inventory every contract a business has, including internet, phone, mobile, cloud, and security, then put providers in competition for the renewal. The result is lower cost, better contract terms, and fewer vendors to manage. We are carrier neutral by design rather than tied to any one provider.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'How much can a business save by auditing telecom and technology invoices?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'A typical mid-market audit recovers three to six percent of annual telecom and technology spend through billing errors, unused services, and renegotiation. Small businesses commonly save 15 to 30 percent on a single internet or phone contract when it is put out to bid.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'Do I have to switch carriers to work with Signal Advisory?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'No. Many of our engagements end with the client staying on the incumbent carrier at materially better rates and terms. The leverage is in being willing to switch, not in actually switching.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'How does Signal Advisory get paid?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Engagements run on three models: a flat-fee contract review, hourly project work, or a monthly retainer for ongoing advisory. On brokered transactions we are compensated by the carrier through our master agency relationships, which is the standard model in the channel. For clients who prefer a fee-only arrangement, we can rebate the brokerage commission against a flat advisory fee.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'How is Signal Advisory different from a master agent?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'We work independently across every major U.S. provider rather than steering business to any one carrier. We stay involved through implementation, billing disputes, and the next renewal — most agents disappear after signature. We negotiate the contract terms that protect the buyer, not just the rate that closes the deal.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'Where is Signal Advisory based?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Signal Advisory is based in Kansas City, Missouri, and serves clients across the United States. Reach Brandon Murphy at 816-355-3350 or brandon@signaladvise.com.',
-      },
-    },
-  ],
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
 };
 
-const serviceSchema = services.map((s) => ({
+const serviceSchema = [
+  'Business internet and phone bill review',
+  'Business wireless and cell phone bill review',
+  'Carrier contract renewal negotiation',
+].map((name) => ({
   '@context': 'https://schema.org',
   '@type': 'Service',
-  serviceType: s.title,
+  serviceType: name,
   provider: { '@id': 'https://signaladvise.com/#org' },
   areaServed: { '@type': 'Country', name: 'United States' },
-  description: s.body,
 }));
 
 const jsonLd = [faqSchema, ...serviceSchema];
 ---
 
 <Base
-  title="Signal Advisory | Managed Technology Expense & Telecom Advisory for Small Business, Midmarket & Enterprise"
-  description="Carrier-neutral telecom expense management and sourcing. Free invoice audit for small business, monthly TEM for midmarket, full lifecycle expense management for enterprise."
+  title="Lower Your Business Internet, Phone and Cell Bills | Signal Advisory, Kansas City"
+  description="Send one bill. Brandon Murphy spent 25 years inside the carriers and knows exactly where small businesses overpay. Free 24-hour review. No savings, no fee. Kansas City."
   jsonLd={jsonLd}
 >
   <Nav />
 
   <!-- Hero -->
-  <section class="container mx-auto max-w-4xl px-6 pb-12 pt-24 md:px-10 md:pt-32 md:pb-16">
+  <section class="container mx-auto max-w-4xl px-6 pb-12 pt-20 md:px-10 md:pt-28 md:pb-16">
+    <p class="mb-5 text-xs uppercase tracking-[0.2em] text-stone">Kansas City · Internet, phone and cell bills for small business</p>
     <h1 class="display text-3xl font-light leading-[1.15] md:text-5xl lg:text-[3.4rem]">
-      Your technology spend, managed like a Fortune 500 runs it.
-      <em class="text-signal not-italic font-medium">At any size.</em>
+      We lower what your business pays for internet, phone, and cell service.
+      <em class="text-signal not-italic font-medium">You keep your providers.</em>
     </h1>
-    <p class="mt-10 max-w-2xl text-lg leading-relaxed text-ink/80">
-      Signal Advisory brings 25+ years inside major U.S. carriers to the buyer's side of
-      your technology spend. We find the waste in your internet, phone, mobile, and cloud
-      spend, negotiate the contracts, and stay on the bill every month after.
+    <p class="mt-8 max-w-2xl text-lg leading-relaxed text-ink/80">
+      Send us one bill. Brandon Murphy spent 25 years inside the big carriers and knows
+      exactly where they overcharge small businesses. He finds it and negotiates it down.
+      If we do not save you money, you pay nothing.
     </p>
     <div class="mt-10 flex flex-wrap gap-4">
       <a
         href="/audit"
         class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors"
       >
-        Send us one invoice →
+        Get your free bill review →
       </a>
       <a
-        href="#who-we-serve"
+        href="#how-it-works"
         class="inline-block rounded-sm border border-ink/20 px-8 py-4 text-sm font-medium hover:border-ink transition-colors"
       >
-        Who we serve
+        See how it works
       </a>
     </div>
-    <p class="mt-10 text-sm text-stone leading-relaxed max-w-2xl">
-      25+ years inside major U.S. technology providers. Carrier neutral by design.
-      Based in Kansas City, serving clients nationwide.
-    </p>
+    <ul class="mt-10 flex flex-wrap gap-x-8 gap-y-2 text-sm text-stone">
+      <li>Based in Kansas City</li>
+      <li>25+ years inside the carriers</li>
+      <li>We work for you, not the phone company</li>
+      <li>No savings, no fee</li>
+    </ul>
   </section>
 
-  <!-- Who we serve -->
-  <section id="who-we-serve" class="border-t border-ink/10 py-24">
+  <!-- What we do -->
+  <section id="what-we-do" class="border-t border-ink/10 py-24">
     <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Who we serve</p>
-      <h2 class="display mb-16 max-w-3xl text-3xl font-normal leading-tight md:text-4xl">
-        One firm, three doors.
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">What we actually do</p>
+      <h2 class="display mb-6 max-w-3xl text-3xl font-normal leading-tight md:text-4xl">
+        Three bills. One job: make them smaller.
       </h2>
+      <p class="mb-14 max-w-2xl text-ink/75 leading-relaxed">
+        If your business pays a carrier for it, we can review it. These are the three places
+        almost every small business is overpaying without knowing it.
+      </p>
       <div class="grid gap-6 md:grid-cols-3">
-        {segments.map((s) => (
-          <a href={s.href} class="group flex flex-col border border-ink/10 p-8 hover:border-signal transition-colors">
-            <h3 class="display text-xl font-medium mb-1">{s.name}</h3>
-            <p class="text-xs uppercase tracking-[0.12em] text-stone mb-5">{s.size}</p>
-            <p class="text-ink/70 leading-relaxed text-[15px] flex-1">{s.body}</p>
-            <p class="mt-6 text-sm font-medium text-signal group-hover:underline">{s.cta} →</p>
-          </a>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <!-- How it works -->
-  <section class="border-t border-ink/10 py-24">
-    <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">How it works</p>
-      <h2 class="display mb-16 max-w-3xl text-3xl font-normal leading-tight md:text-4xl">
-        Three steps. No commitment until you say so.
-      </h2>
-      <div class="grid gap-10 md:grid-cols-3">
-        {steps.map((s) => (
-          <div>
-            <p class="mb-3 font-mono text-xs text-stone">{s.n}</p>
-            <p class="display text-xl font-medium leading-snug">{s.t}</p>
+        {bills.map((b) => (
+          <div class="flex flex-col border border-ink/10 p-8">
+            <h3 class="display text-xl font-medium mb-4">{b.title}</h3>
+            <p class="text-ink/70 leading-relaxed text-[15px]">{b.body}</p>
           </div>
         ))}
       </div>
     </div>
   </section>
 
-  <!-- Proof -->
+  <!-- How it works -->
+  <section id="how-it-works" class="border-t border-ink/10 py-24">
+    <div class="container mx-auto max-w-5xl px-6 md:px-10">
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">How it works</p>
+      <h2 class="display mb-16 max-w-3xl text-3xl font-normal leading-tight md:text-4xl">
+        Three steps. Nothing to install, nothing to switch.
+      </h2>
+      <div class="grid gap-10 md:grid-cols-3">
+        {steps.map((s) => (
+          <div>
+            <p class="mb-3 font-mono text-xs text-stone">Step {s.n}</p>
+            <p class="display text-xl font-medium leading-snug mb-3">{s.title}</p>
+            <p class="text-ink/70 leading-relaxed text-[15px]">{s.body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Brandon -->
+  <section id="why" class="border-t border-ink/10 py-24">
+    <div class="container mx-auto max-w-5xl px-6 md:px-10 grid gap-12 md:grid-cols-5">
+      <div class="md:col-span-3">
+        <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Why it works</p>
+        <h2 class="display mb-6 text-3xl font-normal leading-tight md:text-4xl">
+          25 years on the other side of the table.
+        </h2>
+        <p class="text-ink/75 leading-relaxed mb-5">
+          Brandon Murphy spent more than 25 years inside major U.S. carriers, pricing and
+          structuring the very contracts small businesses sign. He knows which fees are
+          negotiable, which "taxes" are not actually taxes, and what a carrier will really
+          concede when someone who knows the playbook asks.
+        </p>
+        <p class="text-ink/75 leading-relaxed">
+          Signal Advisory is independent. We are not tied to any provider, we do not sell
+          carriers, and we do not get paid by you unless your bill goes down.
+        </p>
+        <a href="/results" class="mt-8 inline-block text-sm font-medium text-signal hover:underline">
+          See what the work looks like →
+        </a>
+      </div>
+      <div class="md:col-span-2 border border-ink/10 p-8">
+        <p class="display text-xl font-medium mb-2">Brandon Murphy</p>
+        <p class="text-sm text-stone mb-6">Principal Advisor · Signal Advisory · Kansas City, MO</p>
+        <p class="text-sm text-ink/80 leading-relaxed mb-6">
+          You talk to Brandon directly. Not a franchise, not a call center, not a sales team.
+        </p>
+        <p class="text-sm">
+          <a href="tel:+18163553350" class="font-medium hover:text-signal">816-355-3350</a><br />
+          <a href="mailto:brandon@signaladvise.com" class="font-medium hover:text-signal">brandon@signaladvise.com</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- What it costs -->
+  <section id="cost" class="border-t border-ink/10 bg-ink/[0.03] py-24">
+    <div class="container mx-auto max-w-3xl px-6 md:px-10">
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">What it costs</p>
+      <h2 class="display mb-6 text-3xl font-normal leading-tight md:text-4xl">
+        The review is free. Negotiation is no savings, no fee.
+      </h2>
+      <p class="text-ink/75 leading-relaxed mb-4">
+        If Brandon cannot lower your bill, you owe nothing. That is the whole deal.
+      </p>
+      <p class="text-ink/75 leading-relaxed">
+        Want us to keep watching your bills every month so the savings do not creep back?
+        That is a simple monthly plan, quoted up front, with no long-term contract.
+      </p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="border-t border-ink/10 py-24">
+    <div class="container mx-auto max-w-3xl px-6 md:px-10">
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Common questions</p>
+      <h2 class="display mb-12 text-3xl font-normal leading-tight md:text-4xl">
+        The things owners ask before they send a bill.
+      </h2>
+      <div class="divide-y divide-ink/10">
+        {faqs.map((f) => (
+          <div class="py-7">
+            <h3 class="display text-lg font-medium mb-2">{f.q}</h3>
+            <p class="text-ink/75 leading-relaxed">{f.a}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-10 text-sm text-stone">
+        Running a bigger operation, 50+ locations or 1,000+ employees?
+        <a href="/midmarket" class="underline hover:text-ink">Growing companies</a> ·
+        <a href="/enterprise" class="underline hover:text-ink">Large organizations</a>
+      </p>
+    </div>
+  </section>
+
   <!-- Final CTA -->
   <section id="contact" class="border-t border-ink/10 bg-ink py-24 text-paper">
     <div class="container mx-auto max-w-3xl px-6 text-center md:px-10">
       <h2 class="display mb-6 text-3xl font-normal leading-tight md:text-4xl">
-        Send one invoice.<br />
-        <em class="text-signal not-italic font-medium">Know where you stand.</em>
+        Send one bill.<br />
+        <em class="text-signal not-italic font-medium">Know where you stand in 24 hours.</em>
       </h2>
       <p class="mb-10 text-base text-paper/70 leading-relaxed">
-        Before you sign another carrier renewal, let us look at the invoice. Twenty-four-hour
-        turnaround. No obligation.
+        Free review. No obligation. If we do not save you money, you pay nothing.
       </p>
       <div class="flex flex-wrap justify-center gap-4">
         <a
           href="/audit"
           class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-paper hover:text-ink transition-colors"
         >
-          Send us one invoice →
+          Get your free bill review →
         </a>
         <a
           href="https://calendly.com/signaladvise-info/30min"
@@ -224,11 +265,11 @@ const jsonLd = [faqSchema, ...serviceSchema];
           rel="noopener"
           class="inline-block rounded-sm border border-paper/30 px-8 py-4 text-sm font-semibold text-paper hover:bg-paper hover:text-ink transition-colors"
         >
-          Book a 30-minute call
+          Book a 15-minute call
         </a>
       </div>
       <p class="mt-6 text-sm text-paper/60">
-        Or email <a href="mailto:info@signaladvise.com" class="underline text-paper/80">info@signaladvise.com</a> · 816.355.3350
+        Or call Brandon at <a href="tel:+18163553350" class="underline text-paper/80">816-355-3350</a> · <a href="mailto:brandon@signaladvise.com" class="underline text-paper/80">brandon@signaladvise.com</a>
       </p>
     </div>
   </section>
