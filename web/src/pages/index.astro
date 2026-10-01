@@ -5,14 +5,17 @@ import Footer from '../components/Footer.astro';
 
 const bills = [
   {
+    icon: 'wifi',
     title: 'Internet and phone lines',
     body: 'Your office internet, your phone system, and the old lines nobody remembers signing up for: alarm, fax, elevator. We check every line item against what you actually use and what the market charges today.',
   },
   {
+    icon: 'phone',
     title: 'Cell phones and tablets',
     body: 'The wireless bill for your crew, your trucks, and your office. Dead lines, overage charges, and plans that never got updated. This is where most small businesses leak the most money.',
   },
   {
+    icon: 'refresh',
     title: 'Renewals and contracts',
     body: 'Carriers auto-renew you at a higher rate and count on you not noticing. We track your renewal dates and negotiate before they hit, so you never sign another bad deal by accident.',
   },
@@ -20,17 +23,17 @@ const bills = [
 
 const steps = [
   {
-    n: '1',
+    n: '01',
     title: 'Send one bill. It takes two minutes.',
     body: 'Any recent internet, phone, or wireless invoice. We email you a secure upload link so nothing travels as an attachment.',
   },
   {
-    n: '2',
+    n: '02',
     title: 'Get it back marked up within 24 hours.',
     body: 'We flag what is junk, what is overpriced, and exactly what we would negotiate. If the bill is clean, we tell you that too.',
   },
   {
-    n: '3',
+    n: '03',
     title: 'You decide.',
     body: 'Fix it yourself with our markup, or let Brandon negotiate it with the carrier. You keep your providers. If we do not save you money, you pay nothing.',
   },
@@ -82,65 +85,141 @@ const serviceSchema = [
 }));
 
 const jsonLd = [faqSchema, ...serviceSchema];
+
+const icons: Record<string, string> = {
+  wifi: '<path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/>',
+  phone: '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>',
+  refresh: '<path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/>',
+};
 ---
 
 <Base
   title="Lower Your Business Internet, Phone and Cell Bills | Signal Advisory, Kansas City"
-  description="Send one bill. Brandon Murphy spent 25 years inside the carriers and knows exactly where small businesses overpay. Free 24-hour review. No savings, no fee. Kansas City."
+  description="Send one bill. Brandon spent 25 years inside the carriers and knows exactly where small businesses overpay. Free 24-hour review. No savings, no fee. Kansas City."
   jsonLd={jsonLd}
 >
   <Nav />
 
   <!-- Hero -->
-  <section class="container mx-auto max-w-4xl px-6 pb-12 pt-20 md:px-10 md:pt-28 md:pb-16">
-    <p class="mb-5 text-xs uppercase tracking-[0.2em] text-stone">Kansas City · Internet, phone and cell bills for small business</p>
-    <h1 class="display text-3xl font-light leading-[1.15] md:text-5xl lg:text-[3.4rem]">
-      We lower what your business pays for internet, phone, and cell service.
-      <em class="text-signal not-italic font-medium">You keep your providers.</em>
-    </h1>
-    <p class="mt-8 max-w-2xl text-lg leading-relaxed text-ink/80">
-      Send us one bill. Brandon Murphy spent 25 years inside the big carriers and knows
-      exactly where they overcharge small businesses. He finds it and negotiates it down.
-      If we do not save you money, you pay nothing.
-    </p>
-    <div class="mt-10 flex flex-wrap gap-4">
-      <a
-        href="/audit"
-        class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors"
-      >
-        Get your free bill review →
-      </a>
-      <a
-        href="#how-it-works"
-        class="inline-block rounded-sm border border-ink/20 px-8 py-4 text-sm font-medium hover:border-ink transition-colors"
-      >
-        See how it works
-      </a>
+  <section class="hero-bg on-dark relative overflow-hidden">
+    <div class="container relative mx-auto max-w-6xl px-6 pb-20 pt-16 md:px-10 md:pb-28 md:pt-24">
+      <div class="grid items-center gap-14 lg:grid-cols-12">
+        <div class="min-w-0 lg:col-span-6">
+          <span class="pill pill-dark">
+            <span class="h-1.5 w-1.5 rounded-full bg-glow"></span>
+            Kansas City · Small business
+          </span>
+          <h1 class="display mt-6 text-4xl font-medium leading-[1.05] md:text-5xl lg:text-[3.6rem]">
+            Your internet, phone, and cell bills are too high.
+            <span class="grad-text">We make them smaller.</span>
+          </h1>
+          <p class="mt-7 max-w-xl text-lg leading-relaxed text-white/75">
+            Send us one bill. Brandon spent 25 years inside the big carriers and knows
+            exactly where they overcharge small businesses. He finds it and negotiates it
+            down. You keep your providers. If we do not save you money, you pay nothing.
+          </p>
+          <div class="mt-9 flex flex-wrap gap-4">
+            <a href="/audit" class="btn-primary">
+              Get your free bill review
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </a>
+            <a href="#how-it-works" class="btn-ghost">See how it works</a>
+          </div>
+          <ul class="mt-10 flex flex-wrap gap-x-7 gap-y-2 text-sm text-white/55">
+            <li>25+ years inside the carriers</li>
+            <li>Back in 24 hours</li>
+            <li>No savings, no fee</li>
+          </ul>
+        </div>
+
+        <!-- Product visual: the marked-up bill -->
+        <div class="relative min-w-0 pt-4 lg:col-span-6" aria-label="Example of a marked-up bill showing overcharges flagged">
+          <div class="relative mx-auto w-full max-w-md">
+          <div class="bill">
+            <div class="bill-head">
+              <div>
+                <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-stone">Example review</p>
+                <p class="display font-semibold">Business Internet and Voice</p>
+              </div>
+              <p class="text-xs text-stone">Monthly</p>
+            </div>
+            <div class="bill-row">
+              <span class="bill-name">Fiber internet 300/300</span>
+              <span class="bill-amt tabular-nums">$189.00</span>
+            </div>
+            <div class="bill-row flag">
+              <span><span class="bill-name">Voice lines (6)</span><span class="bill-chip">2 unused</span></span>
+              <span><span class="bill-amt tabular-nums">$214.00</span> <span class="bill-save">−$71</span></span>
+            </div>
+            <div class="bill-row flag">
+              <span><span class="bill-name">Equipment rental</span><span class="bill-chip">never in contract</span></span>
+              <span><span class="bill-amt tabular-nums">$38.00</span> <span class="bill-save">−$38</span></span>
+            </div>
+            <div class="bill-row flag">
+              <span><span class="bill-name">Regulatory recovery fee</span><span class="bill-chip">not a tax</span></span>
+              <span><span class="bill-amt tabular-nums">$61.40</span> <span class="bill-save">−$61</span></span>
+            </div>
+            <div class="bill-row flag">
+              <span><span class="bill-name">Long distance package</span><span class="bill-chip">unused</span></span>
+              <span><span class="bill-amt tabular-nums">$29.00</span> <span class="bill-save">−$29</span></span>
+            </div>
+            <div class="bill-row">
+              <span class="bill-name">Taxes and fees</span>
+              <span class="bill-amt tabular-nums">$47.12</span>
+            </div>
+            <div class="bill-total">
+              <span class="text-sm text-stone">Monthly total</span>
+              <span class="tabular-nums"><span class="text-stone line-through mr-2">$578.52</span><span class="display text-xl font-bold">$379.12</span></span>
+            </div>
+          </div>
+          <div class="bill-badge display">Found: $199/mo · $2,390/yr</div>
+          </div>
+        </div>
+      </div>
     </div>
-    <ul class="mt-10 flex flex-wrap gap-x-8 gap-y-2 text-sm text-stone">
-      <li>Based in Kansas City</li>
-      <li>25+ years inside the carriers</li>
-      <li>We work for you, not the phone company</li>
-      <li>No savings, no fee</li>
-    </ul>
+  </section>
+
+  <!-- Stats strip -->
+  <section class="border-b border-ink/10 bg-white">
+    <div class="container mx-auto max-w-6xl px-6 md:px-10">
+      <div class="grid divide-y divide-ink/10 md:grid-cols-3 md:divide-x md:divide-y-0">
+        <div class="py-8 md:pr-10">
+          <p class="display text-3xl font-semibold">25+ years</p>
+          <p class="mt-1 text-sm text-stone">inside the major carriers, now on your side</p>
+        </div>
+        <div class="py-8 md:px-10">
+          <p class="display text-3xl font-semibold">24 hours</p>
+          <p class="mt-1 text-sm text-stone">from your bill to a marked-up answer</p>
+        </div>
+        <div class="py-8 md:pl-10">
+          <p class="display text-3xl font-semibold">$0</p>
+          <p class="mt-1 text-sm text-stone">unless we actually save you money</p>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- What we do -->
-  <section id="what-we-do" class="border-t border-ink/10 py-24">
-    <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">What we actually do</p>
-      <h2 class="display mb-6 max-w-3xl text-3xl font-normal leading-tight md:text-4xl">
-        Three bills. One job: make them smaller.
-      </h2>
-      <p class="mb-14 max-w-2xl text-ink/75 leading-relaxed">
-        If your business pays a carrier for it, we can review it. These are the three places
-        almost every small business is overpaying without knowing it.
-      </p>
-      <div class="grid gap-6 md:grid-cols-3">
-        {bills.map((b) => (
-          <div class="flex flex-col border border-ink/10 p-8">
-            <h3 class="display text-xl font-medium mb-4">{b.title}</h3>
-            <p class="text-ink/70 leading-relaxed text-[15px]">{b.body}</p>
+  <section id="what-we-do" class="py-24 md:py-28">
+    <div class="container mx-auto max-w-6xl px-6 md:px-10">
+      <div class="reveal max-w-2xl">
+        <span class="pill pill-light">What we actually do</span>
+        <h2 class="display mt-5 text-3xl font-medium leading-tight md:text-5xl">
+          Three bills. One job: make them smaller.
+        </h2>
+        <p class="mt-5 text-lg text-ink/70 leading-relaxed">
+          If your business pays a carrier for it, we can review it. These are the three places
+          almost every small business is overpaying without knowing it.
+        </p>
+      </div>
+      <div class="mt-14 grid gap-5 md:grid-cols-3">
+        {bills.map((b, i) => (
+          <div class="tile reveal" style={`transition-delay:${i * 90}ms`}>
+            <span class="icon-badge">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons[b.icon]} />
+            </span>
+            <h3 class="display mt-5 text-xl font-semibold">{b.title}</h3>
+            <p class="mt-3 text-ink/70 leading-relaxed text-[15px]">{b.body}</p>
           </div>
         ))}
       </div>
@@ -148,128 +227,148 @@ const jsonLd = [faqSchema, ...serviceSchema];
   </section>
 
   <!-- How it works -->
-  <section id="how-it-works" class="border-t border-ink/10 py-24">
-    <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">How it works</p>
-      <h2 class="display mb-16 max-w-3xl text-3xl font-normal leading-tight md:text-4xl">
-        Three steps. Nothing to install, nothing to switch.
-      </h2>
-      <div class="grid gap-10 md:grid-cols-3">
-        {steps.map((s) => (
-          <div>
-            <p class="mb-3 font-mono text-xs text-stone">Step {s.n}</p>
-            <p class="display text-xl font-medium leading-snug mb-3">{s.title}</p>
-            <p class="text-ink/70 leading-relaxed text-[15px]">{s.body}</p>
+  <section id="how-it-works" class="bg-white py-24 md:py-28 border-y border-ink/10">
+    <div class="container mx-auto max-w-6xl px-6 md:px-10">
+      <div class="reveal max-w-2xl">
+        <span class="pill pill-light">How it works</span>
+        <h2 class="display mt-5 text-3xl font-medium leading-tight md:text-5xl">
+          Three steps. Nothing to install, nothing to switch.
+        </h2>
+      </div>
+      <div class="mt-14 grid gap-8 md:grid-cols-3">
+        {steps.map((s, i) => (
+          <div class="reveal relative" style={`transition-delay:${i * 90}ms`}>
+            <p class="display grad-text text-5xl font-medium">{s.n}</p>
+            <h3 class="display mt-4 text-xl font-semibold leading-snug">{s.title}</h3>
+            <p class="mt-3 text-ink/70 leading-relaxed text-[15px]">{s.body}</p>
           </div>
         ))}
+      </div>
+      <div class="reveal mt-12">
+        <a href="/audit" class="btn-primary">
+          Start with one bill
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
       </div>
     </div>
   </section>
 
   <!-- Why Brandon -->
-  <section id="why" class="border-t border-ink/10 py-24">
-    <div class="container mx-auto max-w-5xl px-6 md:px-10 grid gap-12 md:grid-cols-5">
-      <div class="md:col-span-3">
-        <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Why it works</p>
-        <h2 class="display mb-6 text-3xl font-normal leading-tight md:text-4xl">
-          25 years on the other side of the table.
-        </h2>
-        <p class="text-ink/75 leading-relaxed mb-5">
-          Brandon Murphy spent more than 25 years inside major U.S. carriers, pricing and
-          structuring the very contracts small businesses sign. He knows which fees are
-          negotiable, which "taxes" are not actually taxes, and what a carrier will really
-          concede when someone who knows the playbook asks.
-        </p>
-        <p class="text-ink/75 leading-relaxed">
-          Signal Advisory is independent. We are not tied to any provider, we do not sell
-          carriers, and we do not get paid by you unless your bill goes down.
-        </p>
-        <a href="/results" class="mt-8 inline-block text-sm font-medium text-signal hover:underline">
-          See what the work looks like →
-        </a>
-      </div>
-      <div class="md:col-span-2 border border-ink/10 p-8">
-        <p class="display text-xl font-medium mb-2">Brandon Murphy</p>
-        <p class="text-sm text-stone mb-6">Principal Advisor · Signal Advisory · Kansas City, MO</p>
-        <p class="text-sm text-ink/80 leading-relaxed mb-6">
-          You talk to Brandon directly. Not a franchise, not a call center, not a sales team.
-        </p>
-        <p class="text-sm">
-          <a href="tel:+18163553350" class="font-medium hover:text-signal">816-355-3350</a><br />
-          <a href="mailto:brandon@signaladvise.com" class="font-medium hover:text-signal">brandon@signaladvise.com</a>
-        </p>
+  <section id="why" class="py-24 md:py-28">
+    <div class="container mx-auto max-w-6xl px-6 md:px-10">
+      <div class="tile-dark on-dark reveal grid gap-10 p-8 md:grid-cols-5 md:p-14">
+        <div class="md:col-span-3">
+          <span class="pill pill-dark">Why it works</span>
+          <h2 class="display mt-5 text-3xl font-medium leading-tight md:text-4xl">
+            25 years on the other side of the table.
+          </h2>
+          <p class="mt-6 text-white/75 leading-relaxed">
+            Brandon spent more than 25 years inside major U.S. carriers, pricing and
+            structuring the very contracts small businesses sign. He knows which fees are
+            negotiable, which "taxes" are not actually taxes, and what a carrier will really
+            concede when someone who knows the playbook asks.
+          </p>
+          <p class="mt-4 text-white/75 leading-relaxed">
+            Signal Advisory is independent. We are not tied to any provider, we do not sell
+            carriers, and we do not get paid by you unless your bill goes down.
+          </p>
+          <a href="/results" class="mt-8 inline-flex items-center gap-2 font-semibold grad-text hover:underline">
+            See what the work looks like
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+        <div class="md:col-span-2 rounded-2xl border border-white/10 bg-white/5 p-7">
+          <p class="display text-2xl font-semibold">Brandon</p>
+          <p class="mt-1 text-sm text-white/55">Principal Advisor · Signal Advisory · Kansas City</p>
+          <p class="mt-6 text-sm text-white/80 leading-relaxed">
+            You talk to Brandon directly. Not a franchise, not a call center, not a sales team.
+          </p>
+          <div class="mt-6 space-y-2 text-sm">
+            <a href="tel:+18163553350" class="block font-semibold hover:text-glow">816-355-3350</a>
+            <a href="mailto:brandon@signaladvise.com" class="block font-semibold hover:text-glow">brandon@signaladvise.com</a>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- What it costs -->
-  <section id="cost" class="border-t border-ink/10 bg-ink/[0.03] py-24">
-    <div class="container mx-auto max-w-3xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">What it costs</p>
-      <h2 class="display mb-6 text-3xl font-normal leading-tight md:text-4xl">
-        The review is free. Negotiation is no savings, no fee.
-      </h2>
-      <p class="text-ink/75 leading-relaxed mb-4">
-        If Brandon cannot lower your bill, you owe nothing. That is the whole deal.
-      </p>
-      <p class="text-ink/75 leading-relaxed">
-        Want us to keep watching your bills every month so the savings do not creep back?
-        That is a simple monthly plan, quoted up front, with no long-term contract.
-      </p>
+  <section id="cost" class="bg-white py-24 md:py-28 border-y border-ink/10">
+    <div class="container mx-auto max-w-6xl px-6 md:px-10 grid items-center gap-12 md:grid-cols-2">
+      <div class="reveal">
+        <span class="pill pill-light">What it costs</span>
+        <h2 class="display mt-5 text-3xl font-medium leading-tight md:text-5xl">
+          The review is free. Negotiation is no savings, no fee.
+        </h2>
+        <p class="mt-6 text-lg text-ink/70 leading-relaxed">
+          If Brandon cannot lower your bill, you owe nothing. That is the whole deal.
+        </p>
+        <p class="mt-4 text-ink/70 leading-relaxed">
+          Want us to keep watching your bills every month so the savings do not creep back?
+          That is a simple monthly plan, quoted up front, with no long-term contract.
+        </p>
+      </div>
+      <div class="reveal tile flex flex-col items-start" style="transition-delay:120ms">
+        <p class="display grad-text text-7xl font-semibold leading-none">$0</p>
+        <p class="display mt-3 text-xl font-semibold">unless we save you money</p>
+        <ul class="mt-6 space-y-3 text-[15px] text-ink/75">
+          <li class="flex gap-3"><span class="mt-1 text-signal">✓</span>Free 24-hour bill review, every time</li>
+          <li class="flex gap-3"><span class="mt-1 text-signal">✓</span>Negotiation only paid from real savings</li>
+          <li class="flex gap-3"><span class="mt-1 text-signal">✓</span>Keep your providers. No switching required</li>
+          <li class="flex gap-3"><span class="mt-1 text-signal">✓</span>No long-term contract</li>
+        </ul>
+        <a href="/audit" class="btn-primary mt-8">Get your free bill review</a>
+      </div>
     </div>
   </section>
 
   <!-- FAQ -->
-  <section id="faq" class="border-t border-ink/10 py-24">
+  <section id="faq" class="py-24 md:py-28">
     <div class="container mx-auto max-w-3xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Common questions</p>
-      <h2 class="display mb-12 text-3xl font-normal leading-tight md:text-4xl">
-        The things owners ask before they send a bill.
-      </h2>
-      <div class="divide-y divide-ink/10">
-        {faqs.map((f) => (
-          <div class="py-7">
-            <h3 class="display text-lg font-medium mb-2">{f.q}</h3>
-            <p class="text-ink/75 leading-relaxed">{f.a}</p>
-          </div>
+      <div class="reveal">
+        <span class="pill pill-light">Common questions</span>
+        <h2 class="display mt-5 text-3xl font-medium leading-tight md:text-5xl">
+          The things owners ask before they send a bill.
+        </h2>
+      </div>
+      <div class="mt-12 space-y-3">
+        {faqs.map((f, i) => (
+          <details class="faq tile reveal !py-5" style={`transition-delay:${i * 60}ms`}>
+            <summary>
+              <span class="display text-lg font-semibold">{f.q}</span>
+              <svg class="chev text-signal" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            </summary>
+            <p class="mt-4 text-ink/75 leading-relaxed">{f.a}</p>
+          </details>
         ))}
       </div>
-      <p class="mt-10 text-sm text-stone">
+      <p class="reveal mt-10 text-sm text-stone">
         Running a bigger operation, 50+ locations or 1,000+ employees?
-        <a href="/midmarket" class="underline hover:text-ink">Growing companies</a> ·
-        <a href="/enterprise" class="underline hover:text-ink">Large organizations</a>
+        <a href="/midmarket" class="font-medium text-ink underline underline-offset-4">Growing companies</a> ·
+        <a href="/enterprise" class="font-medium text-ink underline underline-offset-4">Large organizations</a>
       </p>
     </div>
   </section>
 
   <!-- Final CTA -->
-  <section id="contact" class="border-t border-ink/10 bg-ink py-24 text-paper">
-    <div class="container mx-auto max-w-3xl px-6 text-center md:px-10">
-      <h2 class="display mb-6 text-3xl font-normal leading-tight md:text-4xl">
+  <section id="contact" class="hero-bg on-dark relative overflow-hidden">
+    <div class="container relative mx-auto max-w-4xl px-6 py-24 text-center md:px-10 md:py-32">
+      <h2 class="display reveal text-4xl font-medium leading-tight md:text-6xl">
         Send one bill.<br />
-        <em class="text-signal not-italic font-medium">Know where you stand in 24 hours.</em>
+        <span class="grad-text">Know where you stand in 24 hours.</span>
       </h2>
-      <p class="mb-10 text-base text-paper/70 leading-relaxed">
+      <p class="reveal mt-7 text-lg text-white/70 leading-relaxed">
         Free review. No obligation. If we do not save you money, you pay nothing.
       </p>
-      <div class="flex flex-wrap justify-center gap-4">
-        <a
-          href="/audit"
-          class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-paper hover:text-ink transition-colors"
-        >
-          Get your free bill review →
+      <div class="reveal mt-10 flex flex-wrap justify-center gap-4">
+        <a href="/audit" class="btn-primary">
+          Get your free bill review
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
         </a>
-        <a
-          href="https://calendly.com/signaladvise-info/30min"
-          target="_blank"
-          rel="noopener"
-          class="inline-block rounded-sm border border-paper/30 px-8 py-4 text-sm font-semibold text-paper hover:bg-paper hover:text-ink transition-colors"
-        >
-          Book a 15-minute call
-        </a>
+        <a href="https://calendly.com/signaladvise-info/30min" target="_blank" rel="noopener" class="btn-ghost">Book a 15-minute call</a>
       </div>
-      <p class="mt-6 text-sm text-paper/60">
-        Or call Brandon at <a href="tel:+18163553350" class="underline text-paper/80">816-355-3350</a> · <a href="mailto:brandon@signaladvise.com" class="underline text-paper/80">brandon@signaladvise.com</a>
+      <p class="reveal mt-8 text-sm text-white/50">
+        Or call Brandon at <a href="tel:+18163553350" class="text-white/80 underline underline-offset-4">816-355-3350</a>
       </p>
     </div>
   </section>

@@ -5,14 +5,16 @@ export default {
     extend: {
       colors: {
         ink: 'var(--ink)',
+        'ink-2': 'var(--ink-2)',
         paper: 'var(--paper)',
         signal: 'var(--signal)',
+        glow: 'var(--glow)',
         moss: 'var(--moss)',
         stone: 'var(--stone)',
       },
       fontFamily: {
-        display: ['"Source Serif 4"', 'Georgia', 'serif'],
-        sans: ['Manrope', 'system-ui', 'sans-serif'],
+        display: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
       },
     },
   },

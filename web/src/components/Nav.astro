@@ -1,64 +1,59 @@
 ---
 ---
 
-<nav class="container mx-auto max-w-5xl px-6 py-6 md:px-10">
-  <div class="flex items-center justify-between">
-    <a href="/" class="flex items-center gap-3 leading-tight">
-      <img src="/favicon.svg" alt="" aria-hidden="true" class="h-10 w-10 rounded-sm flex-none" />
-      <span class="flex flex-col">
-        <span class="display text-xl font-medium">Signal Advisory</span>
-        <span class="text-[10px] uppercase tracking-[0.15em] text-stone mt-0.5 hidden sm:inline">Lower internet, phone and cell bills</span>
-      </span>
-    </a>
+<header class="glass sticky top-0 z-50 border-b border-ink/10">
+  <nav class="container mx-auto max-w-6xl px-6 py-4 md:px-10">
+    <div class="flex items-center justify-between">
+      <a href="/" class="flex items-center gap-3 leading-tight">
+        <img src="/favicon.svg" alt="" aria-hidden="true" class="h-9 w-9 rounded-lg flex-none" />
+        <span class="flex flex-col">
+          <span class="display text-lg font-semibold tracking-tight">Signal Advisory</span>
+          <span class="text-[10px] font-medium uppercase tracking-[0.14em] text-stone hidden sm:inline">Lower internet, phone and cell bills</span>
+        </span>
+      </a>
 
-    <!-- Desktop nav -->
-    <ul class="hidden items-center gap-8 text-sm md:flex">
-      <li><a href="/#what-we-do" class="hover:text-signal">What we do</a></li>
-      <li><a href="/#how-it-works" class="hover:text-signal">How it works</a></li>
-      <li><a href="/results" class="hover:text-signal">Results</a></li>
-      <li><a href="/#faq" class="hover:text-signal">Questions</a></li>
-    </ul>
-    <a
-      href="/audit"
-      class="hidden rounded-sm bg-ink px-4 py-2 text-sm text-paper hover:bg-signal md:inline-block"
-    >
-      Free bill review
-    </a>
-
-    <!-- Mobile hamburger toggle -->
-    <button
-      id="nav-toggle"
-      aria-label="Toggle menu"
-      aria-expanded="false"
-      class="md:hidden flex flex-col gap-1.5 p-2 -mr-2"
-    >
-      <span class="block w-6 h-0.5 bg-ink transition-transform"></span>
-      <span class="block w-6 h-0.5 bg-ink transition-opacity"></span>
-      <span class="block w-6 h-0.5 bg-ink transition-transform"></span>
-    </button>
-  </div>
-
-  <!-- Mobile menu -->
-  <div id="nav-mobile" class="md:hidden hidden mt-6 pb-4">
-    <ul class="flex flex-col gap-5 text-base border-t border-ink/10 pt-5">
-      <li><a href="/#what-we-do" class="block hover:text-signal">What we do</a></li>
-      <li><a href="/#how-it-works" class="block hover:text-signal">How it works</a></li>
-      <li><a href="/results" class="block hover:text-signal">Results</a></li>
-      <li><a href="/#faq" class="block hover:text-signal">Questions</a></li>
-      <li class="pt-2">
-        <a
-          href="/audit"
-          class="inline-block rounded-sm bg-ink px-5 py-3 text-sm text-paper"
-        >
+      <!-- Desktop nav -->
+      <ul class="hidden items-center gap-8 text-sm font-medium md:flex">
+        <li><a href="/#what-we-do" class="text-ink/80 hover:text-ink">What we do</a></li>
+        <li><a href="/#how-it-works" class="text-ink/80 hover:text-ink">How it works</a></li>
+        <li><a href="/results" class="text-ink/80 hover:text-ink">Results</a></li>
+        <li><a href="/#faq" class="text-ink/80 hover:text-ink">Questions</a></li>
+      </ul>
+      <span class="hidden md:inline-flex">
+        <a href="/audit" class="btn-primary !py-2.5 !px-4 text-sm whitespace-nowrap">
           Free bill review
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
         </a>
-      </li>
-      <li class="border-t border-ink/10 pt-4 text-sm text-stone">
-        <a href="https://api.signaladvise.com/portal" class="hover:text-signal">Client sign in</a>
-      </li>
-    </ul>
-  </div>
-</nav>
+      </span>
+
+      <!-- Mobile hamburger toggle -->
+      <button
+        id="nav-toggle"
+        aria-label="Toggle menu"
+        aria-expanded="false"
+        class="md:hidden flex flex-col gap-1.5 p-2 -mr-2"
+      >
+        <span class="block w-6 h-0.5 bg-ink transition-transform"></span>
+        <span class="block w-6 h-0.5 bg-ink transition-opacity"></span>
+        <span class="block w-6 h-0.5 bg-ink transition-transform"></span>
+      </button>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="nav-mobile" class="md:hidden hidden mt-5 pb-3">
+      <ul class="flex flex-col gap-4 text-base font-medium border-t border-ink/10 pt-5">
+        <li><a href="/#what-we-do" class="block">What we do</a></li>
+        <li><a href="/#how-it-works" class="block">How it works</a></li>
+        <li><a href="/results" class="block">Results</a></li>
+        <li><a href="/#faq" class="block">Questions</a></li>
+        <li class="pt-1"><a href="/audit" class="btn-primary text-sm">Free bill review</a></li>
+        <li class="border-t border-ink/10 pt-4 text-sm text-stone font-normal">
+          <a href="https://api.signaladvise.com/portal" class="hover:text-ink">Client sign in</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+</header>
 
 <script>
   const btn = document.getElementById('nav-toggle');

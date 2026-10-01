@@ -2,47 +2,51 @@
 const year = new Date().getFullYear();
 ---
 
-<footer class="border-t border-ink/10 py-12">
-  <div class="container mx-auto max-w-5xl px-6 md:px-10">
-    <div class="grid gap-10 text-sm md:grid-cols-3">
-      <div>
-        <p class="display text-lg font-medium mb-2">Signal Advisory</p>
-        <p class="text-stone leading-relaxed">
+<footer class="bg-ink text-white">
+  <div class="container mx-auto max-w-6xl px-6 py-14 md:px-10">
+    <div class="grid gap-10 text-sm md:grid-cols-4">
+      <div class="md:col-span-2">
+        <div class="flex items-center gap-3">
+          <img src="/favicon.svg" alt="" aria-hidden="true" class="h-9 w-9 rounded-lg" />
+          <span class="display text-lg font-semibold">Signal Advisory</span>
+        </div>
+        <p class="mt-4 max-w-sm text-white/65 leading-relaxed">
           We lower what businesses pay for internet, phone, and wireless service. We work for you, not the carriers.
         </p>
-        <p class="mt-4 text-stone">
-          <a href="tel:+18163553350" class="hover:text-ink">816-355-3350</a><br />
-          <a href="mailto:brandon@signaladvise.com" class="hover:text-ink">brandon@signaladvise.com</a><br />
-          Kansas City, Missouri
+        <p class="mt-5 text-white/80">
+          <a href="tel:+18163553350" class="hover:text-white">816-355-3350</a>
+          <span class="text-white/30 mx-2">·</span>
+          <a href="mailto:brandon@signaladvise.com" class="hover:text-white">brandon@signaladvise.com</a>
         </p>
+        <p class="mt-1 text-white/50">Kansas City, Missouri. Serving clients nationwide.</p>
       </div>
       <div>
-        <p class="text-xs uppercase tracking-[0.15em] text-stone mb-3">Explore</p>
-        <ul class="space-y-2">
-          <li><a href="/audit" class="hover:text-signal">Free bill review</a></li>
-          <li><a href="/results" class="hover:text-signal">Results</a></li>
-          <li><a href="/services" class="hover:text-signal">All services</a></li>
-          <li><a href="/tools" class="hover:text-signal">Free tools</a></li>
-          <li><a href="/blog" class="hover:text-signal">Insights</a></li>
+        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-white/45 mb-4">Explore</p>
+        <ul class="space-y-2.5 text-white/80">
+          <li><a href="/audit" class="hover:text-white">Free bill review</a></li>
+          <li><a href="/results" class="hover:text-white">Results</a></li>
+          <li><a href="/services" class="hover:text-white">All services</a></li>
+          <li><a href="/tools" class="hover:text-white">Free tools</a></li>
+          <li><a href="/blog" class="hover:text-white">Insights</a></li>
         </ul>
       </div>
       <div>
-        <p class="text-xs uppercase tracking-[0.15em] text-stone mb-3">More</p>
-        <ul class="space-y-2">
-          <li><a href="/midmarket" class="hover:text-signal">Growing companies</a></li>
-          <li><a href="/enterprise" class="hover:text-signal">Large organizations</a></li>
-          <li><a href="/platform" class="hover:text-signal">Client dashboard</a></li>
-          <li><a href="https://api.signaladvise.com/portal" class="hover:text-signal">Client sign in</a></li>
-          <li><a href="/security" class="hover:text-signal">Security</a></li>
+        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-white/45 mb-4">More</p>
+        <ul class="space-y-2.5 text-white/80">
+          <li><a href="/midmarket" class="hover:text-white">Growing companies</a></li>
+          <li><a href="/enterprise" class="hover:text-white">Large organizations</a></li>
+          <li><a href="/platform" class="hover:text-white">Client dashboard</a></li>
+          <li><a href="https://api.signaladvise.com/portal" class="hover:text-white">Client sign in</a></li>
+          <li><a href="/security" class="hover:text-white">Security</a></li>
         </ul>
       </div>
     </div>
-    <div class="mt-10 flex flex-col items-start justify-between gap-3 border-t border-ink/10 pt-6 text-xs text-stone md:flex-row">
-      <span>&copy; {year} Signal Advisory LLC. Kansas City, Missouri. Serving clients nationwide.</span>
-      <span class="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <a href="https://www.linkedin.com/company/signal-advisory-llc" target="_blank" rel="noopener" class="hover:text-ink">LinkedIn</a>
-        <a href="/privacy" class="hover:text-ink">Privacy</a>
-        <a href="/terms" class="hover:text-ink">Terms</a>
+    <div class="mt-12 flex flex-col items-start justify-between gap-3 border-t border-white/10 pt-6 text-xs text-white/45 md:flex-row">
+      <span>&copy; {year} Signal Advisory LLC</span>
+      <span class="flex flex-wrap items-center gap-x-5 gap-y-2">
+        <a href="https://www.linkedin.com/company/signal-advisory-llc" target="_blank" rel="noopener" class="hover:text-white">LinkedIn</a>
+        <a href="/privacy" class="hover:text-white">Privacy</a>
+        <a href="/terms" class="hover:text-white">Terms</a>
       </span>
     </div>
   </div>

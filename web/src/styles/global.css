@@ -2,74 +2,315 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Brand tokens — see /docs/brand.md. Placeholder values until founders lock the palette. */
+/* Brand tokens. Graphite + ice: restrained, monochrome-first, one cool accent.
+   The accent has two surfaces: ice (--glow) on dark sections, steel (--signal)
+   on light sections, so contrast holds everywhere. */
 :root {
-  --ink: #1a1f24;
-  --paper: #faf7f1;
-  --signal: #c9462c;
-  --moss: #2f4a3c;
-  --stone: #7a7067;
+  --ink: #0b0d10;
+  --ink-2: #14181d;
+  --paper: #f6f7f9;
+  --signal: #2b6cb0;   /* steel blue: accent on light surfaces */
+  --glow: #bfe3ff;     /* ice blue: accent on dark surfaces */
+  --moss: #2f6b4f;
+  --stone: #6b7280;
+  --line: rgb(11 13 16 / 0.08);
 }
 
 html {
   background: var(--paper);
   color: var(--ink);
-  font-family: 'Manrope', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
 }
 
 .display {
-  font-family: 'Source Serif 4', Georgia, serif;
-  font-optical-sizing: auto;
-  letter-spacing: -0.015em;
+  font-family: 'Inter', system-ui, sans-serif;
+  letter-spacing: -0.035em;
 }
 
-/* Long-form article typography — used by blog posts via the .prose class.
-   Goal: editorial breathing room. Wide line height, generous paragraph
-   spacing, deliberate gaps around headings. */
+/* ---------- surfaces ---------- */
+
+.on-dark { color: #fff; }
+.hero-bg {
+  background: linear-gradient(160deg, #171b21 0%, #0b0d10 55%, #0b0d10 100%);
+}
+
+/* Accent text: steel on light, ice on dark */
+.grad-text { color: var(--signal); }
+.on-dark .grad-text { color: var(--glow); }
+
+/* ---------- components ---------- */
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 6px;
+  padding: 0.95rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #fff;
+  background: var(--ink);
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+.btn-primary:hover { opacity: 0.88; }
+.on-dark .btn-primary { background: #fff; color: var(--ink); }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 6px;
+  padding: 0.95rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 1px solid rgb(255 255 255 / 0.3);
+  color: #fff;
+  background: transparent;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+.btn-ghost:hover { border-color: rgb(255 255 255 / 0.6); background: rgb(255 255 255 / 0.05); }
+
+.btn-ghost-dark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 6px;
+  padding: 0.95rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 1px solid rgb(11 13 16 / 0.2);
+  color: var(--ink);
+  background: #fff;
+  transition: border-color 160ms ease;
+}
+.btn-ghost-dark:hover { border-color: rgb(11 13 16 / 0.5); }
+
+/* Card tile */
+.tile {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 1.75rem;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+.tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px -28px rgb(11 13 16 / 0.35);
+}
+.tile-dark {
+  background: var(--ink);
+  color: #fff;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 14px;
+}
+
+/* Icon badge */
+.icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 8px;
+  background: rgb(43 108 176 / 0.1);
+  color: var(--signal);
+}
+
+/* Eyebrow: plain tracked caps, no chrome */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.pill span { display: none; }
+.pill-dark { color: rgb(255 255 255 / 0.55); }
+.pill-light { color: var(--stone); }
+
+/* Sticky glass nav */
+.glass {
+  background: rgb(246 247 249 / 0.84);
+  backdrop-filter: saturate(160%) blur(12px);
+  -webkit-backdrop-filter: saturate(160%) blur(12px);
+}
+
+/* ---------- the bill markup (hero visual, dark card) ---------- */
+.bill {
+  background: #13171c;
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 40px 80px -30px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.08);
+  overflow: hidden;
+  font-size: 0.9rem;
+}
+.bill-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  background: #181d23;
+}
+.bill .text-stone { color: rgb(255 255 255 / 0.5); }
+.bill-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 1.25rem;
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+}
+.bill-row.flag .bill-name {
+  text-decoration: line-through;
+  text-decoration-color: var(--glow);
+  text-decoration-thickness: 2px;
+  color: rgb(255 255 255 / 0.4);
+}
+.bill-row.flag .bill-amt {
+  color: rgb(255 255 255 / 0.4);
+  text-decoration: line-through;
+}
+.bill-chip {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid rgb(191 227 255 / 0.4);
+  color: var(--glow);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.bill-save {
+  color: var(--glow);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.bill-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.9rem 1.25rem;
+  background: #181d23;
+}
+.bill-total .line-through { color: rgb(255 255 255 / 0.4); }
+.bill-badge {
+  position: absolute;
+  right: 1rem;
+  top: -1rem;
+  background: var(--glow);
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+  font-weight: 600;
+}
+/* On narrow screens the badge hangs over the header; give the header room. */
+@media (max-width: 1023px) {
+  .bill-head { padding-top: 1.9rem; }
+  .bill-badge { font-size: 0.85rem; padding: 0.5rem 0.8rem; }
+}
+
+/* staggered entrance for the bill */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pop {
+  0%   { opacity: 0; transform: scale(0.8); }
+  70%  { opacity: 1; transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.bill-row, .bill-total { animation: rise 500ms ease both; }
+.bill-row:nth-child(2) { animation-delay: 150ms; }
+.bill-row:nth-child(3) { animation-delay: 300ms; }
+.bill-row:nth-child(4) { animation-delay: 450ms; }
+.bill-row:nth-child(5) { animation-delay: 600ms; }
+.bill-row:nth-child(6) { animation-delay: 750ms; }
+.bill-row:nth-child(7) { animation-delay: 900ms; }
+.bill-total { animation-delay: 1050ms; }
+.bill-chip { animation: rise 400ms ease both; animation-delay: 1300ms; }
+.bill-badge { animation: pop 500ms cubic-bezier(.2,.9,.3,1.2) both; animation-delay: 1600ms; }
+
+/* ---------- scroll reveal ---------- */
+html.js .reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 600ms ease, transform 600ms ease;
+}
+html.js .reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.001ms !important;
+  }
+  html.js .reveal { opacity: 1; transform: none; }
+}
+
+/* ---------- FAQ accordion ---------- */
+details.faq > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+details.faq > summary::-webkit-details-marker { display: none; }
+details.faq > summary .chev { flex: none; transition: transform 200ms ease; }
+details.faq[open] > summary .chev { transform: rotate(45deg); }
+
+/* ---------- forms ---------- */
+.field {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.field:focus {
+  border-color: var(--signal);
+  box-shadow: 0 0 0 4px rgb(43 108 176 / 0.14);
+}
+
+/* Long-form article typography (blog) */
 .prose,
 .prose-lg {
   font-size: 1.0625rem;
   line-height: 1.75;
-  color: rgb(26 31 36 / 0.88);
+  color: rgb(11 13 16 / 0.86);
 }
-.prose p {
-  margin: 1.4em 0;
-}
-.prose p:first-child {
-  margin-top: 0;
-}
+.prose p { margin: 1.4em 0; }
+.prose p:first-child { margin-top: 0; }
 .prose h2 {
-  font-family: 'Source Serif 4', Georgia, serif;
-  font-optical-sizing: auto;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.025em;
   font-size: 1.75rem;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.25;
   margin: 3em 0 0.85em;
 }
 .prose h3 {
-  font-family: 'Source Serif 4', Georgia, serif;
+  letter-spacing: -0.02em;
   font-size: 1.35rem;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.3;
   margin: 2.25em 0 0.6em;
 }
-.prose ul,
-.prose ol {
-  margin: 1.4em 0;
-  padding-left: 1.5em;
-}
-.prose li {
-  margin: 0.55em 0;
-}
-.prose li p {
-  margin: 0.4em 0;
-}
-.prose strong {
-  font-weight: 600;
-  color: var(--ink);
-}
+.prose ul, .prose ol { margin: 1.4em 0; padding-left: 1.5em; }
+.prose li { margin: 0.55em 0; }
+.prose li p { margin: 0.4em 0; }
+.prose strong { font-weight: 600; color: var(--ink); }
 .prose a {
   color: var(--signal);
   text-decoration: underline;
@@ -81,10 +322,6 @@ html {
   margin: 2em 0;
   padding: 0.4em 1.2em;
   font-style: italic;
-  color: rgb(26 31 36 / 0.7);
+  color: rgb(11 13 16 / 0.7);
 }
-.prose hr {
-  border: 0;
-  border-top: 1px solid rgb(26 31 36 / 0.12);
-  margin: 3em 0;
-}
+.prose hr { border: 0; border-top: 1px solid var(--line); margin: 3em 0; }
