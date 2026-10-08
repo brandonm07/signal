@@ -302,6 +302,8 @@ async function handleAuditIntake(req: Request, env: Env): Promise<Response> {
     .bind(ip)
     .run();
 
+  // The site form sends multipart (so the bill can ride along in one step);
+  // JSON is still accepted for older clients.
   let body: {
     first_name?: string;
     company?: string;
@@ -309,10 +311,27 @@ async function handleAuditIntake(req: Request, env: Env): Promise<Response> {
     carrier?: string;
     notes?: string;
   };
+  let attached: UploadedFile | null = null;
   try {
-    body = await req.json();
+    if ((req.headers.get("content-type") ?? "").includes("multipart/form-data")) {
+      const form = await req.formData();
+      const field = (k: string) => {
+        const v = form.get(k);
+        return typeof v === "string" ? v : undefined;
+      };
+      body = {
+        first_name: field("first_name"),
+        company: field("company"),
+        email: field("email"),
+        carrier: field("carrier"),
+        notes: field("notes"),
+      };
+      attached = asUploadedFile(form.get("file"));
+    } else {
+      body = await req.json();
+    }
   } catch {
-    return jsonResponse({ error: "bad json" }, 400);
+    return jsonResponse({ error: "bad request body" }, 400);
   }
   const first_name = String(body.first_name ?? "").trim().slice(0, 120);
   const company = String(body.company ?? "").trim().slice(0, 200);
@@ -321,6 +340,9 @@ async function handleAuditIntake(req: Request, env: Env): Promise<Response> {
   const notes = String(body.notes ?? "").trim().slice(0, 2000);
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || !first_name || !company) {
     return jsonResponse({ error: "missing required fields" }, 400);
+  }
+  if (attached && attached.size > MAX_UPLOAD_BYTES) {
+    return jsonResponse({ error: "file too large (max 20MB)" }, 413);
   }
 
   // Generate a single-use upload token for this request.
@@ -334,42 +356,56 @@ async function handleAuditIntake(req: Request, env: Env): Promise<Response> {
     .bind(first_name, company, email.toLowerCase(), carrier, notes, uploadToken)
     .run();
 
-  // Confirmation to prospect with the upload link. This one matters — if it
-  // fails, the prospect has no link, so surface the failure to the form.
+  if (attached) {
+    const row = await lookupAudit(env, uploadToken);
+    if (!row) return jsonResponse({ error: "could not record request" }, 500);
+    await storeAuditUpload(env, row, attached);
+    // Confirmation only: the bill is already in hand, so no link to chase.
+    await sendEmail(env, {
+      to: email,
+      subject: `We received your bill`,
+      text:
+        `Hi ${first_name},\n\n` +
+        `Thanks, we have your bill (${attached.name}). You will get the marked-up version back within one business day.\n\n` +
+        `If you have another bill to add, use this secure link (single-use, expires in 7 days):\n${uploadUrl}\n\n` +
+        `Signal Advisory\ninfo@signaladvise.com · 816.355.3350`,
+    });
+    return jsonResponse({ ok: true, uploaded: true }, 200);
+  }
+
+  // No file attached: email the upload link. This one matters; if it fails,
+  // the prospect has no way to send the bill, so surface it to the form.
   const prospectOk = await sendEmail(env, {
     to: email,
-    subject: `Your invoice audit — upload link inside`,
+    subject: `Your free bill review: upload link inside`,
     text:
       `Hi ${first_name},\n\n` +
-      `Thanks for the audit request. Here's your secure upload link:\n\n` +
+      `Thanks for requesting a free bill review. Here is your secure upload link:\n\n` +
       `${uploadUrl}\n\n` +
-      `Drop in your most recent carrier invoice (PDF, image, or CSV — up to 20MB). The link is single-use and expires in 7 days.\n\n` +
-      `Once I have the invoice, you'll get the marked-up version back the next business day.\n\n` +
-      `Brandon\n` +
-      `Principal Advisor\n` +
+      `Upload your most recent internet, phone, or wireless bill (PDF, image, or CSV, up to 20MB). The link is single-use and expires in 7 days.\n\n` +
+      `Once we have the bill, you will get the marked-up version back the next business day.\n\n` +
       `Signal Advisory\n` +
-      `brandon@signaladvise.com · 816.355.3350`,
+      `info@signaladvise.com · 816.355.3350`,
   });
 
-  // Notify Brandon with the link he can forward. Best-effort: the request
-  // already exists in audit_requests either way.
+  // Owner notification is best-effort: the request is already saved.
   await notifyOwner(
     env,
-    `New audit request — ${company} (${first_name})`,
-    `New invoice audit request from the website:\n\n` +
+    `New audit request: ${company} (${first_name})`,
+    `New bill review request from the website:\n\n` +
       `Name: ${first_name}\n` +
       `Company: ${company}\n` +
       `Email: ${email}\n` +
-      `Primary carrier: ${carrier || "—"}\n` +
-      `Notes: ${notes || "—"}\n\n` +
-      `Their upload link${prospectOk ? " (already sent to them automatically)" : " (their copy FAILED to send — forward this manually)"}:\n${uploadUrl}\n\n` +
+      `Primary carrier: ${carrier || "-"}\n` +
+      `Notes: ${notes || "-"}\n\n` +
+      `No bill attached yet. Their upload link${prospectOk ? " (already sent to them automatically)" : " (their copy FAILED to send; forward this manually)"}:\n${uploadUrl}\n\n` +
       `You'll get a notification email when they upload.`,
   );
 
   if (!prospectOk) {
     return jsonResponse({ error: "could not send the upload link email" }, 502);
   }
-  return jsonResponse({ ok: true }, 200);
+  return jsonResponse({ ok: true, uploaded: false }, 200);
 }
 
 interface AuditRow {
@@ -381,6 +417,57 @@ interface AuditRow {
   uploaded_at: number | null;
   r2_key: string | null;
   created_at: number;
+}
+
+const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
+
+interface UploadedFile {
+  name: string;
+  size: number;
+  type: string;
+  arrayBuffer(): Promise<ArrayBuffer>;
+}
+
+function asUploadedFile(v: unknown): UploadedFile | null {
+  if (!v || typeof v !== "object" || !("arrayBuffer" in v) || !("size" in v)) return null;
+  const f = v as UploadedFile;
+  return f.size > 0 ? f : null;
+}
+
+// Saves a bill to R2, marks the audit request uploaded, and notifies the
+// owner with a download link. Buffered (max 20MB) because R2 rejects
+// streams of unknown length.
+async function storeAuditUpload(env: Env, row: AuditRow, file: UploadedFile): Promise<void> {
+  const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 80);
+  const r2Key = `audit-${row.id}/${Date.now()}-${cleanName}`;
+  await env.AUDIT_UPLOADS.put(r2Key, await file.arrayBuffer(), {
+    httpMetadata: { contentType: file.type || "application/octet-stream" },
+    customMetadata: {
+      auditId: String(row.id),
+      company: row.company,
+      email: row.email,
+      originalFilename: file.name,
+    },
+  });
+  await env.DB.prepare(
+    `UPDATE audit_requests SET uploaded_at = unixepoch(), uploaded_filename = ?2,
+       uploaded_size = ?3, r2_key = ?4, status = 'uploaded'
+     WHERE id = ?1`,
+  )
+    .bind(row.id, file.name, file.size, r2Key)
+    .run();
+  const downloadUrl = `https://api.signaladvise.com/admin/audit/${row.id}/download`;
+  await notifyOwner(
+    env,
+    `Bill received: ${row.company} (${row.first_name})`,
+    `A bill was uploaded for the review request from ${row.first_name} at ${row.company}.\n\n` +
+      `Filename: ${file.name}\n` +
+      `Size: ${Math.round(file.size / 1024)} KB\n` +
+      `Type: ${file.type || "unknown"}\n\n` +
+      `Download (requires admin secret):\n${downloadUrl}\n\n` +
+      `Or from R2: bucket signal-audit-uploads, key ${r2Key}\n\n` +
+      `Reply to ${row.email} with the marked-up version within one business day.`,
+  );
 }
 
 async function lookupAudit(env: Env, token: string): Promise<AuditRow | null> {
@@ -507,52 +594,12 @@ async function handleUploadSubmission(
   }
   if (row.uploaded_at) return new Response("already uploaded", { status: 409 });
 
-  const form = await req.formData();
-  const file = form.get("file") as unknown as
-    | { name: string; size: number; type: string; stream(): ReadableStream }
-    | null;
-  if (!file || typeof file !== "object" || !("stream" in file)) {
-    return new Response("missing file", { status: 400 });
-  }
-  if (file.size > 20 * 1024 * 1024) {
+  const file = asUploadedFile((await req.formData()).get("file"));
+  if (!file) return new Response("missing file", { status: 400 });
+  if (file.size > MAX_UPLOAD_BYTES) {
     return new Response("file too large", { status: 413 });
   }
-
-  // Sanitize filename and prefix with audit id + timestamp for uniqueness.
-  const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 80);
-  const r2Key = `audit-${row.id}/${Date.now()}-${cleanName}`;
-
-  await env.AUDIT_UPLOADS.put(r2Key, file.stream(), {
-    httpMetadata: { contentType: file.type || "application/octet-stream" },
-    customMetadata: {
-      auditId: String(row.id),
-      company: row.company,
-      email: row.email,
-      originalFilename: file.name,
-    },
-  });
-
-  await env.DB.prepare(
-    `UPDATE audit_requests SET uploaded_at = unixepoch(), uploaded_filename = ?2,
-       uploaded_size = ?3, r2_key = ?4, status = 'uploaded'
-     WHERE id = ?1`,
-  )
-    .bind(row.id, file.name, file.size, r2Key)
-    .run();
-
-  // Notify Brandon with a download link.
-  const downloadUrl = `https://api.signaladvise.com/admin/audit/${row.id}/download`;
-  await notifyOwner(
-    env,
-    `Audit upload received — ${row.company} (${row.first_name})`,
-    `New invoice uploaded for the audit request from ${row.first_name} at ${row.company}.\n\n` +
-      `Filename: ${file.name}\n` +
-      `Size: ${Math.round(file.size / 1024)} KB\n` +
-      `Type: ${file.type || "unknown"}\n\n` +
-      `Download (requires admin secret):\n${downloadUrl}\n\n` +
-      `Or download from R2 dashboard:\nBucket signal-audit-uploads · Key ${r2Key}\n\n` +
-      `Reply to ${row.email} with the marked-up version within one business day.`,
-  );
+  await storeAuditUpload(env, row, file);
 
   return new Response(JSON.stringify({ ok: true }), {
     status: 200,
