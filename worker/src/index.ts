@@ -54,10 +54,10 @@ export default {
     const url = new URL(req.url);
     // CORS preflight for browser POSTs from signaladvise.com
     if (req.method === "OPTIONS") {
-      return new Response(null, {
+      return withSiteOrigin(new Response(null, {
         status: 204,
         headers: corsHeaders(),
-      });
+      }), req);
     }
     if (url.pathname === "/u" || url.pathname === "/u/") {
       return handleUnsubscribe(url, req, env);
@@ -77,7 +77,7 @@ export default {
       return handleResendWebhook(req, env);
     }
     if (url.pathname === "/audit" && req.method === "POST") {
-      return handleAuditIntake(req, env);
+      return withSiteOrigin(await handleAuditIntake(req, env), req);
     }
     if (url.pathname.startsWith("/upload/")) {
       const token = url.pathname.slice("/upload/".length);
@@ -274,9 +274,22 @@ async function markSendFailed(env: Env, leadId: number, errMsg: string): Promise
   ]);
 }
 
+// The site is served on both the apex and www. A CORS response may name only
+// one origin, so reflect the caller's origin when it is one of ours.
+const SITE_ORIGINS = ["https://signaladvise.com", "https://www.signaladvise.com"];
+
+function withSiteOrigin(res: Response, req: Request): Response {
+  const origin = req.headers.get("origin");
+  if (!origin || !SITE_ORIGINS.includes(origin)) return res;
+  const out = new Response(res.body, res);
+  out.headers.set("Access-Control-Allow-Origin", origin);
+  out.headers.set("Vary", "Origin");
+  return out;
+}
+
 function corsHeaders(): Record<string, string> {
   return {
-    "Access-Control-Allow-Origin": "https://signaladvise.com",
+    "Access-Control-Allow-Origin": SITE_ORIGINS[0],
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
     "Access-Control-Max-Age": "86400",
