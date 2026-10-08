@@ -37,8 +37,8 @@ The Customer hereby authorizes the following entity (the "**Authorized Agent**")
 |---|---|
 | **Agent Entity** | Signal Advisory LLC |
 | **Agent Address** | `[ADDRESS]`, Kansas City, Missouri |
-| **Authorized Individual(s)** | Brandon Murphy, Principal Advisor |
-| **Agent Contact Email** | brandon@signaladvise.com |
+| **Authorized Individual(s)** | `[ADVISOR SIGNATORY]`, Signal Advisory LLC |
+| **Agent Contact Email** | info@signaladvise.com |
 | **Agent Contact Phone** | `[BUSINESS PHONE]` |
 
 ### 3. Vendors and Accounts Covered
@@ -130,13 +130,13 @@ Phone: `[PHONE]`
 
 By: ____________________________________________
 
-Print Name: Brandon Murphy
+Print Name: `[ADVISOR SIGNATORY]`
 
 Title: Principal Advisor, Signal Advisory LLC
 
 Date: __________________________________________
 
-Email: brandon@signaladvise.com
+Email: info@signaladvise.com
 
 Phone: `[PHONE]`
 
