@@ -154,7 +154,7 @@ Neither Party shall be liable for any delay or failure to perform (other than pa
 
 **14.3 Notices.** All notices under this Agreement shall be in writing and delivered (a) by certified mail, return receipt requested, (b) by nationally recognized overnight courier, or (c) by email to the addresses set forth below (with deemed receipt upon confirmed delivery), and shall be deemed given when received.
 
-Advisor: `brandon@signaladvise.com` / `[POSTAL ADDRESS]`
+Advisor: `info@signaladvise.com` / `[POSTAL ADDRESS]`
 Client: `[CLIENT EMAIL]` / `[CLIENT POSTAL ADDRESS]`
 
 **14.4 Assignment.** Neither Party may assign this Agreement without the prior written consent of the other, except that either Party may assign this Agreement, without consent, to a successor in connection with a merger, acquisition, or sale of substantially all of its assets, provided the assignee assumes all obligations hereunder.
@@ -176,6 +176,6 @@ Client: `[CLIENT EMAIL]` / `[CLIENT POSTAL ADDRESS]`
 | **SIGNAL ADVISORY LLC** | **CLIENT — `[CLIENT LEGAL NAME]`** |
 |---|---|
 | By: ____________________________ | By: ____________________________ |
-| Name: Brandon Murphy | Name: `[CLIENT SIGNATORY]` |
+| Name: `[ADVISOR SIGNATORY]` | Name: `[CLIENT SIGNATORY]` |
 | Title: Principal Advisor | Title: `[CLIENT TITLE]` |
 | Date: __________________________ | Date: __________________________ |

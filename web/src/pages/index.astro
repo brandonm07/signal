@@ -32,42 +32,9 @@ const steps = [
   {
     n: '3',
     title: 'You decide.',
-    body: 'Fix it yourself with our markup, or let Brandon negotiate it with the carrier. You keep your providers. If we do not save you money, you pay nothing.',
+    body: 'Fix it yourself with our markup, or let us negotiate it with the carrier. You keep your providers. If we do not save you money, you pay nothing.',
   },
 ];
-
-const faqs = [
-  {
-    q: 'Do I have to switch providers?',
-    a: 'No. Most of the time you stay with the exact providers you have now, at a better rate and better terms. The leverage is in being willing to switch, not in actually switching.',
-  },
-  {
-    q: 'I am locked into a contract. Is it too late?',
-    a: 'Under contract is the best time to start. We find the fees and services you are being charged for that were never in the contract, and we get ahead of the renewal so the next one is on your terms instead of the carrier\'s.',
-  },
-  {
-    q: 'My IT person already handles our phones and internet.',
-    a: 'Your IT person keeps things running, which is a full-time job. Fighting the bill is a different job, and it is the one the carrier is betting nobody at your company has time for. We work alongside IT, not around them.',
-  },
-  {
-    q: 'Is this a sales pitch for a carrier?',
-    a: 'No. We are independent. We do not work for any carrier and we never sell you one. We work for you, and our only job is to make your bills smaller.',
-  },
-  {
-    q: 'How is this free? What is the catch?',
-    a: 'The review is free, every time, with no obligation. If you want us to negotiate, it is no savings, no fee: if we cannot lower your bill, you owe nothing. There is no catch, because we only get paid when you save.',
-  },
-];
-
-const faqSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: faqs.map((f) => ({
-    '@type': 'Question',
-    name: f.q,
-    acceptedAnswer: { '@type': 'Answer', text: f.a },
-  })),
-};
 
 const serviceSchema = [
   'Business internet and phone bill review',
@@ -81,12 +48,12 @@ const serviceSchema = [
   areaServed: { '@type': 'Country', name: 'United States' },
 }));
 
-const jsonLd = [faqSchema, ...serviceSchema];
+const jsonLd = serviceSchema;
 ---
 
 <Base
   title="Lower Your Business Internet, Phone and Cell Bills | Signal Advisory, Kansas City"
-  description="Send one bill. Brandon Murphy spent 25 years inside the carriers and knows exactly where small businesses overpay. Free 24-hour review. No savings, no fee. Kansas City."
+  description="Signal Advisory lowers what businesses pay for internet, phone, and cell service. Signal Advisory brings 25+ years of experience from inside the major carriers. Free 24-hour bill review. No savings, no fee."
   jsonLd={jsonLd}
 >
   <Nav />
@@ -99,8 +66,8 @@ const jsonLd = [faqSchema, ...serviceSchema];
       <em class="text-signal not-italic font-medium">You keep your providers.</em>
     </h1>
     <p class="mt-8 max-w-2xl text-lg leading-relaxed text-ink/80">
-      Send us one bill. Brandon Murphy spent 25 years inside the big carriers and knows
-      exactly where they overcharge small businesses. He finds it and negotiates it down.
+      Send us one bill. We spent 25+ years inside the major carriers and know
+      exactly where they overcharge businesses. We find it and negotiate it down.
       If we do not save you money, you pay nothing.
     </p>
     <div class="mt-10 flex flex-wrap gap-4">
@@ -123,6 +90,28 @@ const jsonLd = [faqSchema, ...serviceSchema];
       <li>We work for you, not the phone company</li>
       <li>No savings, no fee</li>
     </ul>
+  </section>
+
+  <!-- Proof: figures from /results, confirmed by the owner as real engagements. -->
+  <section class="border-t border-ink/10 py-14">
+    <div class="container mx-auto max-w-5xl px-6 md:px-10">
+      <p class="mb-8 text-xs uppercase tracking-[0.2em] text-stone">Recent results</p>
+      <div class="grid gap-8 md:grid-cols-3">
+        <div>
+          <p class="display text-4xl font-medium text-signal">$94,000</p>
+          <p class="mt-2 text-sm text-ink/70">first-year savings for a ten-location manufacturer, with full redundancy kept</p>
+        </div>
+        <div>
+          <p class="display text-4xl font-medium text-signal">6 to 1</p>
+          <p class="mt-2 text-sm text-ink/70">providers consolidated for a multi-site retailer: one bill, one point of accountability</p>
+        </div>
+        <div>
+          <p class="display text-4xl font-medium text-signal">23%</p>
+          <p class="mt-2 text-sm text-ink/70">lower monthly telecom spend for a single-location business, same carrier, same service</p>
+        </div>
+      </div>
+      <a href="/results" class="mt-8 inline-block text-sm font-medium text-signal hover:underline">See how we did it →</a>
+    </div>
   </section>
 
   <!-- What we do -->
@@ -166,7 +155,7 @@ const jsonLd = [faqSchema, ...serviceSchema];
     </div>
   </section>
 
-  <!-- Why Brandon -->
+  <!-- Why Signal Advisory -->
   <section id="why" class="border-t border-ink/10 py-24">
     <div class="container mx-auto max-w-5xl px-6 md:px-10 grid gap-12 md:grid-cols-5">
       <div class="md:col-span-3">
@@ -175,10 +164,10 @@ const jsonLd = [faqSchema, ...serviceSchema];
           25 years on the other side of the table.
         </h2>
         <p class="text-ink/75 leading-relaxed mb-5">
-          Brandon Murphy spent more than 25 years inside major U.S. carriers, pricing and
-          structuring the very contracts small businesses sign. He knows which fees are
-          negotiable, which "taxes" are not actually taxes, and what a carrier will really
-          concede when someone who knows the playbook asks.
+          Signal Advisory brings more than 25 years of experience from inside the major U.S.
+          carriers, pricing and structuring the very contracts businesses sign. We know which
+          fees are negotiable, which "taxes" are not actually taxes, and what a carrier will
+          really concede when someone who knows the playbook asks.
         </p>
         <p class="text-ink/75 leading-relaxed">
           Signal Advisory is independent. We are not tied to any provider, we do not sell
@@ -189,58 +178,20 @@ const jsonLd = [faqSchema, ...serviceSchema];
         </a>
       </div>
       <div class="md:col-span-2 border border-ink/10 p-8">
-        <p class="display text-xl font-medium mb-2">Brandon Murphy</p>
-        <p class="text-sm text-stone mb-6">Principal Advisor · Signal Advisory · Kansas City, MO</p>
+        <p class="display text-xl font-medium mb-2">Signal Advisory</p>
+        <p class="text-sm text-stone mb-6">Independent telecom advisory · Kansas City, MO</p>
         <p class="text-sm text-ink/80 leading-relaxed mb-6">
-          You talk to Brandon directly. Not a franchise, not a call center, not a sales team.
+          A dedicated advisor on every account. Not a franchise, not a call center, not a carrier sales team.
         </p>
         <p class="text-sm">
           <a href="tel:+18163553350" class="font-medium hover:text-signal">816-355-3350</a><br />
-          <a href="mailto:brandon@signaladvise.com" class="font-medium hover:text-signal">brandon@signaladvise.com</a>
+          <a href="mailto:info@signaladvise.com" class="font-medium hover:text-signal">info@signaladvise.com</a>
         </p>
       </div>
     </div>
   </section>
 
-  <!-- What it costs -->
-  <section id="cost" class="border-t border-ink/10 bg-ink/[0.03] py-24">
-    <div class="container mx-auto max-w-3xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">What it costs</p>
-      <h2 class="display mb-6 text-3xl font-normal leading-tight md:text-4xl">
-        The review is free. Negotiation is no savings, no fee.
-      </h2>
-      <p class="text-ink/75 leading-relaxed mb-4">
-        If Brandon cannot lower your bill, you owe nothing. That is the whole deal.
-      </p>
-      <p class="text-ink/75 leading-relaxed">
-        Want us to keep watching your bills every month so the savings do not creep back?
-        That is a simple monthly plan, quoted up front, with no long-term contract.
-      </p>
-    </div>
-  </section>
 
-  <!-- FAQ -->
-  <section id="faq" class="border-t border-ink/10 py-24">
-    <div class="container mx-auto max-w-3xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Common questions</p>
-      <h2 class="display mb-12 text-3xl font-normal leading-tight md:text-4xl">
-        The things owners ask before they send a bill.
-      </h2>
-      <div class="divide-y divide-ink/10">
-        {faqs.map((f) => (
-          <div class="py-7">
-            <h3 class="display text-lg font-medium mb-2">{f.q}</h3>
-            <p class="text-ink/75 leading-relaxed">{f.a}</p>
-          </div>
-        ))}
-      </div>
-      <p class="mt-10 text-sm text-stone">
-        Running a bigger operation, 50+ locations or 1,000+ employees?
-        <a href="/midmarket" class="underline hover:text-ink">Growing companies</a> ·
-        <a href="/enterprise" class="underline hover:text-ink">Large organizations</a>
-      </p>
-    </div>
-  </section>
 
   <!-- Final CTA -->
   <section id="contact" class="border-t border-ink/10 bg-ink py-24 text-paper">
@@ -269,7 +220,7 @@ const jsonLd = [faqSchema, ...serviceSchema];
         </a>
       </div>
       <p class="mt-6 text-sm text-paper/60">
-        Or call Brandon at <a href="tel:+18163553350" class="underline text-paper/80">816-355-3350</a> · <a href="mailto:brandon@signaladvise.com" class="underline text-paper/80">brandon@signaladvise.com</a>
+        Or call <a href="tel:+18163553350" class="underline text-paper/80">816-355-3350</a> · <a href="mailto:info@signaladvise.com" class="underline text-paper/80">info@signaladvise.com</a>
       </p>
     </div>
   </section>
