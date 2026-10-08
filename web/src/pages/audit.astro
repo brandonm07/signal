@@ -51,6 +51,12 @@ import Footer from '../components/Footer.astro';
       </div>
 
       <div>
+        <label class="block text-sm font-medium text-ink mb-2" for="file">Your bill</label>
+        <input id="file" name="file" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic,.csv,.xlsx,.xls" class="w-full border border-ink/20 bg-white px-4 py-3 text-sm file:mr-4 file:rounded-sm file:border-0 file:bg-ink file:px-4 file:py-2 file:text-sm file:text-paper" />
+        <p class="mt-2 text-xs text-stone">PDF, photo, or spreadsheet, up to 20MB. Don't have it handy? Leave this blank and we'll email you a secure link to send it later.</p>
+      </div>
+
+      <div>
         <label class="block text-sm font-medium text-ink mb-2" for="carrier">Who is your provider? (optional)</label>
         <input id="carrier" name="carrier" type="text" placeholder="e.g. Spectrum Business, AT&T, Lumen" class="w-full border border-ink/20 px-4 py-3 focus:border-signal outline-none" />
       </div>
@@ -61,15 +67,14 @@ import Footer from '../components/Footer.astro';
       </div>
 
       <p class="text-sm text-stone">
-        Submit this form and we'll email you a secure one-time upload link for the bill
-        within minutes, so it never travels as an email attachment. By submitting, you agree to
+        Your bill uploads securely and never travels as an email attachment. By submitting, you agree to
         our <a href="/privacy" class="text-signal underline">privacy policy</a>. We use
         your bill solely to provide the review you requested and keep uploaded files
         no longer than 90 days.
       </p>
 
       <button type="submit" class="mt-2 inline-block w-full rounded-sm bg-signal px-6 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors">
-        Send me the secure upload link
+        Get my free bill review
       </button>
 
       <div id="audit-status" class="hidden text-sm"></div>
@@ -86,19 +91,28 @@ import Footer from '../components/Footer.astro';
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const fd = new FormData(form);
-      const payload = Object.fromEntries(fd.entries());
+      const file = fd.get('file');
+      const hasFile = file instanceof File && file.size > 0;
+      if (!hasFile) fd.delete('file');
+      if (hasFile && file.size > 20 * 1024 * 1024) {
+        status.className = 'text-sm text-signal font-medium';
+        status.textContent = 'That file is over 20MB. Try a PDF or a smaller photo.';
+        status.classList.remove('hidden');
+        return;
+      }
       const btn = form.querySelector('button[type=submit]') as HTMLButtonElement;
       btn.disabled = true;
-      btn.textContent = 'Sending…';
+      btn.textContent = hasFile ? 'Uploading…' : 'Sending…';
       try {
         const res = await fetch('https://api.signaladvise.com/audit', {
           method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify(payload),
+          body: fd,
         });
         if (res.ok) {
           status.className = 'text-sm text-moss font-medium';
-          status.textContent = 'Got it. Check your inbox in a few minutes for the upload link.';
+          status.textContent = hasFile
+            ? 'Got it. We have your bill and will send the marked-up review within one business day.'
+            : 'Got it. Check your inbox in a few minutes for your secure upload link.';
           status.classList.remove('hidden');
           form.reset();
         } else {
@@ -110,7 +124,7 @@ import Footer from '../components/Footer.astro';
         status.classList.remove('hidden');
       } finally {
         btn.disabled = false;
-        btn.textContent = 'Send me the secure upload link';
+        btn.textContent = 'Get my free bill review';
       }
     });
   }
