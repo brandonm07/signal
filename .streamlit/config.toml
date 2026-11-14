@@ -1,0 +1,16 @@
+[theme]
+# Brand tokens — keep in sync with web/src/styles/global.css
+primaryColor = "#c9462c"
+backgroundColor = "#faf7f1"
+secondaryBackgroundColor = "#f0ebe0"
+textColor = "#1a1f24"
+font = "sans serif"
+
+[server]
+# Required for Codespaces / GitHub Actions / behind any proxy.
+headless = true
+enableCORS = false
+enableXsrfProtection = false
+
+[browser]
+gatherUsageStats = false

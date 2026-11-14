@@ -141,6 +141,27 @@ export async function createCheckoutSession(
   );
 }
 
+export async function updateCustomer(
+  env: Env,
+  customerId: string,
+  args: {
+    email?: string;
+    name?: string;
+    phone?: string;
+    address?: {
+      line1?: string;
+      line2?: string;
+      city?: string;
+      state?: string;
+      postal_code?: string;
+      country?: string;
+    };
+    metadata?: Record<string, string>;
+  },
+): Promise<StripeCustomer> {
+  return await stripeRequest<StripeCustomer>(env, "POST", `/customers/${customerId}`, args);
+}
+
 export async function retrieveCheckoutSession(
   env: Env,
   sessionId: string,
