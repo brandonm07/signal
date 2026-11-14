@@ -13,6 +13,7 @@ import {
   type LineItemRow,
 } from "./invoices";
 import { escapeHtml as esc, getState, nowSec, safeEqual, signToken, verifyToken } from "./shared";
+import { updateCustomer } from "./stripe";
 import { runCallBrief } from "./callbrief";
 import { pollInbound } from "./inbound";
 
@@ -61,6 +62,9 @@ export async function handleAdminUi(req: Request, env: Env): Promise<Response> {
   if (path === "/clients/new" && req.method === "POST") return await handleClientNewSubmit(req, env);
   const cliDetail = path.match(/^\/clients\/(\d+)$/);
   if (cliDetail) return await serveClientDetail(parseInt(cliDetail[1], 10), env);
+  const cliEdit = path.match(/^\/clients\/(\d+)\/edit$/);
+  if (cliEdit && req.method === "GET") return await serveClientEditForm(parseInt(cliEdit[1], 10), env, url.searchParams.get("err"));
+  if (cliEdit && req.method === "POST") return await handleClientEditSubmit(parseInt(cliEdit[1], 10), req, env);
   const cliStatus = path.match(/^\/clients\/(\d+)\/status$/);
   if (cliStatus && req.method === "POST") return await handleClientStatusToggle(parseInt(cliStatus[1], 10), req, env);
 
@@ -603,7 +607,10 @@ async function serveClientDetail(clientId: number, env: Env): Promise<Response> 
       <thead><tr><th>Number</th><th>Status</th><th>Due</th><th>Paid</th><th style="text-align:right">Total</th></tr></thead>
       <tbody>${invRows}</tbody>
     </table>
-    <div style="margin-top:16px"><a href="/admin/ui/invoices/new" class="btn primary">+ New invoice for ${esc(client.company_legal_name)}</a></div>
+    <div style="margin-top:16px;display:flex;gap:8px">
+      <a href="/admin/ui/invoices/new" class="btn primary">+ New invoice for ${esc(client.company_legal_name)}</a>
+      <a href="/admin/ui/clients/${client.id}/edit" class="btn secondary">Edit client</a>
+    </div>
   `;
   return html(layout(client.company_legal_name, body, { activeNav: "clients" }));
 }
@@ -726,6 +733,159 @@ async function handleClientNewSubmit(req: Request, env: Env): Promise<Response> 
   }
   const data = (await apiRes.json()) as { id: number };
   return Response.redirect(new URL(req.url).origin + `/admin/ui/clients/${data.id}`, 302);
+}
+
+// ---------- edit client ----------
+
+async function serveClientEditForm(clientId: number, env: Env, err: string | null): Promise<Response> {
+  const client = await env.DB.prepare(`SELECT * FROM clients WHERE id = ?1`).bind(clientId).first<ClientRow>();
+  if (!client) return html(layout("Not found", "<h1>Not found</h1>"), 404);
+
+  const msaDate = client.msa_signed_at
+    ? new Date(client.msa_signed_at * 1000).toISOString().slice(0, 10)
+    : "";
+
+  const val = (v: string | null | undefined) => esc(v ?? "");
+
+  const body = `
+    <p style="margin-bottom:8px"><a href="/admin/ui/clients/${client.id}">← Back to ${esc(client.company_legal_name)}</a></p>
+    <h1>Edit client</h1>
+    ${err ? `<div class="err">${esc(err)}</div>` : ""}
+    <form method="POST" action="/admin/ui/clients/${client.id}/edit" class="stacked">
+      <label for="company_legal_name">Legal company name *</label>
+      <input type="text" id="company_legal_name" name="company_legal_name" required value="${val(client.company_legal_name)}">
+
+      <div class="grid">
+        <div>
+          <label for="signatory_name">Primary contact name</label>
+          <input type="text" id="signatory_name" name="signatory_name" value="${val(client.signatory_name)}">
+        </div>
+        <div>
+          <label for="signatory_title">Title</label>
+          <input type="text" id="signatory_title" name="signatory_title" value="${val(client.signatory_title)}">
+        </div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <label for="email">Billing email *</label>
+          <input type="email" id="email" name="email" required value="${val(client.email)}">
+        </div>
+        <div>
+          <label for="phone">Phone</label>
+          <input type="tel" id="phone" name="phone" value="${val(client.phone)}">
+        </div>
+      </div>
+
+      <label for="address_line1">Street address</label>
+      <input type="text" id="address_line1" name="address_line1" value="${val(client.address_line1)}">
+      <input type="text" name="address_line2" placeholder="Suite, unit, etc. (optional)" style="margin-top:8px" value="${val(client.address_line2)}">
+
+      <div class="grid" style="grid-template-columns:2fr 1fr 1fr">
+        <div>
+          <label for="city">City</label>
+          <input type="text" id="city" name="city" value="${val(client.city)}">
+        </div>
+        <div>
+          <label for="state">State</label>
+          <input type="text" id="state" name="state" value="${val(client.state)}">
+        </div>
+        <div>
+          <label for="postal_code">ZIP</label>
+          <input type="text" id="postal_code" name="postal_code" value="${val(client.postal_code)}">
+        </div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <label for="ein_last_four">EIN last 4 (optional)</label>
+          <input type="text" id="ein_last_four" name="ein_last_four" maxlength="4" value="${val(client.ein_last_four)}">
+        </div>
+        <div>
+          <label for="msa_signed_date">MSA signed date (optional)</label>
+          <input type="text" id="msa_signed_date" name="msa_signed_date" placeholder="YYYY-MM-DD" value="${esc(msaDate)}">
+        </div>
+      </div>
+
+      <label for="notes">Notes (optional)</label>
+      <textarea id="notes" name="notes" rows="3">${val(client.notes)}</textarea>
+
+      <div class="row-actions">
+        <button type="submit" class="btn primary">Save changes</button>
+        <a href="/admin/ui/clients/${client.id}" class="btn secondary">Cancel</a>
+      </div>
+    </form>
+  `;
+  return html(layout(`Edit — ${client.company_legal_name}`, body, { activeNav: "clients" }));
+}
+
+async function handleClientEditSubmit(clientId: number, req: Request, env: Env): Promise<Response> {
+  const origin = new URL(req.url).origin;
+  const client = await env.DB.prepare(`SELECT * FROM clients WHERE id = ?1`).bind(clientId).first<ClientRow>();
+  if (!client) return html(layout("Not found", "<h1>Not found</h1>"), 404);
+
+  const form = await req.formData();
+  const f = (k: string) => String(form.get(k) ?? "").trim();
+
+  const companyName = f("company_legal_name");
+  const email = f("email").toLowerCase();
+  if (!companyName || !email || !email.includes("@")) {
+    return Response.redirect(
+      `${origin}/admin/ui/clients/${clientId}/edit?err=` + encodeURIComponent("Legal company name and email are required"),
+      302,
+    );
+  }
+
+  const msaDate = f("msa_signed_date");
+  const msaSignedAt = msaDate ? Math.floor(new Date(msaDate + "T12:00:00Z").getTime() / 1000) : null;
+
+  await env.DB.prepare(
+    `UPDATE clients SET
+       company_legal_name = ?1, signatory_name = ?2, signatory_title = ?3,
+       email = ?4, phone = ?5,
+       address_line1 = ?6, address_line2 = ?7, city = ?8, state = ?9, postal_code = ?10,
+       ein_last_four = ?11, msa_signed_at = ?12, notes = ?13,
+       updated_at = unixepoch()
+     WHERE id = ?14`,
+  ).bind(
+    companyName,
+    f("signatory_name") || null, f("signatory_title") || null,
+    email, f("phone") || null,
+    f("address_line1") || null, f("address_line2") || null,
+    f("city") || null, f("state") || null, f("postal_code") || null,
+    f("ein_last_four") || null, msaSignedAt, f("notes") || null,
+    clientId,
+  ).run();
+
+  // Mirror changes to Stripe — best-effort; don't fail the whole save if Stripe is down.
+  if (client.stripe_customer_id) {
+    try {
+      await updateCustomer(env, client.stripe_customer_id, {
+        email,
+        name: companyName,
+        phone: f("phone") || undefined,
+        address: f("address_line1") ? {
+          line1: f("address_line1"),
+          line2: f("address_line2") || undefined,
+          city: f("city") || undefined,
+          state: f("state") || undefined,
+          postal_code: f("postal_code") || undefined,
+          country: client.country || "US",
+        } : undefined,
+        metadata: {
+          signatory_name: f("signatory_name"),
+          ein_last_four: f("ein_last_four"),
+        },
+      });
+    } catch (err) {
+      console.error("Stripe customer update failed (non-fatal):", err);
+    }
+  }
+
+  return Response.redirect(
+    `${origin}/admin/ui/clients/${clientId}?flash=` + encodeURIComponent("Client updated."),
+    302,
+  );
 }
 
 // ---------- contracts ----------
