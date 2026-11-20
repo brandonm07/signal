@@ -194,6 +194,7 @@ function layout(title: string, body: string, opts: { flash?: string | null; acti
   .badge.draft{background:#efe9d9;color:#7a7067}
   .badge.sent{background:#fef3ef;color:#c9462c}
   .badge.paid{background:#e0eddb;color:#2f4a3c}
+  .badge.processing{background:#e6ecf1;color:#41566b}
   .badge.void{background:#e3ddd0;color:#999;text-decoration:line-through}
   .badge.active{background:#e0eddb;color:#2f4a3c}
   .badge.prospect{background:#fef3ef;color:#c9462c}
@@ -1228,7 +1229,7 @@ async function serveControlCenter(env: Env, flash: string | null): Promise<Respo
   <div class="grid" style="grid-template-columns:repeat(3,1fr);margin-top:16px">
     ${kpi(`${contractAgg.n}`, "contracts tracked")}
     ${kpi(money(contractAgg.spend), "client monthly spend")}
-    ${kpi(`${(invMap["sent"]?.n ?? 0)}`, "invoices awaiting payment")}
+    ${kpi(`${(invMap["sent"]?.n ?? 0) + (invMap["processing"]?.n ?? 0)}`, "invoices awaiting payment")}
   </div>
   <h2 style="font-size:16px">Recent portal signups</h2>
   <table><thead><tr><th>Company</th><th>Email</th><th>When</th></tr></thead><tbody>${signupRows}</tbody></table>

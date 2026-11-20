@@ -15,6 +15,7 @@ import {
 } from "./shared";
 import {
   handleCreateClient,
+  handleUpdateClient,
   handleCreateInvoice,
   handleSendInvoice,
   handleVoidInvoice,
@@ -125,6 +126,10 @@ export default {
       // --- Billing admin ---
       if (url.pathname === "/admin/clients" && req.method === "POST") {
         return handleCreateClient(req, env);
+      }
+      const cliUpdate = url.pathname.match(/^\/admin\/clients\/(\d+)$/);
+      if (cliUpdate && req.method === "POST") {
+        return handleUpdateClient(parseInt(cliUpdate[1], 10), req, env);
       }
       if (url.pathname === "/admin/invoices" && req.method === "POST") {
         return handleCreateInvoice(req, env);

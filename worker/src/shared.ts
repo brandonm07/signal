@@ -156,6 +156,7 @@ export async function sendEmail(
     text: string;
     html?: string;
     replyTo?: string;
+    bcc?: string;
     headers?: Record<string, string>;
   },
 ): Promise<boolean> {
@@ -169,6 +170,7 @@ export async function sendEmail(
       body: JSON.stringify({
         from: `${env.SENDER_NAME} <${env.SENDER_EMAIL}>`,
         to: msg.to,
+        bcc: msg.bcc,
         reply_to: msg.replyTo ?? env.REPLY_TO,
         subject: msg.subject,
         text: msg.text,

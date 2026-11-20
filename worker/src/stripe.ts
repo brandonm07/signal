@@ -111,6 +111,14 @@ export async function createCustomer(
   );
 }
 
+export async function updateCustomer(
+  env: Env,
+  customerId: string,
+  args: { email?: string; name?: string },
+): Promise<StripeCustomer> {
+  return await stripeRequest<StripeCustomer>(env, "POST", `/customers/${customerId}`, args);
+}
+
 export async function createCheckoutSession(
   env: Env,
   args: {

@@ -7,11 +7,12 @@
 import type { Env } from "./types";
 import {
   createCustomer,
+  updateCustomer,
   createCheckoutSession,
   retrieveCheckoutSession,
   verifyStripeWebhook,
 } from "./stripe";
-import { escapeHtml, notifyOwner, randomHex, sendEmail } from "./shared";
+import { OWNER_EMAIL, escapeHtml, notifyOwner, randomHex, sendEmail } from "./shared";
 
 // Customer-facing invoice URLs go on api.signaladvise.com for now (where the
 // worker is bound). If we later add a Cloudflare route for signaladvise.com/i/*
@@ -181,6 +182,41 @@ export async function handleCreateClient(req: Request, env: Env): Promise<Respon
 
 // ---------- POST /admin/invoices ----------
 
+// Update a client's billing contact (email, signatory). Keeps the Stripe
+// customer's email in sync so receipts go to the same person.
+export async function handleUpdateClient(clientId: number, req: Request, env: Env): Promise<Response> {
+  let body: { email?: string; signatory_name?: string; signatory_title?: string };
+  try {
+    body = await req.json();
+  } catch {
+    return jsonResponse({ error: "bad json" }, 400);
+  }
+  if (body.email !== undefined && !body.email.includes("@")) {
+    return jsonResponse({ error: "invalid email" }, 400);
+  }
+  const client = await env.DB.prepare(`SELECT * FROM clients WHERE id = ?1`)
+    .bind(clientId)
+    .first<ClientRow>();
+  if (!client) return jsonResponse({ error: "client not found" }, 404);
+
+  const email = body.email ? body.email.toLowerCase() : client.email;
+  if (body.email && client.stripe_customer_id) {
+    await updateCustomer(env, client.stripe_customer_id, { email });
+  }
+  await env.DB.prepare(
+    `UPDATE clients SET email = ?2, signatory_name = ?3, signatory_title = ?4, updated_at = unixepoch()
+       WHERE id = ?1`,
+  )
+    .bind(
+      clientId,
+      email,
+      body.signatory_name ?? client.signatory_name,
+      body.signatory_title ?? client.signatory_title,
+    )
+    .run();
+  return jsonResponse({ id: clientId, email });
+}
+
 interface CreateInvoiceBody {
   client_id: number;
   description?: string;
@@ -294,7 +330,7 @@ export async function handleSendInvoice(invoiceId: number, env: Env): Promise<Re
     .bind(invoiceId)
     .first<InvoiceRow>();
   if (!inv) return jsonResponse({ error: "invoice not found" }, 404);
-  if (inv.status === "paid" || inv.status === "void") {
+  if (inv.status === "paid" || inv.status === "void" || inv.status === "processing") {
     return jsonResponse({ error: `invoice already ${inv.status}` }, 409);
   }
 
@@ -311,6 +347,8 @@ export async function handleSendInvoice(invoiceId: number, env: Env): Promise<Re
   // the books would say "sent" while the client never received anything.
   const delivered = await sendEmail(env, {
     to: client.email,
+    // Owner gets a copy of every invoice email as a sent record.
+    bcc: OWNER_EMAIL,
     subject: `Invoice ${inv.invoice_number} from Signal Advisory · ${formatMoney(inv.total_cents)} due`,
     html,
     text,
@@ -341,6 +379,9 @@ export async function handleVoidInvoice(invoiceId: number, env: Env): Promise<Re
     .first<InvoiceRow>();
   if (!inv) return jsonResponse({ error: "invoice not found" }, 404);
   if (inv.status === "paid") return jsonResponse({ error: "cannot void paid invoice" }, 409);
+  if (inv.status === "processing") {
+    return jsonResponse({ error: "cannot void: a bank payment is in flight" }, 409);
+  }
   await env.DB.batch([
     env.DB.prepare(
       `UPDATE invoices SET status='void', voided_at=unixepoch(), updated_at=unixepoch()
@@ -397,6 +438,7 @@ export async function handlePayInvoice(token: string, env: Env): Promise<Respons
   if (!inv) return new Response("not found", { status: 404 });
   if (inv.status === "paid") return Response.redirect(`${BILLING_HOST}/i/${token}?paid=1`, 302);
   if (inv.status === "void") return new Response("invoice voided", { status: 410 });
+  if (inv.status === "processing") return Response.redirect(`${BILLING_HOST}/i/${token}`, 302);
 
   // Reuse existing checkout session if still open
   if (inv.stripe_checkout_session_id) {
@@ -488,15 +530,49 @@ export async function handleStripeWebhook(req: Request, env: Env): Promise<Respo
     throw err;
   }
 
-  // Route by type
-  if (evt.type === "checkout.session.completed" || evt.type === "checkout.session.async_payment_succeeded") {
-    await handleCheckoutSucceeded(evt, env);
-  } else if (evt.type === "checkout.session.async_payment_failed") {
-    await handleCheckoutFailed(evt, env);
+  // Route by outcome. Other event types are logged but change no state.
+  try {
+    switch (checkoutOutcome(evt.type, evt.data?.object)) {
+      case "paid":
+        await handleCheckoutSucceeded(evt, env);
+        break;
+      case "pending":
+        await handleCheckoutPending(evt, env);
+        break;
+      case "failed":
+        await handleCheckoutFailed(evt, env);
+        break;
+    }
+  } catch (err) {
+    // The dedupe row above would answer Stripe's retry with "duplicate" and the
+    // payment would never be recorded, so release it before failing the request.
+    await env.DB.prepare(`DELETE FROM invoice_events WHERE stripe_event_id = ?1`)
+      .bind(evt.id)
+      .run()
+      .catch(() => {});
+    throw err;
   }
-  // Other event types are logged but no state change.
 
   return new Response("ok", { status: 200 });
+}
+
+export type CheckoutOutcome = "paid" | "pending" | "failed" | "ignore";
+
+// ACH completes a Checkout Session with payment_status "unpaid" while the bank
+// verifies and the debit settles. Only "paid" or async_payment_succeeded means
+// money moved; anything ambiguous must fall through to "ignore", never "paid".
+export function checkoutOutcome(
+  eventType: string,
+  session: Record<string, unknown> | undefined,
+): CheckoutOutcome {
+  if (eventType === "checkout.session.async_payment_succeeded") return "paid";
+  if (eventType === "checkout.session.async_payment_failed") return "failed";
+  if (eventType === "checkout.session.completed") {
+    const status = session?.payment_status;
+    if (status === "paid") return "paid";
+    if (status === "unpaid") return "pending";
+  }
+  return "ignore";
 }
 
 function extractInvoiceId(evt: { data?: { object?: Record<string, unknown> } }): number | null {
@@ -560,17 +636,63 @@ async function handleCheckoutSucceeded(
   }
 }
 
+async function handleCheckoutPending(
+  evt: { data?: { object?: Record<string, unknown> } },
+  env: Env,
+): Promise<void> {
+  const session = evt.data?.object as Record<string, unknown> | undefined;
+  const invoiceId = extractInvoiceId(evt);
+  if (!session || !invoiceId) return;
+  const paymentIntentId = (session.payment_intent as string | null) ?? null;
+
+  const inv = await env.DB.prepare(`SELECT * FROM invoices WHERE id = ?1`)
+    .bind(invoiceId)
+    .first<InvoiceRow>();
+  if (!inv || ["paid", "void", "processing"].includes(inv.status)) return;
+
+  // 'processing' takes the invoice off the payable list until Stripe reports the
+  // outcome, so the pay link cannot start a second payment while the debit is in flight.
+  await env.DB.prepare(
+    `UPDATE invoices SET status = 'processing', stripe_payment_intent_id = ?2, updated_at = unixepoch()
+     WHERE id = ?1 AND status IN ('draft','sent')`,
+  ).bind(invoiceId, paymentIntentId).run();
+
+  await notifyOwner(
+    env,
+    `⏳ Invoice ${inv.invoice_number} — bank payment started, not yet paid`,
+    `The client submitted a bank (ACH) payment, but no money has moved yet. ` +
+      `If they entered account numbers by hand, Stripe needs them to verify the ` +
+      `account with a microdeposit within 10 days; after that the debit settles ` +
+      `in about 4 business days.\n\n` +
+      `Invoice: ${inv.invoice_number}\n` +
+      `Amount: ${formatMoney(inv.total_cents)}\n` +
+      `Stripe PI: ${paymentIntentId ?? "n/a"}\n\n` +
+      `The invoice stays unpaid until Stripe reports success.`,
+  );
+}
+
 async function handleCheckoutFailed(
   evt: { data?: { object?: Record<string, unknown> } },
   env: Env,
 ): Promise<void> {
   const invoiceId = extractInvoiceId(evt);
   if (!invoiceId) return;
-  // Notify Brandon. Don't change status; ACH failures may retry.
+  // The failed session is dead: drop it and its PaymentIntent so the invoice is
+  // payable again and the next /pay mints a fresh session. No-op unless a bank
+  // payment was actually in flight.
+  const reopened = await env.DB.prepare(
+    `UPDATE invoices SET status = 'sent', stripe_payment_intent_id = NULL,
+       stripe_checkout_session_id = NULL, updated_at = unixepoch()
+     WHERE id = ?1 AND status = 'processing'`,
+  ).bind(invoiceId).run();
   await notifyOwner(
     env,
     `⚠️  Invoice payment failed (invoice id ${invoiceId})`,
-    `Stripe reported a payment failure for invoice ${invoiceId}. Check the dashboard for details.`,
+    `Stripe reported a payment failure for invoice ${invoiceId}. ` +
+      (reopened.meta.changes
+        ? `The invoice is payable again from the same link. `
+        : `The invoice was not awaiting a bank payment, so its status is unchanged. `) +
+      `Check the dashboard for details.`,
   );
 }
 
@@ -632,9 +754,12 @@ function invoiceHtml(inv: InvoiceRow, client: ClientRow, lines: LineItemRow[]): 
   const due = inv.due_date ? new Date(inv.due_date * 1000).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "";
   const issued = new Date(inv.created_at * 1000).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
   const isPaid = inv.status === "paid";
+  const isProcessing = inv.status === "processing";
   const statusBadge = isPaid
     ? `<span style="background:#2f4a3c;color:#faf7f1;padding:4px 12px;border-radius:3px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase">Paid</span>`
-    : `<span style="background:#c9462c;color:#faf7f1;padding:4px 12px;border-radius:3px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase">Due ${escapeHtml(due)}</span>`;
+    : isProcessing
+      ? `<span style="background:#7a7067;color:#faf7f1;padding:4px 12px;border-radius:3px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase">Processing</span>`
+      : `<span style="background:#c9462c;color:#faf7f1;padding:4px 12px;border-radius:3px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase">Due ${escapeHtml(due)}</span>`;
 
   const linesHtml = lines.map((li) => `
     <tr>
@@ -647,6 +772,8 @@ function invoiceHtml(inv: InvoiceRow, client: ClientRow, lines: LineItemRow[]): 
 
   const payBlock = isPaid
     ? `<div style="margin:32px 0;padding:24px;background:#f5f7f1;border:1px solid #d5dfc8;border-radius:6px;text-align:center"><div style="font-size:24px;color:#2f4a3c;font-weight:500">✓ Paid in full</div><div style="font-size:13px;color:#7a7067;margin-top:6px">${inv.paid_at ? "Received " + new Date(inv.paid_at * 1000).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : ""}</div></div>`
+    : isProcessing
+    ? `<div style="margin:32px 0;padding:24px;background:#faf7f1;border:1px solid #e3ddd0;border-radius:6px;text-align:center"><div style="font-size:22px;color:#1a1f24;font-weight:500">Bank payment in progress</div><div style="font-size:13px;color:#7a7067;margin-top:8px">Your payment has been started but has not cleared yet. If Stripe asked you to verify your bank account, please complete that step, and this page will show Paid once the payment clears. Questions: brandon@signaladvise.com</div></div>`
     : `<div style="margin:32px 0;text-align:center"><a href="https://api.signaladvise.com/i/${inv.view_token}/pay" style="display:inline-block;background:#c9462c;color:#faf7f1;padding:16px 40px;text-decoration:none;border-radius:4px;font-weight:600;font-size:15px">Pay ${formatMoney(inv.total_cents)}</a><div style="font-size:12px;color:#7a7067;margin-top:12px">Card or ACH bank transfer · Secure checkout via Stripe</div></div>`;
 
   return `<!doctype html><html lang="en"><head>
