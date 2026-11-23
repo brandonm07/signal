@@ -8,28 +8,28 @@ const CALL = 'https://calendly.com/signaladvise-info/30min';
 const services = [
   {
     n: '01',
-    title: 'Telecom and technology costs',
-    body: 'Internet, phone, wireless, and cloud bills audited line by line and renegotiated. You keep your providers. No savings, no fee.',
+    title: 'Lowering your bills',
+    body: 'Send us your internet, phone, or cell bill. We go through it line by line, call the carrier, and get the price down. You stay with the providers you have, and if we can\'t save you anything, you don\'t owe us anything.',
     link: { href: '/audit', label: 'Free bill review' },
   },
   {
     n: '02',
-    title: 'Technology advisory',
-    body: 'Independent advice on renewals, vendor choices, and systems your team can actually run, from carrier contracts to websites and staff portals.',
+    title: 'A second opinion on tech decisions',
+    body: 'Before you sign a renewal, switch vendors, or rebuild a website, talk it through with someone who isn\'t selling you anything. We recently rebuilt a church\'s website and staff portal so their office could run it themselves.',
     link: { href: '/services', label: 'All services' },
   },
   {
     n: '03',
-    title: 'AI adoption',
-    body: 'Start with an AI Readiness Assessment: we map where your team loses hours, pick the first one or two uses that pay back, and set them up with your existing tools.',
-    link: { href: '/services#ai-readiness', label: 'AI Readiness Assessment' },
+    title: 'Getting started with AI',
+    body: 'Most small businesses don\'t need an AI strategy. They need one or two things that save time on Monday morning. We sit with your team, find those, set them up, and show people how to use them.',
+    link: { href: '/services#ai-readiness', label: 'How the AI assessment works' },
   },
 ];
 
 const steps = [
-  { n: '01', title: 'A 30-minute call', body: 'We learn how your business runs, what you spend, and where the friction is. No pitch deck.' },
-  { n: '02', title: 'A written assessment', body: 'You get a clear list of what we would change, what it saves or earns, and what it costs. Fixed scope, priced up front.' },
-  { n: '03', title: 'We do the work', body: 'We negotiate, set up, and train, then report results against the starting point. You decide every step.' },
+  { n: '01', title: 'We talk for 30 minutes', body: 'You tell us what you pay for and what\'s bugging you. We ask a lot of questions.' },
+  { n: '02', title: 'You get it in writing', body: 'What we\'d change, what it should save you, and what we\'d charge. You know the price before we start.' },
+  { n: '03', title: 'We do the work', body: 'If you say go, we handle the calls and the setup, then show you the before and after.' },
 ];
 
 const serviceSchema = [
@@ -59,20 +59,19 @@ const serviceSchema = [
     <div class="relative container mx-auto max-w-6xl px-4 pb-16 pt-10 md:px-10 md:pb-24 md:pt-16">
       <div class="glass p-6 md:p-12">
         <div class="mb-10 flex flex-wrap items-center justify-between gap-4 border-b border-ink/10 pb-5 font-mono text-[11px] uppercase tracking-[0.2em] text-stone">
-          <span class="flex flex-wrap gap-x-6 gap-y-1"><span>:Costs</span><span>:Technology</span><span>:AI</span></span>
-          <span class="text-ink">S · I · G · N · A · L</span>
+          <span>Signal Advisory</span>
           <span class="hidden sm:inline">Kansas City, MO</span>
         </div>
         <div class="grid gap-12 md:grid-cols-[1fr_auto] md:items-end">
           <div>
             <h1 class="display text-3xl font-light leading-[1.1] md:text-5xl lg:text-[3.6rem]">
-              Lower technology costs. AI that actually gets used.
-              <span class="text-ink/45">One independent advisor.</span>
+              Most businesses pay too much for phone, internet, and tech.
+              <span class="text-ink/45">We help you fix that, and use AI where it actually helps.</span>
             </h1>
             <p class="mt-8 max-w-2xl text-lg leading-relaxed text-ink/75">
-              We spent 25+ years inside the major carriers. Now we sit on your side of the
-              table: cutting what you pay for technology, and putting AI to work where it
-              pays back.
+              We spent 25 years working inside the big carriers, so we know how the bills are
+              built and where the room is. Now we work for small and mid-sized businesses
+              around Kansas City and beyond.
             </p>
             <div class="mt-10 flex flex-wrap items-center gap-6">
               <a href={CALL} target="_blank" rel="noopener" class="inline-block rounded-full bg-ink px-8 py-4 text-sm font-semibold text-paper hover:bg-ink/80 transition-colors">
@@ -164,7 +163,7 @@ const serviceSchema = [
     <div class="container mx-auto max-w-6xl px-4 md:px-10">
       <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">What we do</p>
       <h2 id="ai" class="display mb-12 max-w-3xl scroll-mt-24 text-3xl font-light leading-tight md:text-5xl">
-        Three ways we make technology work harder for your business.
+        What we can help with.
       </h2>
       <div class="grid gap-4 md:grid-cols-3">
         {services.map((s) => (
@@ -183,7 +182,7 @@ const serviceSchema = [
   <section id="how-it-works" class="py-16">
     <div class="container mx-auto max-w-6xl px-4 md:px-10">
       <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">How it works</p>
-      <h2 class="display mb-12 max-w-3xl text-3xl font-light leading-tight md:text-5xl">Clear scope. Measured results.</h2>
+      <h2 class="display mb-12 max-w-3xl text-3xl font-light leading-tight md:text-5xl">How working with us goes.</h2>
       <div class="grid gap-10 border-t border-ink/10 pt-10 md:grid-cols-3">
         {steps.map((s) => (
           <div>
@@ -202,14 +201,14 @@ const serviceSchema = [
       <div class="glass grid gap-10 p-8 md:grid-cols-5 md:p-12">
         <div class="md:col-span-3">
           <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Your advisor</p>
-          <h2 class="display mb-6 text-3xl font-light leading-tight md:text-4xl">25 years on the other side of the table.</h2>
+          <h2 class="display mb-6 text-3xl font-light leading-tight md:text-4xl">Who you'll be working with.</h2>
           <p class="mb-5 leading-relaxed text-ink/75">
-            Signal Advisory is led by a technology advisor with more than 25 years inside the major
-            U.S. carriers, pricing and structuring the contracts businesses sign. We know which fees
-            are negotiable and what a carrier will concede when someone who knows the playbook asks.
+            Signal Advisory is a small firm based in Kansas City. Our founder spent more than
+            25 years inside the major U.S. carriers, pricing and writing the same contracts our
+            clients now ask us to fix.
           </p>
           <p class="leading-relaxed text-ink/75">
-            Every client works with that same senior advisor. Not a call center, not a franchise.
+            When you call, you get the person doing the work.
           </p>
         </div>
         <ul class="space-y-5 border-t border-ink/10 pt-8 text-sm md:col-span-2 md:border-l md:border-t-0 md:pl-10 md:pt-0">
@@ -225,8 +224,8 @@ const serviceSchema = [
   <!-- Final CTA -->
   <section id="contact" class="py-24">
     <div class="container mx-auto max-w-3xl px-6 text-center md:px-10">
-      <h2 class="display mb-6 text-3xl font-light leading-tight md:text-5xl">One call to see where you stand.</h2>
-      <p class="mb-10 text-ink/70">30 minutes, no obligation. You leave with a clear next step either way.</p>
+      <h2 class="display mb-6 text-3xl font-light leading-tight md:text-5xl">Want to talk it through?</h2>
+      <p class="mb-10 text-ink/70">Grab 30 minutes on the calendar. If we can't help, we'll tell you.</p>
       <a href={CALL} target="_blank" rel="noopener" class="inline-block rounded-full bg-ink px-8 py-4 text-sm font-semibold text-paper hover:bg-ink/80 transition-colors">
         Book a 30-minute call →
       </a>
