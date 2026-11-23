@@ -5,11 +5,11 @@
 /* Brand tokens as RGB channels so Tailwind opacity modifiers (text-ink/75) work.
    Dark tech theme: ink is the foreground, paper the background. */
 :root {
-  --ink: 236 238 240;
-  --paper: 8 9 11;
-  --signal: 198 244 50;
+  --ink: 240 241 243;
+  --paper: 5 5 6;
+  --signal: 255 255 255;
   --moss: 120 200 160;
-  --stone: 138 143 150;
+  --stone: 128 132 138;
   color-scheme: dark;
 }
 
@@ -22,7 +22,7 @@ html {
 
 body {
   background:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgb(var(--signal) / 0.08), transparent 60%),
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgb(255 255 255 / 0.05), transparent 60%),
     radial-gradient(rgb(var(--ink) / 0.06) 1px, transparent 1px) 0 0 / 24px 24px,
     rgb(var(--paper));
   min-height: 100vh;
@@ -41,7 +41,6 @@ li.uppercase,
 }
 p.uppercase::before {
   content: ':';
-  color: rgb(var(--signal));
 }
 
 /* Long-form article typography — used by blog posts via the .prose class.
