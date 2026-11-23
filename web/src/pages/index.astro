@@ -3,62 +3,40 @@ import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 
-const bills = [
+const CALL = 'https://calendly.com/signaladvise-info/30min';
+
+const services = [
   {
-    title: 'Internet and phone lines',
-    body: 'Your office internet, your phone system, and the old lines nobody remembers signing up for: alarm, fax, elevator. We check every line item against what you actually use and what the market charges today.',
+    n: '01',
+    title: 'Lowering your bills',
+    body: 'Send us your internet, phone, or cell bill. We go through it line by line, call the carrier, and get the price down. You stay with the providers you have, and if we can\'t save you anything, you don\'t owe us anything.',
+    link: { href: '/audit', label: 'Free bill review' },
   },
   {
-    title: 'Cell phones and tablets',
-    body: 'The wireless bill for your crew, your trucks, and your office. Dead lines, overage charges, and plans that never got updated. This is where most small businesses leak the most money.',
+    n: '02',
+    title: 'A second opinion on tech decisions',
+    body: 'Before you sign a renewal, switch vendors, or rebuild a website, talk it through with someone who isn\'t selling you anything. We recently rebuilt a church\'s website and staff portal so their office could run it themselves.',
+    link: { href: '/services', label: 'All services' },
   },
   {
-    title: 'Renewals and contracts',
-    body: 'Carriers auto-renew you at a higher rate and count on you not noticing. We track your renewal dates and negotiate before they hit, so you never sign another bad deal by accident.',
+    n: '03',
+    title: 'Getting started with AI',
+    body: 'Most small businesses don\'t need an AI strategy. They need one or two things that save time on Monday morning. We sit with your team, find those, set them up, and show people how to use them.',
+    link: { href: '/services#ai-readiness', label: 'How the AI assessment works' },
   },
 ];
 
 const steps = [
-  {
-    n: '1',
-    title: 'Send one bill. It takes two minutes.',
-    body: 'Any recent internet, phone, or wireless invoice. We email you a secure upload link so nothing travels as an attachment.',
-  },
-  {
-    n: '2',
-    title: 'Get it back marked up within 24 hours.',
-    body: 'We flag what is junk, what is overpriced, and exactly what we would negotiate. If the bill is clean, we tell you that too.',
-  },
-  {
-    n: '3',
-    title: 'You decide.',
-    body: 'Fix it yourself with our markup, or let us negotiate it with the carrier. You keep your providers. If we do not save you money, you pay nothing.',
-  },
-];
-
-const ai = [
-  {
-    n: '01',
-    title: 'Find the right first use',
-    body: 'We map where your team loses hours, such as email, scheduling, quotes, and paperwork, and pick the one or two tasks where AI pays back fastest.',
-  },
-  {
-    n: '02',
-    title: 'Set it up with your tools',
-    body: 'We choose and configure AI tools that fit the software you already run, with sensible rules for privacy and customer data.',
-  },
-  {
-    n: '03',
-    title: 'Train your people',
-    body: 'Short, practical sessions so your staff use it every day, plus a check-in to measure the time saved and adjust.',
-  },
+  { n: '01', title: 'We talk for 30 minutes', body: 'You tell us what you pay for and what\'s bugging you. We ask a lot of questions.' },
+  { n: '02', title: 'You get it in writing', body: 'What we\'d change, what it should save you, and what we\'d charge. You know the price before we start.' },
+  { n: '03', title: 'We do the work', body: 'If you say go, we handle the calls and the setup, then show you the before and after.' },
 ];
 
 const serviceSchema = [
-  'Business internet and phone bill review',
-  'Business wireless and cell phone bill review',
+  'Telecom and technology cost reduction',
   'Carrier contract renewal negotiation',
-  'AI adoption consulting for small business',
+  'Independent technology advisory',
+  'AI readiness assessment and adoption for small business',
 ].map((name) => ({
   '@context': 'https://schema.org',
   '@type': 'Service',
@@ -66,14 +44,12 @@ const serviceSchema = [
   provider: { '@id': 'https://signaladvise.com/#org' },
   areaServed: { '@type': 'Country', name: 'United States' },
 }));
-
-const jsonLd = serviceSchema;
 ---
 
 <Base
-  title="Lower Your Business Internet, Phone and Cell Bills | Signal Advisory, Kansas City"
-  description="Signal Advisory lowers what businesses pay for internet, phone, and cell service. Signal Advisory brings 25+ years of experience from inside the major carriers. Free 24-hour bill review. No savings, no fee."
-  jsonLd={jsonLd}
+  title="Signal Advisory | Lower Technology Costs and AI That Gets Used, Kansas City"
+  description="Independent technology advisor in Kansas City. We cut telecom and technology costs, advise on the systems you run, and help small businesses adopt AI that actually gets used. 25+ years inside the major carriers."
+  jsonLd={serviceSchema}
 >
   <Nav />
 
@@ -81,36 +57,33 @@ const jsonLd = serviceSchema;
   <section class="relative overflow-hidden">
     <canvas id="wave" class="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true"></canvas>
     <div class="relative container mx-auto max-w-6xl px-4 pb-16 pt-10 md:px-10 md:pb-24 md:pt-16">
-      <div class="rounded-2xl border border-ink/20 bg-gradient-to-b from-paper/70 via-paper/30 to-paper/0 p-6 shadow-[0_0_80px_rgb(255_255_255/0.05)] md:p-12">
+      <div class="glass p-6 md:p-12">
         <div class="mb-10 flex flex-wrap items-center justify-between gap-4 border-b border-ink/10 pb-5 font-mono text-[11px] uppercase tracking-[0.2em] text-stone">
-          <span class="flex flex-wrap gap-x-6 gap-y-1"><span>:Telecom</span><span>:Technology</span><span>:AI</span></span>
-          <span class="text-ink">S · I · G · N · A · L</span>
+          <span>Signal Advisory</span>
           <span class="hidden sm:inline">Kansas City, MO</span>
         </div>
         <div class="grid gap-12 md:grid-cols-[1fr_auto] md:items-end">
           <div>
             <h1 class="display text-3xl font-light leading-[1.1] md:text-5xl lg:text-[3.6rem]">
-              We lower what your business pays for internet, phone, and cell service.
-              <span class="text-ink/45">Then we put AI to work for you.</span>
+              Most businesses pay too much for phone, internet, and tech.
+              <span class="text-ink/45">We help you fix that, and use AI where it actually helps.</span>
             </h1>
             <p class="mt-8 max-w-2xl text-lg leading-relaxed text-ink/75">
-              Send us one bill. We spent 25+ years inside the major carriers and know
-              exactly where they overcharge businesses. We negotiate it down, and if we do
-              not save you money, you pay nothing. You keep your providers.
+              We spent 25 years working inside the big carriers, so we know how the bills are
+              built and where the room is. Now we work for small and mid-sized businesses
+              around Kansas City and beyond.
             </p>
-            <div class="mt-10 flex flex-wrap gap-4">
-              <a href="/audit" class="inline-block rounded-full bg-ink px-8 py-4 text-sm font-semibold text-paper hover:bg-ink/80 transition-colors">
-                Get your free bill review →
+            <div class="mt-10 flex flex-wrap items-center gap-6">
+              <a href={CALL} target="_blank" rel="noopener" class="inline-block rounded-full bg-ink px-8 py-4 text-sm font-semibold text-paper hover:bg-ink/80 transition-colors">
+                Book a 30-minute call →
               </a>
-              <a href="#ai" class="inline-block rounded-full border border-ink/25 px-8 py-4 text-sm font-medium hover:border-ink transition-colors">
-                AI for your business
-              </a>
+              <a href="/audit" class="text-sm text-ink/70 underline underline-offset-4 hover:text-ink">or start with a free bill review</a>
             </div>
           </div>
           <dl class="grid grid-cols-3 gap-6 border-t border-ink/10 pt-8 md:grid-cols-1 md:border-l md:border-t-0 md:pl-10 md:pt-0">
-            <div><dt class="font-mono text-[10px] uppercase tracking-[0.2em] text-stone">Inside carriers</dt><dd class="display text-4xl font-light md:text-6xl">25+<span class="text-ink/40 text-2xl"> yrs</span></dd></div>
+            <div><dt class="font-mono text-[10px] uppercase tracking-[0.2em] text-stone">Inside carriers</dt><dd class="display text-4xl font-light md:text-6xl">25+<span class="text-2xl text-ink/40"> yrs</span></dd></div>
             <div><dt class="font-mono text-[10px] uppercase tracking-[0.2em] text-stone">Providers bid</dt><dd class="display text-4xl font-light text-ink/60 md:text-6xl">200+</dd></div>
-            <div><dt class="font-mono text-[10px] uppercase tracking-[0.2em] text-stone">If no savings</dt><dd class="display text-4xl font-light text-ink/30 md:text-6xl">$0</dd></div>
+            <div><dt class="font-mono text-[10px] uppercase tracking-[0.2em] text-stone">Bill review</dt><dd class="display text-4xl font-light text-ink/30 md:text-6xl">24h</dd></div>
           </dl>
         </div>
       </div>
@@ -118,12 +91,14 @@ const jsonLd = serviceSchema;
   </section>
 
   <script>
-    // Dotted wave field, drawn in perspective. Static frame for reduced motion.
+    // Dotted wave field, drawn in perspective. Static frame for reduced motion;
+    // paused while off-screen or the tab is hidden.
     const c = document.getElementById('wave') as HTMLCanvasElement | null;
     const ctx = c?.getContext('2d');
     if (c && ctx) {
       const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
       let w = 0, h = 0, t = 0;
+      let visible = true;
       const size = () => {
         const r = devicePixelRatio || 1;
         w = c.clientWidth; h = c.clientHeight;
@@ -146,187 +121,116 @@ const jsonLd = serviceSchema;
           }
         }
         t += 0.012;
-        if (!still) requestAnimationFrame(draw);
+        if (!still && visible && !document.hidden) requestAnimationFrame(draw);
       };
+      const resume = () => { if (!still && visible && !document.hidden) requestAnimationFrame(draw); };
+      new IntersectionObserver(([e]) => {
+        const was = visible;
+        visible = e.isIntersecting;
+        if (!was) resume();
+      }).observe(c);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) resume(); });
       size();
-      addEventListener('resize', size);
+      addEventListener('resize', () => { size(); if (still) draw(); });
       draw();
     }
   </script>
 
   <!-- Proof: figures from /results, confirmed by the owner as real engagements. -->
-  <section class="border-t border-ink/10 py-14">
-    <div class="container mx-auto max-w-5xl px-6 md:px-10">
+  <section class="py-16">
+    <div class="container mx-auto max-w-6xl px-4 md:px-10">
       <p class="mb-8 text-xs uppercase tracking-[0.2em] text-stone">Recent results</p>
-      <div class="grid gap-8 md:grid-cols-3">
-        <div>
-          <p class="display text-4xl font-medium text-signal">$94,000</p>
-          <p class="mt-2 text-sm text-ink/70">first-year savings for a ten-location manufacturer, with full redundancy kept</p>
+      <div class="grid gap-4 md:grid-cols-3">
+        <div class="glass p-8">
+          <p class="display text-5xl font-light">$94,000</p>
+          <p class="mt-3 text-sm text-ink/70">first-year savings for a ten-location manufacturer, with full redundancy kept</p>
         </div>
-        <div>
-          <p class="display text-4xl font-medium text-signal">6 to 1</p>
-          <p class="mt-2 text-sm text-ink/70">providers consolidated for a multi-site retailer: one bill, one point of accountability</p>
+        <div class="glass p-8">
+          <p class="display text-5xl font-light">23%</p>
+          <p class="mt-3 text-sm text-ink/70">lower monthly telecom spend for a single-location business, same carrier, same service</p>
         </div>
-        <div>
-          <p class="display text-4xl font-medium text-signal">23%</p>
-          <p class="mt-2 text-sm text-ink/70">lower monthly telecom spend for a single-location business, same carrier, same service</p>
+        <div class="glass p-8">
+          <p class="display text-5xl font-light">6 → 1</p>
+          <p class="mt-3 text-sm text-ink/70">providers consolidated for a multi-site retailer: one bill, one point of accountability</p>
         </div>
       </div>
-      <a href="/results" class="mt-8 inline-block text-sm font-medium text-signal hover:underline">See how we did it →</a>
+      <a href="/results" class="mt-8 inline-block text-sm font-medium underline underline-offset-4 hover:text-ink/70">Read the case studies →</a>
     </div>
   </section>
 
-  <!-- Testimonials: verbatim quotes supplied by the owner from St. James. -->
-  <section class="border-t border-ink/10 py-14">
-    <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <p class="mb-3 text-xs uppercase tracking-[0.2em] text-stone">What clients say</p>
-      <p class="mb-8 max-w-2xl text-sm text-ink/70">For St. James Church we brought the same consultative approach to a different problem: a website and staff portal they can actually run themselves.</p>
-      <div class="grid gap-10 md:grid-cols-2">
-        <figure>
-          <blockquote class="display text-xl leading-snug">“Brandon, thank you for making our lives easier and the website so much more manageable.”</blockquote>
-          <figcaption class="mt-3 text-sm text-stone">Audrey, Rector, St. James</figcaption>
-        </figure>
-        <figure>
-          <blockquote class="display text-xl leading-snug">“Brandon, it is so much easier to make changes and process updates through the portal you built us.”</blockquote>
-          <figcaption class="mt-3 text-sm text-stone">Office Manager, St. James</figcaption>
-        </figure>
-      </div>
-    </div>
-  </section>
-
-  <!-- What we do -->
-  <section id="what-we-do" class="border-t border-ink/10 py-24">
-    <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">What we actually do</p>
-      <h2 class="display mb-6 max-w-3xl text-3xl font-normal leading-tight md:text-4xl">
-        Three bills. One job: make them smaller.
+  <!-- Services -->
+  <section id="what-we-do" class="py-16">
+    <div class="container mx-auto max-w-6xl px-4 md:px-10">
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">What we do</p>
+      <h2 id="ai" class="display mb-12 max-w-3xl scroll-mt-24 text-3xl font-light leading-tight md:text-5xl">
+        What we can help with.
       </h2>
-      <p class="mb-14 max-w-2xl text-ink/75 leading-relaxed">
-        If your business pays a carrier for it, we can review it. These are the three places
-        almost every small business is overpaying without knowing it.
-      </p>
-      <div class="grid gap-6 md:grid-cols-3">
-        {bills.map((b) => (
-          <div class="flex flex-col border border-ink/10 p-8">
-            <h3 class="display text-xl font-medium mb-4">{b.title}</h3>
-            <p class="text-ink/70 leading-relaxed text-[15px]">{b.body}</p>
+      <div class="grid gap-4 md:grid-cols-3">
+        {services.map((s) => (
+          <div class="glass flex flex-col p-8">
+            <p class="mb-6 font-mono text-xs text-stone">{s.n}</p>
+            <h3 class="display mb-3 text-2xl font-normal">{s.title}</h3>
+            <p class="flex-1 text-[15px] leading-relaxed text-ink/70">{s.body}</p>
+            <a href={s.link.href} class="mt-8 text-sm font-medium underline underline-offset-4 hover:text-ink/70">{s.link.label} →</a>
           </div>
         ))}
       </div>
     </div>
   </section>
 
-  <!-- AI adoption -->
-  <section id="ai" class="border-t border-ink/10 py-24">
-    <div class="container mx-auto max-w-5xl px-6 md:px-10">
-      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">AI for small business</p>
-      <h2 class="display mb-6 max-w-3xl text-3xl font-normal leading-tight md:text-4xl">
-        Put AI to work in your business.
-        <span class="text-signal">Without the hype or the guesswork.</span>
-      </h2>
-      <p class="mb-14 max-w-2xl text-ink/75 leading-relaxed">
-        The same consultative approach we bring to your bills, applied to AI. We start with
-        how your team actually works, find the tasks worth automating, and set up tools your
-        people will use. You keep control of your data and you only pay for what earns its keep.
-      </p>
-      <div class="grid gap-6 md:grid-cols-3">
-        {ai.map((a) => (
-          <div class="flex flex-col rounded-md border border-ink/10 bg-ink/[0.03] p-8">
-            <p class="mb-4 font-mono text-xs text-signal">{a.n}</p>
-            <h3 class="display text-xl font-medium mb-3">{a.title}</h3>
-            <p class="text-ink/70 leading-relaxed text-[15px]">{a.body}</p>
-          </div>
-        ))}
-      </div>
-      <a href="https://calendly.com/signaladvise-info/30min" target="_blank" rel="noopener" class="mt-10 inline-block text-sm font-medium text-signal hover:underline">Talk through AI for your business →</a>
-    </div>
-  </section>
-
-  <!-- How it works -->
-  <section id="how-it-works" class="border-t border-ink/10 py-24">
-    <div class="container mx-auto max-w-5xl px-6 md:px-10">
+  <!-- How an engagement works -->
+  <section id="how-it-works" class="py-16">
+    <div class="container mx-auto max-w-6xl px-4 md:px-10">
       <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">How it works</p>
-      <h2 class="display mb-16 max-w-3xl text-3xl font-normal leading-tight md:text-4xl">
-        Three steps. Nothing to install, nothing to switch.
-      </h2>
-      <div class="grid gap-10 md:grid-cols-3">
+      <h2 class="display mb-12 max-w-3xl text-3xl font-light leading-tight md:text-5xl">How working with us goes.</h2>
+      <div class="grid gap-10 border-t border-ink/10 pt-10 md:grid-cols-3">
         {steps.map((s) => (
           <div>
-            <p class="mb-3 font-mono text-xs text-stone">Step {s.n}</p>
-            <p class="display text-xl font-medium leading-snug mb-3">{s.title}</p>
-            <p class="text-ink/70 leading-relaxed text-[15px]">{s.body}</p>
+            <p class="mb-4 font-mono text-xs text-stone">{s.n}</p>
+            <p class="display mb-3 text-xl">{s.title}</p>
+            <p class="text-[15px] leading-relaxed text-ink/70">{s.body}</p>
           </div>
         ))}
       </div>
     </div>
   </section>
 
-  <!-- Why Signal Advisory -->
-  <section id="why" class="border-t border-ink/10 py-24">
-    <div class="container mx-auto max-w-5xl px-6 md:px-10 grid gap-12 md:grid-cols-5">
-      <div class="md:col-span-3">
-        <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Why it works</p>
-        <h2 class="display mb-6 text-3xl font-normal leading-tight md:text-4xl">
-          25 years on the other side of the table.
-        </h2>
-        <p class="text-ink/75 leading-relaxed mb-5">
-          Signal Advisory brings more than 25 years of experience from inside the major U.S.
-          carriers, pricing and structuring the very contracts businesses sign. We know which
-          fees are negotiable, which "taxes" are not actually taxes, and what a carrier will
-          really concede when someone who knows the playbook asks.
-        </p>
-        <p class="text-ink/75 leading-relaxed">
-          Signal Advisory is independent. We are not tied to any provider, we do not sell
-          carriers, and we do not get paid by you unless your bill goes down.
-        </p>
-        <a href="/results" class="mt-8 inline-block text-sm font-medium text-signal hover:underline">
-          See what the work looks like →
-        </a>
-      </div>
-      <div class="md:col-span-2 border border-ink/10 p-8">
-        <p class="display text-xl font-medium mb-2">Signal Advisory</p>
-        <p class="text-sm text-stone mb-6">Independent telecom advisory · Kansas City, MO</p>
-        <p class="text-sm text-ink/80 leading-relaxed mb-6">
-          A dedicated advisor on every account. Not a franchise, not a call center, not a carrier sales team.
-        </p>
-        <p class="text-sm">
-          <a href="tel:+18163553350" class="font-medium hover:text-signal">816-355-3350</a><br />
-          <a href="mailto:info@signaladvise.com" class="font-medium hover:text-signal">info@signaladvise.com</a>
-        </p>
+  <!-- The advisor: credentials, brand-first (no personal name, by owner request). -->
+  <section id="why" class="py-16">
+    <div class="container mx-auto max-w-6xl px-4 md:px-10">
+      <div class="glass grid gap-10 p-8 md:grid-cols-5 md:p-12">
+        <div class="md:col-span-3">
+          <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">Your advisor</p>
+          <h2 class="display mb-6 text-3xl font-light leading-tight md:text-4xl">Who you'll be working with.</h2>
+          <p class="mb-5 leading-relaxed text-ink/75">
+            Signal Advisory is a small firm based in Kansas City. Our founder spent more than
+            25 years inside the major U.S. carriers, pricing and writing the same contracts our
+            clients now ask us to fix.
+          </p>
+          <p class="leading-relaxed text-ink/75">
+            When you call, you get the person doing the work.
+          </p>
+        </div>
+        <ul class="space-y-5 border-t border-ink/10 pt-8 text-sm md:col-span-2 md:border-l md:border-t-0 md:pl-10 md:pt-0">
+          <li><span class="block font-mono text-[10px] uppercase tracking-[0.2em] text-stone">Experience</span>25+ years inside the major U.S. carriers</li>
+          <li><span class="block font-mono text-[10px] uppercase tracking-[0.2em] text-stone">Reach</span>Competitive bids across 200+ providers</li>
+          <li><span class="block font-mono text-[10px] uppercase tracking-[0.2em] text-stone">Procurement</span>NDA, MSA, W-9 and insurance on request</li>
+          <li><span class="block font-mono text-[10px] uppercase tracking-[0.2em] text-stone">References</span>Available on request, plus <a href="/results" class="underline underline-offset-4">case studies</a></li>
+        </ul>
       </div>
     </div>
   </section>
 
-
-
   <!-- Final CTA -->
-  <section id="contact" class="border-t border-ink/10 bg-signal/[0.04] py-24 text-ink">
+  <section id="contact" class="py-24">
     <div class="container mx-auto max-w-3xl px-6 text-center md:px-10">
-      <h2 class="display mb-6 text-3xl font-normal leading-tight md:text-4xl">
-        Send one bill.<br />
-        <em class="text-signal not-italic font-medium">Know where you stand in 24 hours.</em>
-      </h2>
-      <p class="mb-10 text-base text-ink/70 leading-relaxed">
-        Free review. No obligation. If we do not save you money, you pay nothing.
-      </p>
-      <div class="flex flex-wrap justify-center gap-4">
-        <a
-          href="/audit"
-          class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-ink hover:text-paper transition-colors"
-        >
-          Get your free bill review →
-        </a>
-        <a
-          href="https://calendly.com/signaladvise-info/30min"
-          target="_blank"
-          rel="noopener"
-          class="inline-block rounded-sm border border-ink/30 px-8 py-4 text-sm font-semibold text-ink hover:bg-ink hover:text-paper transition-colors"
-        >
-          Book a 15-minute call
-        </a>
-      </div>
+      <h2 class="display mb-6 text-3xl font-light leading-tight md:text-5xl">Want to talk it through?</h2>
+      <p class="mb-10 text-ink/70">Grab 30 minutes on the calendar. If we can't help, we'll tell you.</p>
+      <a href={CALL} target="_blank" rel="noopener" class="inline-block rounded-full bg-ink px-8 py-4 text-sm font-semibold text-paper hover:bg-ink/80 transition-colors">
+        Book a 30-minute call →
+      </a>
       <p class="mt-6 text-sm text-ink/60">
-        Or call <a href="tel:+18163553350" class="underline text-ink/80">816-355-3350</a> · <a href="mailto:info@signaladvise.com" class="underline text-ink/80">info@signaladvise.com</a>
+        Or call <a href="tel:+18163553350" class="underline">816-355-3350</a> · <a href="mailto:info@signaladvise.com" class="underline">info@signaladvise.com</a>
       </p>
     </div>
   </section>
