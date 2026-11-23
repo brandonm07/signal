@@ -4,15 +4,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: 'var(--ink)',
-        paper: 'var(--paper)',
-        signal: 'var(--signal)',
-        moss: 'var(--moss)',
-        stone: 'var(--stone)',
+        ink: 'rgb(var(--ink) / <alpha-value>)',
+        paper: 'rgb(var(--paper) / <alpha-value>)',
+        signal: 'rgb(var(--signal) / <alpha-value>)',
+        moss: 'rgb(var(--moss) / <alpha-value>)',
+        stone: 'rgb(var(--stone) / <alpha-value>)',
       },
       fontFamily: {
-        display: ['"Source Serif 4"', 'Georgia', 'serif'],
-        sans: ['Manrope', 'system-ui', 'sans-serif'],
+        display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
       },
     },
   },
