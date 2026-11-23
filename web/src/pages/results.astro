@@ -35,7 +35,7 @@ const cases = [
 
 <Base
   title="Results | Signal Advisory"
-  description="Anonymized client results across small business, midmarket, and enterprise. Real engagements, identities withheld under NDA. References available on request."
+  description="Anonymized client results across small business, midmarket, and enterprise. Real engagements. Most clients are anonymized under NDA; St. James is named with permission. References available on request."
 >
   <Nav />
 
@@ -46,7 +46,7 @@ const cases = [
       <em class="text-signal not-italic font-medium">looks like.</em>
     </h1>
     <p class="mt-8 max-w-2xl text-lg leading-relaxed text-ink/80">
-      Real engagements, identities withheld under NDA. References available on request.
+      Real engagements. Most clients are anonymized under NDA; St. James is named with permission. References available on request.
     </p>
     <p class="mt-4 max-w-2xl text-sm leading-relaxed text-stone">
       Savings are measured against the client's bills before we started, on the carrier's own invoices.
@@ -81,9 +81,44 @@ const cases = [
       ))}
     </div>
 
+    <!-- Named with the client's written permission; quotes verbatim. -->
+    <div id="st-james" class="mt-16 border-t border-ink/10 pt-10">
+      <div class="flex flex-wrap items-baseline gap-x-6 gap-y-2 mb-8">
+        <p class="text-xs uppercase tracking-[0.15em] text-stone">Technology advisory</p>
+        <p class="display text-4xl font-medium">St. James Church</p>
+      </div>
+      <div class="grid gap-8 md:grid-cols-3 text-sm">
+        <div>
+          <p class="mb-2 text-xs uppercase tracking-[0.12em] text-stone">Situation</p>
+          <p class="text-ink/75 leading-relaxed">A busy parish staff found the church website hard to keep current, and routine changes and updates took too much time.</p>
+        </div>
+        <div>
+          <p class="mb-2 text-xs uppercase tracking-[0.12em] text-stone">What we did</p>
+          <p class="text-ink/75 leading-relaxed">Listened to how the staff actually works, then rebuilt the website and built a staff portal so they can make changes and process updates themselves.</p>
+        </div>
+        <div>
+          <p class="mb-2 text-xs uppercase tracking-[0.12em] text-stone">Outcome</p>
+          <p class="text-ink/75 leading-relaxed">A website the staff can run without outside help, and a simpler way to handle day-to-day updates.</p>
+        </div>
+      </div>
+      <div class="mt-10 grid gap-4 md:grid-cols-2">
+        <figure class="glass p-8">
+          <blockquote class="display text-xl leading-snug">“Brandon, thank you for making our lives easier and the website so much more manageable.”</blockquote>
+          <figcaption class="mt-3 text-sm text-stone">Audrey, Rector, St. James</figcaption>
+        </figure>
+        <figure class="glass p-8">
+          <blockquote class="display text-xl leading-snug">“Brandon, it is so much easier to make changes and process updates through the portal you built us.”</blockquote>
+          <figcaption class="mt-3 text-sm text-stone">Office Manager, St. James</figcaption>
+        </figure>
+      </div>
+    </div>
+
     <div class="mt-16 border-t border-ink/10 pt-10">
-      <a href="/audit" class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-ink transition-colors">
-        Send us one invoice →
+      <a href="https://calendly.com/signaladvise-info/30min" target="_blank" rel="noopener" class="mr-6 inline-block rounded-full bg-ink px-8 py-4 text-sm font-semibold text-paper hover:bg-ink/80 transition-colors">
+        Book a 30-minute call →
+      </a>
+      <a href="/audit" class="text-sm text-ink/70 underline underline-offset-4 hover:text-ink">
+        or send us one invoice
       </a>
     </div>
   </section>
