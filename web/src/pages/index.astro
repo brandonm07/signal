@@ -36,10 +36,29 @@ const steps = [
   },
 ];
 
+const ai = [
+  {
+    n: '01',
+    title: 'Find the right first use',
+    body: 'We map where your team loses hours, such as email, scheduling, quotes, and paperwork, and pick the one or two tasks where AI pays back fastest.',
+  },
+  {
+    n: '02',
+    title: 'Set it up with your tools',
+    body: 'We choose and configure AI tools that fit the software you already run, with sensible rules for privacy and customer data.',
+  },
+  {
+    n: '03',
+    title: 'Train your people',
+    body: 'Short, practical sessions so your staff use it every day, plus a check-in to measure the time saved and adjust.',
+  },
+];
+
 const serviceSchema = [
   'Business internet and phone bill review',
   'Business wireless and cell phone bill review',
   'Carrier contract renewal negotiation',
+  'AI adoption consulting for small business',
 ].map((name) => ({
   '@context': 'https://schema.org',
   '@type': 'Service',
@@ -154,6 +173,32 @@ const jsonLd = serviceSchema;
     </div>
   </section>
 
+  <!-- AI adoption -->
+  <section id="ai" class="border-t border-ink/10 py-24">
+    <div class="container mx-auto max-w-5xl px-6 md:px-10">
+      <p class="mb-4 text-xs uppercase tracking-[0.2em] text-stone">AI for small business</p>
+      <h2 class="display mb-6 max-w-3xl text-3xl font-normal leading-tight md:text-4xl">
+        Put AI to work in your business.
+        <span class="text-signal">Without the hype or the guesswork.</span>
+      </h2>
+      <p class="mb-14 max-w-2xl text-ink/75 leading-relaxed">
+        The same consultative approach we bring to your bills, applied to AI. We start with
+        how your team actually works, find the tasks worth automating, and set up tools your
+        people will use. You keep control of your data and you only pay for what earns its keep.
+      </p>
+      <div class="grid gap-6 md:grid-cols-3">
+        {ai.map((a) => (
+          <div class="flex flex-col rounded-md border border-ink/10 bg-ink/[0.03] p-8">
+            <p class="mb-4 font-mono text-xs text-signal">{a.n}</p>
+            <h3 class="display text-xl font-medium mb-3">{a.title}</h3>
+            <p class="text-ink/70 leading-relaxed text-[15px]">{a.body}</p>
+          </div>
+        ))}
+      </div>
+      <a href="https://calendly.com/signaladvise-info/30min" target="_blank" rel="noopener" class="mt-10 inline-block text-sm font-medium text-signal hover:underline">Talk through AI for your business →</a>
+    </div>
+  </section>
+
   <!-- How it works -->
   <section id="how-it-works" class="border-t border-ink/10 py-24">
     <div class="container mx-auto max-w-5xl px-6 md:px-10">
@@ -212,19 +257,19 @@ const jsonLd = serviceSchema;
 
 
   <!-- Final CTA -->
-  <section id="contact" class="border-t border-ink/10 bg-ink py-24 text-paper">
+  <section id="contact" class="border-t border-ink/10 bg-signal/[0.04] py-24 text-ink">
     <div class="container mx-auto max-w-3xl px-6 text-center md:px-10">
       <h2 class="display mb-6 text-3xl font-normal leading-tight md:text-4xl">
         Send one bill.<br />
         <em class="text-signal not-italic font-medium">Know where you stand in 24 hours.</em>
       </h2>
-      <p class="mb-10 text-base text-paper/70 leading-relaxed">
+      <p class="mb-10 text-base text-ink/70 leading-relaxed">
         Free review. No obligation. If we do not save you money, you pay nothing.
       </p>
       <div class="flex flex-wrap justify-center gap-4">
         <a
           href="/audit"
-          class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-paper hover:text-ink transition-colors"
+          class="inline-block rounded-sm bg-signal px-8 py-4 text-sm font-semibold text-paper hover:bg-ink hover:text-paper transition-colors"
         >
           Get your free bill review →
         </a>
@@ -232,13 +277,13 @@ const jsonLd = serviceSchema;
           href="https://calendly.com/signaladvise-info/30min"
           target="_blank"
           rel="noopener"
-          class="inline-block rounded-sm border border-paper/30 px-8 py-4 text-sm font-semibold text-paper hover:bg-paper hover:text-ink transition-colors"
+          class="inline-block rounded-sm border border-ink/30 px-8 py-4 text-sm font-semibold text-ink hover:bg-ink hover:text-paper transition-colors"
         >
           Book a 15-minute call
         </a>
       </div>
-      <p class="mt-6 text-sm text-paper/60">
-        Or call <a href="tel:+18163553350" class="underline text-paper/80">816-355-3350</a> · <a href="mailto:info@signaladvise.com" class="underline text-paper/80">info@signaladvise.com</a>
+      <p class="mt-6 text-sm text-ink/60">
+        Or call <a href="tel:+18163553350" class="underline text-ink/80">816-355-3350</a> · <a href="mailto:info@signaladvise.com" class="underline text-ink/80">info@signaladvise.com</a>
       </p>
     </div>
   </section>
